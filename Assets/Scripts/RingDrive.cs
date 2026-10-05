@@ -11,6 +11,7 @@ public class RingDrive : MonoBehaviour
  Vector3 velocity; float yaw, steer, lookYaw, lookPitch, throttle, rpm=900, boost, lapStart, best;
  int nearest, lastIndex, checkpoints, lap=1, gear=1, view; bool paused, muted, automatic, smokeBrake, modelPreview;
  DrivingSettings dynamics, draft; bool settingsOpen, wasPaused; float pauseStarted;
+ float fpsElapsed; int fpsFrames; string fpsText="FPS --";
  float length, smokeTime; GUIStyle label, big, small; Texture2D map;
  readonly float[] ratios={3.45f,1.95f,1.37f,1.03f,.78f};
  public static float Ground(float x,float z)=>4f*Mathf.Sin(x*.0018f)+6f*Mathf.Sin(z*.002f)+3f*Mathf.Sin((x+z)*.003f);
@@ -77,6 +78,9 @@ public class RingDrive : MonoBehaviour
  public float DistanceToTrack(Vector3 p,out int index){float best=1e20f;index=0;for(int i=0;i<track.Count;i++){var a=track[i];var b=track[(i+1)%track.Count];a.y=b.y=p.y;var d=b-a;var q=a+d*Mathf.Clamp01(Vector3.Dot(p-a,d)/d.sqrMagnitude);float s=(p-q).sqrMagnitude;if(s<best){best=s;index=i;}}return Mathf.Sqrt(best);}
  void ResetCar(int i){nearest=i;car.position=track[i]+Vector3.up*.15f;yaw=Quaternion.LookRotation(track[(i+1)%track.Count]-track[i]).eulerAngles.y;car.rotation=Quaternion.Euler(0,yaw,0);velocity=Vector3.zero;reversing=false;steer=0;lookYaw=lookPitch=0;checkpoints=0;lapStart=Time.time;lastIndex=i;}
  void Update(){
+  fpsElapsed+=Time.unscaledDeltaTime;fpsFrames++;
+  if(fpsElapsed>=.5f){fpsText=$"{fpsFrames/fpsElapsed:0} FPS  /  {fpsElapsed*1000/fpsFrames:0.0} ms";fpsElapsed=0;fpsFrames=0;}
+
   if(Input.GetKeyDown(KeyCode.F3)){if(settingsOpen)CloseSettings(false);else OpenSettings();}
   if(Input.GetKeyDown(KeyCode.Escape)){if(settingsOpen)CloseSettings(false);else SetPaused(!paused);}
   if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C))view=(view+1)%3;if(!settingsOpen && Input.GetKeyDown(KeyCode.R))ResetCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))ResetCar(0);if(Input.GetKeyDown(KeyCode.F2))ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../GotlandRing-screenshot.png"));
@@ -108,6 +112,7 @@ public class RingDrive : MonoBehaviour
   GUI.Label(new Rect(45,742,180,75),(velocity.magnitude*3.6f).ToString("000"),big);GUI.Label(new Rect(180,787,90,25),"km/h",label);GUI.Label(new Rect(285,746,100,65),(reversing?"R":gear.ToString()),big);GUI.Label(new Rect(45,825,320,25),$"{rpm:0} RPM     BOOST {boost*.9f:0.00} bar",small);
   GUI.color=new Color(.15f,.2f,.24f);GUI.DrawTexture(new Rect(45,815,315,5),Texture2D.whiteTexture);GUI.color=new Color(.96f,.3f,.2f);GUI.DrawTexture(new Rect(45,815,315*Mathf.Clamp01(rpm/7000),5),Texture2D.whiteTexture);GUI.color=Color.white;
   GUI.DrawTexture(new Rect(1340,25,235,235),map);var q=MapPoint(car.position);GUI.color=new Color(1,.3f,.2f);GUI.DrawTexture(new Rect(1340+q.x/256*235-4,25+(1-q.y/256)*235-4,8,8),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(1340,268,255,30),$"LAP {lap}   {Format(Time.time-lapStart)}",label);GUI.Label(new Rect(1340,300,255,30),best>0?"BEST "+Format(best):"7.3 km / traced layout",small);
+  GUI.color=new Color(.035f,.055f,.07f,.9f);GUI.DrawTexture(new Rect(1340,335,235,36),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(1352,341,215,26),fpsText,label);
   GUI.Label(new Rect(440,850,880,30),"WASD / ARROWS  Drive     MOUSE  Look     C  Camera     R  Recover     X  Reverse    F3  Dynamics",small);GUI.Label(new Rect(1250,855,350,25),"Mannetroll Solutions AB / Prototype",small);
   if(GUI.Button(new Rect(45,120,170,32),"Dynamics [F3]"))OpenSettings();
   if(paused && !settingsOpen){GUI.color=new Color(0,0,0,.75f);GUI.DrawTexture(new Rect(450,270,700,300),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(510,310,600,65),"PRACTICE PAUSED",big);GUI.Label(new Rect(510,395,600,100),"Escape to resume  |  Right mouse to center head\nHome: restart lap  |  M: mute  |  F2: screenshot",label);if(GUI.Button(new Rect(510,510,180,40),"Quit"))Application.Quit();if(GUI.Button(new Rect(710,510,220,40),"Driving dynamics"))OpenSettings();}

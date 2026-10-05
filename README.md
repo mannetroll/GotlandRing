@@ -38,7 +38,7 @@ The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\Gotland
 - Full circuit hand-traced from the photographed Gotland Ring sign, smoothed and scaled to roughly 7.3 km.
 - Blue-and-white kerbs, limestone runoff, pines, pit wall and wind turbines inspired by the onboard footage.
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
-- Speed/RPM/boost display, minimap and checkpoint-gated lap timing.
+- Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
 
 ## What v0.1.1 is
