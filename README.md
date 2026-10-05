@@ -2,13 +2,13 @@
 
 **A red Impreza. A Baltic circuit. An open practice session.**
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.1/GotlandRing-Portable.exe) | [Release v0.1.1](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.1)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.2/GotlandRing-Portable.exe) | [Release v0.1.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.2)
 
-![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.1/docs/rear-v0.1.1.png)
+![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/rear-v0.1.2.png)
 
-![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.1/docs/cockpit-hires.png)
+![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/cockpit-hires.png)
 
-A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a hand-traced, approximately 7.3 km circuit through open limestone scenery, with the red bonnet and scoop ahead of you.
+A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, with the red bonnet and scoop ahead of you.
 
 ## Get behind the wheel
 
@@ -35,13 +35,13 @@ The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\Gotland
 ## Inside the prototype
 
 - Red bodywork, hood scoop, rear wing and three-gauge dashboard pod based on the reference car.
-- Full circuit hand-traced from the photographed Gotland Ring sign, smoothed and scaled to roughly 7.3 km.
+- Full circuit loaded from the supplied 3 m centerline CSV, preserving local metre coordinates and terrain elevations.
 - Blue-and-white kerbs, limestone runoff, pines, pit wall and wind turbines inspired by the onboard footage.
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
 
-## What v0.1.1 is
+## What v0.1.2 is
 
 A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
 
@@ -99,10 +99,18 @@ Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
 
-## Visual upgrade in v0.1.1
+## Visual upgrade in v0.1.2
 
 The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and natural pine billboards. The procedural car and scenery remain approximations; this is not yet a photorealistic recreation of the reference car. Billboard trees are optimized for driving views and are not full 3D trees. See `docs/ASSET-CREDITS.md` for asset provenance.
 
 The rear now follows IMG_0287: a low curved wing with integrated broad supports, rounded bumper, wraparound rear lamps, boot lettering and blank front and rear number plates.
 
 The cabin includes a solid floor, inner door panels, rear seats and roof lining to eliminate unintended see-through gaps.
+
+## CSV track reconstruction
+
+![Gotland Ring centerline and elevation validation](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/gotland_ring_validation.png)
+
+The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `gotland_ring_full_centerline_3m.csv`. The importer omits only the duplicate closing position. The 2,405 unique points define 7,214.397 m horizontally / 7,218.329 m in 3D, with 23.685 m elevation variation. No horizontal scaling is applied. Short elevation spikes are smoothed locally at runtime using a Gaussian filter with a 9 m standard deviation and 27 m support radius with cosine-tapered affected regions. The source CSV is unchanged; corrections are capped at 1 m, and the broad elevation range is preserved. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
+
+See [CSV documentation](README_CSV.md) and [validation image](gotland_ring_validation.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.

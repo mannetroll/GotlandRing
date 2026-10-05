@@ -1,21 +1,17 @@
-# Gotland Ring - Impreza v0.1.1
+# Gotland Ring - Impreza v0.1.2
 
-Visual update for the Windows driving prototype:
+- Replaced the hand-traced circuit with the supplied 3 m centerline CSV: 2,405 unique points, approximately 7.214 km horizontally, preserving local metre coordinates.
+- Track and driving heights follow the supplied terrain profile. Local smoothing removes short elevation spikes while preserving the 23.686 m overall elevation range; source CSV remains unchanged.
+- Fixed trees appearing on nearby road sections at tight bends. All 820 placed trees pass road/runoff clearance checks.
+- Updated minimap proportions and displayed track length.
+- Retains configurable handling, reverse, FPS/frame-time HUD, curved wing, enclosed cabin and blank plates.
 
-- Restored live FPS and frame-time display below the minimap.
-- Fixed see-through cabin gaps with a solid floor, inner door panels, rear seats and roof lining.
-- Curved rear wing with broad integrated supports, based on IMG_0287.
-- Rounded rear bumper, revised tail lamps, boot lettering and blank front and rear number plates.
-- HDR sky, reflective paint and glass, linear lighting, and 4x MSAA.
-- Scanned asphalt, grass and gravel materials, with natural pine billboards.
-- WASD/arrows, X reverse, configurable driving dynamics with F3, and the red Impreza icon.
+Download **GotlandRing-Portable.exe** for Windows x64. No Unity or .NET installation needed. The unsigned portable EXE extracts its contents to LocalAppData.
 
-Download **GotlandRing-Portable.exe** and run it on Windows x64. No Unity or .NET installation is required. The approximately 97 MB executable extracts the game to LocalAppData. It is unsigned.
+Import and smoothing checks passed, as did the CSV-track driving/braking smoke test. The centerline is a geospatial reconstruction, not a surveyed road model; widths, camber and surrounding scenery remain approximate. The origin is used as the gameplay start, not a surveyed start/finish line.
 
-Driving/braking smoke test passed: 23.9 m/s, 527.7 m from the start, braking to 0.00 m/s. Short rendering measurement: approximately 32 FPS at 1600x900 on RTX 3090 in the test session.
+The source CSV, validation image and README_CSV.md are included in the extracted distribution. Attribution: OpenStreetMap contributors (ODbL 1.0); Lantmateriet Min karta (CC BY 4.0), processed information. See README_CSV.md for full provenance.
 
-This is still a procedural prototype, not a photorealistic replica or calibrated simulator. Track geometry is approximate, trees use billboards, and scenery collision/damage are not implemented. See the README and asset credits for details.
+![Updated circuit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/cockpit-hires.png)
 
-![Updated rear](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.1/docs/rear-v0.1.1.png)
-
-![Cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.1/docs/cockpit-hires.png)
+![Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/rear-v0.1.2.png)

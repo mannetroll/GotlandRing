@@ -4,6 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEditor.Build.Reporting;
 public static class BuildGame {
  public static void Build() {
+  TrackImportChecks.Run();
   PlayerSettings.colorSpace=ColorSpace.Linear;
   foreach(var path in System.IO.Directory.GetFiles("Assets/Resources/Visuals","*.jpg")){
    var importer=(TextureImporter)AssetImporter.GetAtPath(path);if(importer==null)continue;importer.maxTextureSize=2048;importer.anisoLevel=8;
@@ -17,7 +18,7 @@ public static class BuildGame {
   if(!sky){sky=new Material(Shader.Find("Skybox/Panoramic"));AssetDatabase.CreateAsset(sky,skyPath);}
   sky.SetTexture("_MainTex",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Visuals/Sky.hdr"));sky.SetFloat("_Exposure",.8f);sky.SetFloat("_Rotation",145);
   EditorUtility.SetDirty(sky);
-  PlayerSettings.bundleVersion="0.1.1";
+  PlayerSettings.bundleVersion="0.1.2";
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
   PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
   PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900;
@@ -33,6 +34,7 @@ public static class BuildGame {
   EditorSceneManager.SaveScene(scene,"Assets/Scenes/Gotland.unity");
   var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Scenes/Gotland.unity"},locationPathName="Build/GotlandRing.exe",target=BuildTarget.StandaloneWindows64,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded) throw new System.Exception("Build failed: "+report.summary.result);
+  foreach(var file in new[]{"README_CSV.md","gotland_ring_full_centerline_3m.csv","gotland_ring_validation.png"})System.IO.File.Copy(file,System.IO.Path.Combine("Build",file),true);
   Debug.Log("GOTLAND_BUILD_SUCCESS "+report.summary.totalSize);
  }
 }
