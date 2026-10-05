@@ -10,6 +10,6 @@ Download **GotlandRing-Portable.exe** and run it. Copy this one file to another 
 
 This is an early prototype with simplified handling, approximate track geometry, and no scenery collisions, damage. See the README for build instructions and limitations.
 
-![Gotland Ring cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/cockpit.png)
+![Gotland Ring cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/cockpit-hires.png)
 
 ![Updated Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/impreza.png)

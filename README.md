@@ -6,7 +6,7 @@
 
 ![Updated Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/impreza.png)
 
-![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/cockpit.png)
+![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/cockpit-hires.png)
 
 A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a hand-traced, approximately 7.3 km circuit through open limestone scenery, with the red bonnet and scoop ahead of you.
 
