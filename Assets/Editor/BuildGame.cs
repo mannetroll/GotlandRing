@@ -5,6 +5,7 @@ using UnityEditor.Build.Reporting;
 public static class BuildGame {
  public static void Build() {
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
+  PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
   PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900;
   PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.runInBackground=false;
   PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);

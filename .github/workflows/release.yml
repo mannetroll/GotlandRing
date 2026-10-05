@@ -31,5 +31,7 @@ jobs:
             gh release create $tag --verify-tag --title "Gotland Ring $tag" --notes-file docs/release-notes.md
             if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
           }
+          gh release edit $tag --notes-file docs/release-notes.md
+          if ($LASTEXITCODE -ne 0) { throw 'Release notes update failed' }
           gh release upload $tag dist/GotlandRing-Portable.exe --clobber
           if ($LASTEXITCODE -ne 0) { throw 'EXE upload failed' }

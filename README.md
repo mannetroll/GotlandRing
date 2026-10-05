@@ -2,7 +2,9 @@
 
 **A red Impreza. A Baltic circuit. An open practice session.**
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.0/GotlandRing-Portable.exe) · [Release v0.1.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.0)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.0/GotlandRing-Portable.exe) Â· [Release v0.1.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.0)
+
+![Updated Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/impreza.png)
 
 ![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/cockpit.png)
 
@@ -16,9 +18,11 @@ The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\Gotland
 
 | Control | Action |
 |---|---|
-| Up arrow | Accelerate |
-| Down arrow | Brake |
-| Left / right arrows | Steer |
+| W / Up arrow | Accelerate |
+| S / Down arrow | Brake |
+| A / D or Left / Right arrows | Steer |
+| X | Reverse (brakes before changing direction) |
+| F3 | Configure and save driving dynamics |
 | Mouse | Turn your head |
 | Right mouse | Center your view |
 | C | Cockpit / bonnet / chase camera |
@@ -39,7 +43,7 @@ The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\Gotland
 
 ## What v0.1.0 is
 
-A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, reverse gear, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
+A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
 
 The original photographs and videos stay outside the repository. The derived engine sample required by the game is included.
 
@@ -66,6 +70,8 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 | Location | Purpose |
 |---|---|
 | `Assets/Scripts/RingDrive.cs` | Circuit, scenery, car, handling, controls and HUD |
+| `Assets/Scripts/ImprezaModel.cs` | Detailed procedural car geometry |
+| `Assets/Scripts/DrivingSettings.cs` | Saved handling configuration |
 | `Assets/Scripts/BoxerAudio.cs` | Responsive engine synthesis and recording layer |
 | `Assets/Editor/BuildGame.cs` | Scene generation and Windows build |
 | `PortableLauncher/` | Single-file launcher and game payload |
@@ -73,6 +79,20 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 
 ## Verification
 
+The refreshed build passed configuration save/cancel, persistence and pause-restoration checks. The portable EXE was rebuilt and its embedded Impreza icon verified. Fresh screenshots above were captured from the current portable build.
+
+### Earlier driving smoke test
+
 The portable EXE was extracted and run on the Windows RTX 3090 machine. Automated driving reached **24.0 m/s (86.4 km/h)** and approximately **578 m** displacement; the braking test stopped the car at **0.00 m/s**. Runtime logs showed no game exceptions in the corrected build. This is a smoke test, not a full-lap handling validation.
 
 Mannetroll Solutions AB
+
+Steering is tuned for keyboard play: faster turn-in and centering, a wider steering range, and stronger asphalt grip. These are arcade-friendly settings rather than measured Impreza tire limits.
+
+The remodeled Impreza uses a continuous curved body mesh with wheel-arch openings, rounded bumpers and scoop, detailed alloys, tinted side/rear glazing, and circular cockpit instruments.
+
+### Driving dynamics
+
+Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Default road cornering grip is now 28 m/s² for forgiving arcade handling. The body has denser curved surfaces and fuller fenders, with 96-segment tires.
+
+Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
