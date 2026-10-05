@@ -166,8 +166,8 @@ public static class ImprezaModel
   Rounded("Front lip",root,new Vector3(0,.282f,2.10f),new Vector3(1.61f,.065f,.23f),.028f,paint);
   Rounded("Rear trunk closing panel",root,new Vector3(0,.68f,-2.12f),new Vector3(1.56f,.27f,.08f),.035f,paint);
   Rounded("Front number plate",root,new Vector3(0,.51f,2.23f),new Vector3(.40f,.09f,.015f),.006f,dial);
-  var plateMaterial=new Material(dial);plateMaterial.mainTexture=Resources.Load<Texture2D>("Visuals/NumberPlate");plateMaterial.color=Color.white;
-  var plate=GameObject.CreatePrimitive(PrimitiveType.Quad);plate.name="RNY 994";plate.transform.SetParent(root,false);plate.transform.localPosition=new Vector3(0,.51f,2.243f);plate.transform.localRotation=Quaternion.Euler(0,180,0);plate.transform.localScale=new Vector3(.40f,.09f,1);plate.GetComponent<Renderer>().sharedMaterial=plateMaterial;Object.Destroy(plate.GetComponent<Collider>());
+  var plateMaterial=new Material(dial);plateMaterial.color=new Color(.90f,.91f,.87f);
+  var plate=GameObject.CreatePrimitive(PrimitiveType.Quad);plate.name="Blank front plate";plate.transform.SetParent(root,false);plate.transform.localPosition=new Vector3(0,.51f,2.243f);plate.transform.localRotation=Quaternion.Euler(0,180,0);plate.transform.localScale=new Vector3(.40f,.09f,1);plate.GetComponent<Renderer>().sharedMaterial=plateMaterial;Object.Destroy(plate.GetComponent<Collider>());
  }
  static void Glass(Transform root,Material material,Vector3 a,Vector3 b,Vector3 c,Vector3 d){var v=new List<Vector3>{a,b,c,d};var t=new List<int>{0,1,2,0,2,3};if(Vector3.Dot(Vector3.Cross(b-a,c-a),(a+b+c+d)*.25f-new Vector3(0,1.2f,-.4f))<0){t=new List<int>{0,2,1,0,3,2};}var o=MeshPart("Window glazing",root,v,t,material);o.GetComponent<Renderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;}
  static void Gauge(Transform root,Vector3 p,float r)
