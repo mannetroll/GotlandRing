@@ -63,7 +63,7 @@ public static class ImprezaModel
  public static Transform Create(Transform root,Material red,Material black,Material silver)
  {
   paint=red;rubber=black;alloy=silver;lamp=ColorMat(alloy,"Headlight lens",new Color(.78f,.87f,.91f));tail=ColorMat(paint,"Ruby taillight",new Color(.9f,.009f,.018f));amber=ColorMat(paint,"Amber indicator",new Color(.95f,.35f,.06f));dial=ColorMat(rubber,"White instrument faces",new Color(.83f,.84f,.79f));
-  Body(root);Details(root);
+  Body(root);Details(root);Interior(root);
   Rounded("Rounded front bumper",root,new Vector3(0,.43f,2.05f),new Vector3(1.64f,.26f,.28f),.10f,paint);
   Rounded("Rounded rear bumper",root,new Vector3(0,.43f,-2.045f),new Vector3(1.66f,.30f,.32f),.13f,paint);
   Rounded("Lower grille",root,new Vector3(0,.45f,2.198f),new Vector3(.82f,.15f,.03f),.014f,rubber);
@@ -117,6 +117,20 @@ public static class ImprezaModel
   int triangles=0;foreach(var filter in root.GetComponentsInChildren<MeshFilter>())triangles+=filter.sharedMesh.triangles.Length/3;Debug.Log("IMPREZA_MODEL triangles="+triangles);
   return steering;
  }
+ static void Interior(Transform root){
+  Rounded("Solid cabin floor",root,new Vector3(0,.37f,-.36f),new Vector3(1.52f,.08f,2.28f),.025f,rubber);
+  Rounded("Front cabin firewall",root,new Vector3(0,.66f,.62f),new Vector3(1.49f,.53f,.07f),.025f,rubber);
+  Rounded("Rear cabin bulkhead",root,new Vector3(0,.67f,-1.43f),new Vector3(1.48f,.57f,.07f),.025f,rubber);
+  Rounded("Rear parcel shelf",root,new Vector3(0,.935f,-1.27f),new Vector3(1.47f,.035f,.32f),.015f,rubber);
+  Rounded("Rear seat cushion",root,new Vector3(0,.66f,-1.05f),new Vector3(1.32f,.18f,.49f),.065f,rubber);
+  Rounded("Rear seat back",root,new Vector3(0,.86f,-1.29f),new Vector3(1.30f,.42f,.14f),.055f,rubber);
+  Rounded("Center tunnel",root,new Vector3(0,.55f,-.12f),new Vector3(.25f,.27f,1.39f),.055f,rubber);
+  foreach(int side in new[]{-1,1}){
+   Rounded("Inner door card",root,new Vector3(side*.753f,.69f,-.36f),new Vector3(.065f,.49f,2.03f),.025f,rubber);
+   Rounded("Door armrest",root,new Vector3(side*.707f,.76f,-.12f),new Vector3(.09f,.07f,.43f),.030f,rubber);
+   Rounded("Front seat cushion",root,new Vector3(side*.39f,.66f,-.31f),new Vector3(.44f,.17f,.47f),.065f,rubber);
+  }
+ }
  static float WingHeight(float x)=>.94f+.30f*Mathf.Sqrt(Mathf.Max(0,1-Mathf.Pow(Mathf.Abs(x)/.79f,8)));
  static void CurvedWing(Transform root){
   var v=new List<Vector3>();var t=new List<int>();const int spans=128,sides=24;
@@ -150,6 +164,8 @@ public static class ImprezaModel
   var v=new List<Vector3>();var t=new List<int>();const int nx=32,nz=40;
   for(int z=0;z<=nz;z++)for(int x=0;x<=nx;x++){float u=x*2f/nx-1,w=z/(float)nz;v.Add(new Vector3(u*(.665f+.025f*Mathf.Sin(w*Mathf.PI)),1.515f+.075f*(1-u*u)*Mathf.Sin(w*Mathf.PI),Mathf.Lerp(-1.08f,.08f,w)));}
   for(int z=0;z<nz;z++)for(int x=0;x<nx;x++){int a=z*(nx+1)+x;Quad(t,a,a+nx+1,a+nx+2,a+1);}MeshPart("Compound curved roof panel",root,v,t,paint);
+  var lining=new List<Vector3>(v.Count);foreach(var vertex in v)lining.Add(vertex-Vector3.up*.014f);
+  var inside=new List<int>(t);for(int i=0;i<inside.Count;i+=3){int swap=inside[i+1];inside[i+1]=inside[i+2];inside[i+2]=swap;}MeshPart("Opaque inner roof lining",root,lining,inside,rubber);
  }
  static void Details(Transform root){
   // Connect the nose and tail to the continuous fenders with curved vertical skins.

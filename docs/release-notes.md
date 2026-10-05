@@ -2,6 +2,7 @@
 
 Visual update for the Windows driving prototype:
 
+- Fixed see-through cabin gaps with a solid floor, inner door panels, rear seats and roof lining.
 - Curved rear wing with broad integrated supports, based on IMG_0287.
 - Rounded rear bumper, revised tail lamps, boot lettering and blank front and rear number plates.
 - HDR sky, reflective paint and glass, linear lighting, and 4x MSAA.
