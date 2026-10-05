@@ -139,7 +139,7 @@ public static class ImprezaModel
    Beam("Boot shut line",root,new Vector3(side*.45f,.61f,-2.197f),new Vector3(side*.47f,.837f,-2.19f),.004f,rubber);
    Rounded("Wraparound tail lamp",root,new Vector3(side*.78f,.755f,-2.04f),new Vector3(.075f,.15f,.24f),.035f,tail);
   }
-  var plateMaterial=new Material(dial);plateMaterial.mainTexture=Resources.Load<Texture2D>("Visuals/NumberPlate");plateMaterial.color=Color.white;
+  var plateMaterial=new Material(dial);plateMaterial.color=new Color(.90f,.91f,.87f);
   Rounded("Rear number plate recess",root,new Vector3(0,.412f,-2.208f),new Vector3(.49f,.13f,.02f),.008f,rubber);
   RearDecal(root,"Rear registration plate",plateMaterial,new Vector3(0,.415f,-2.222f),new Vector2(.44f,.10f));
   var badgeMaterial=new Material(dial);badgeMaterial.mainTexture=Resources.Load<Texture2D>("Visuals/RearBadge");badgeMaterial.color=Color.white;

@@ -3,7 +3,7 @@
 Visual update for the Windows driving prototype:
 
 - Curved rear wing with broad integrated supports, based on IMG_0287.
-- Rounded rear bumper, revised tail lamps, boot lettering and rear number plate.
+- Rounded rear bumper, revised tail lamps, boot lettering and a blank rear number plate.
 - HDR sky, reflective paint and glass, linear lighting, and 4x MSAA.
 - Scanned asphalt, grass and gravel materials, with natural pine billboards.
 - WASD/arrows, X reverse, configurable driving dynamics with F3, and the red Impreza icon.

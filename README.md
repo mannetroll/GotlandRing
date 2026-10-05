@@ -103,4 +103,4 @@ Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward 
 
 The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and natural pine billboards. The procedural car and scenery remain approximations; this is not yet a photorealistic recreation of the reference car. Billboard trees are optimized for driving views and are not full 3D trees. See `docs/ASSET-CREDITS.md` for asset provenance.
 
-The rear now follows IMG_0287: a low curved wing with integrated broad supports, rounded bumper, wraparound rear lamps, boot lettering and rear number plate.
+The rear now follows IMG_0287: a low curved wing with integrated broad supports, rounded bumper, wraparound rear lamps, boot lettering and a blank rear number plate.
