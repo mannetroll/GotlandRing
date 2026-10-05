@@ -2,7 +2,7 @@
 
 **A red Impreza. A Baltic circuit. An open practice session.**
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.0/GotlandRing-Portable.exe) Â· [Release v0.1.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.0)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.0/GotlandRing-Portable.exe) | [Release v0.1.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.0)
 
 ![Updated Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/impreza.png)
 
@@ -93,6 +93,6 @@ The remodeled Impreza uses a continuous curved body mesh with wheel-arch opening
 
 ### Driving dynamics
 
-Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Default road cornering grip is now 28 m/s² for forgiving arcade handling. The body has denser curved surfaces and fuller fenders, with 96-segment tires.
+Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Default road cornering grip is now 28 m/s^2 for forgiving arcade handling. The body has denser curved surfaces and fuller fenders, with 96-segment tires.
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
