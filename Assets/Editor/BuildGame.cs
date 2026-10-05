@@ -4,6 +4,20 @@ using UnityEditor.SceneManagement;
 using UnityEditor.Build.Reporting;
 public static class BuildGame {
  public static void Build() {
+  PlayerSettings.colorSpace=ColorSpace.Linear;
+  foreach(var path in System.IO.Directory.GetFiles("Assets/Resources/Visuals","*.jpg")){
+   var importer=(TextureImporter)AssetImporter.GetAtPath(path);if(importer==null)continue;importer.maxTextureSize=2048;importer.anisoLevel=8;
+   if(path.Contains("Normal"))importer.textureType=TextureImporterType.NormalMap;
+   importer.SaveAndReimport();
+  }
+  if(!AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/Visuals/Glass.mat"))AssetDatabase.CreateAsset(new Material(Shader.Find("Gotland/AutomotiveGlass")),"Assets/Resources/Visuals/Glass.mat");
+  var pinePath="Assets/Resources/Visuals/Pine.mat";var pine=AssetDatabase.LoadAssetAtPath<Material>(pinePath);if(!pine){pine=new Material(Shader.Find("Gotland/Pine"));AssetDatabase.CreateAsset(pine,pinePath);}pine.mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Visuals/Pine.png");EditorUtility.SetDirty(pine);
+  var skyPath="Assets/Resources/Visuals/PhotographicSky.mat";
+  var sky=AssetDatabase.LoadAssetAtPath<Material>(skyPath);
+  if(!sky){sky=new Material(Shader.Find("Skybox/Panoramic"));AssetDatabase.CreateAsset(sky,skyPath);}
+  sky.SetTexture("_MainTex",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Visuals/Sky.hdr"));sky.SetFloat("_Exposure",.8f);sky.SetFloat("_Rotation",145);
+  EditorUtility.SetDirty(sky);
+  PlayerSettings.bundleVersion="0.1.1";
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
   PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
   PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900;

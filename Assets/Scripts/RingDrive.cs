@@ -19,14 +19,17 @@ public class RingDrive : MonoBehaviour
  void Awake(){
   dynamics=DrivingSettings.Load();
   QualitySettings.vSyncCount=1;Application.targetFrameRate=60;Time.fixedDeltaTime=.01f;
-  red=Mat("Cayenne red pearl",new Color(.48f,.035f,.045f),.65f);black=Mat("Charcoal",new Color(.025f,.032f,.039f));silver=Mat("Alloy",new Color(.6f,.65f,.68f),.7f);
+  red=Mat("Cayenne red pearl",new Color(.64f,.024f,.032f),.65f);black=Mat("Charcoal",new Color(.025f,.032f,.039f));silver=Mat("Alloy",new Color(.6f,.65f,.68f),.7f);
   asphalt=Mat("Asphalt",new Color(.19f,.21f,.22f));grass=Mat("Gotland dry meadow",new Color(.42f,.46f,.27f));white=Mat("Paint",new Color(.88f,.88f,.8f));
   RenderSettings.ambientMode=UnityEngine.Rendering.AmbientMode.Flat;RenderSettings.ambientLight=new Color(.48f,.53f,.58f);RenderSettings.fog=true;RenderSettings.fogColor=new Color(.70f,.80f,.85f);RenderSettings.fogDensity=.0005f;
   var sun=new GameObject("Baltic afternoon sun").AddComponent<Light>();sun.type=LightType.Directional;sun.intensity=1.15f;sun.transform.rotation=Quaternion.Euler(38,-32,0);sun.shadows=LightShadows.Soft;QualitySettings.shadowDistance=130;
-  kerbBlue=Mat("Blue kerbs",new Color(.2f,.55f,.78f));MakeTrack();MakeLandscape();MakeCar();MakeMap();ResetCar(0);
+  VisualUpgrade.Surface(asphalt,"Asphalt",.22f,.45f);VisualUpgrade.Surface(grass,"Grass",.05f,.7f);red.SetFloat("_Metallic",.30f);red.SetFloat("_Glossiness",.88f);silver.SetFloat("_Metallic",.85f);
+  kerbBlue=Mat("Blue kerbs",new Color(.2f,.55f,.78f));MakeTrack();MakeLandscape();BatchScenery();MakeCar();MakeMap();ResetCar(0);
+  VisualUpgrade.Lighting(cam,car);
   lapStart=Time.time;Cursor.lockState=CursorLockMode.Locked;Cursor.visible=false;
   automatic=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--smoke-test");
   if(automatic) StartCoroutine(SmokeTest());
+  StartCoroutine(RenderStats());
   if(Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--settings-test"))StartCoroutine(SettingsTest());
   modelPreview=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--model-preview");if(modelPreview){muted=true;StartCoroutine(ModelPreview());}
  }
@@ -36,7 +39,7 @@ public class RingDrive : MonoBehaviour
   var raw=new List<Vector3>();for(int i=0;i<p.Length;i++)for(int k=0;k<12;k++){float t=k/12f;Vector2 a=p[(i+p.Length-1)%p.Length],b=p[i],c=p[(i+1)%p.Length],d=p[(i+2)%p.Length];Vector2 v=.5f*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t);raw.Add(new Vector3(v.x,0,-v.y));}
   float total=0;for(int i=0;i<raw.Count;i++)total+=Vector3.Distance(raw[i],raw[(i+1)%raw.Count]);float scale=7300/total;
   foreach(var v in raw){var q=(v-new Vector3(780,0,-600))*scale;q.y=Ground(q.x,q.z)+.10f;track.Add(q);}
-  length=7300;Ribbon("Gravel runoff",11.5f,Mat("Limestone gravel",new Color(.67f,.65f,.53f)),0);Ribbon("Racing surface",7,asphalt,.025f);
+  length=7300;var gravel=Mat("Limestone gravel",Color.white);VisualUpgrade.Surface(gravel,"Gravel",.06f);Ribbon("Gravel runoff",11.5f,gravel,0);Ribbon("Racing surface",7,asphalt,.025f);
   for(int i=0;i<track.Count;i++){
    var a=track[i];var b=track[(i+1)%track.Count];var dir=(b-a).normalized;var right=Vector3.Cross(Vector3.up,dir);
    foreach(int side in new[]{-1,1}){var line=Box("Edge line",(a+b)*.5f+right*6.65f*side+Vector3.up*.05f,new Vector3(.13f,.02f,Vector3.Distance(a,b)+.1f),white);line.transform.rotation=Quaternion.LookRotation(dir);}
@@ -49,18 +52,21 @@ public class RingDrive : MonoBehaviour
   Sign("GOTLAND RING",start+Vector3.up*8-forward*.3f,-forward,1.2f);
   for(int i=0;i<track.Count;i+=70){var d=(track[(i+1)%track.Count]-track[i]).normalized;Sign("BRAKE / "+(i/70+1),track[i]+Vector3.Cross(Vector3.up,d)*10+Vector3.up*1.7f,-d,.45f);}
  }
- void Ribbon(string n,float width,Material mat,float lift){var verts=new Vector3[track.Count*2];var uv=new Vector2[verts.Length];var tri=new int[track.Count*6];for(int i=0;i<track.Count;i++){var d=(track[(i+1)%track.Count]-track[(i+track.Count-1)%track.Count]).normalized;var r=Vector3.Cross(Vector3.up,d);for(int j=0;j<2;j++){verts[2*i+j]=track[i]+r*width*(j==0?-1:1)+Vector3.up*lift;uv[2*i+j]=new Vector2(j,i*.5f);}int a=2*i,b=2*((i+1)%track.Count);int t=i*6;tri[t]=a;tri[t+1]=b;tri[t+2]=a+1;tri[t+3]=a+1;tri[t+4]=b;tri[t+5]=b+1;}var mesh=new Mesh();mesh.vertices=verts;mesh.triangles=tri;mesh.uv=uv;mesh.RecalculateNormals();var o=new GameObject(n);o.AddComponent<MeshFilter>().sharedMesh=mesh;o.AddComponent<MeshRenderer>().sharedMaterial=mat;}
+ void Ribbon(string n,float width,Material mat,float lift){var verts=new Vector3[track.Count*2];var uv=new Vector2[verts.Length];var tri=new int[track.Count*6];for(int i=0;i<track.Count;i++){var d=(track[(i+1)%track.Count]-track[(i+track.Count-1)%track.Count]).normalized;var r=Vector3.Cross(Vector3.up,d);for(int j=0;j<2;j++){verts[2*i+j]=track[i]+r*width*(j==0?-1:1)+Vector3.up*lift;uv[2*i+j]=new Vector2(j*width*.5f,i*1.1f);}int a=2*i,b=2*((i+1)%track.Count);int t=i*6;tri[t]=a;tri[t+1]=b;tri[t+2]=a+1;tri[t+3]=a+1;tri[t+4]=b;tri[t+5]=b+1;}var mesh=new Mesh();mesh.vertices=verts;mesh.triangles=tri;mesh.uv=uv;mesh.RecalculateNormals();var o=new GameObject(n);o.AddComponent<MeshFilter>().sharedMesh=mesh;o.AddComponent<MeshRenderer>().sharedMaterial=mat;}
  void Sign(string text,Vector3 p,Vector3 direction,float size){var o=new GameObject(text);o.transform.position=p;o.transform.rotation=Quaternion.LookRotation(-direction);var t=o.AddComponent<TextMesh>();t.text=text;t.fontSize=64;t.characterSize=size*.1f;t.anchor=TextAnchor.MiddleCenter;t.color=Color.white;}
  void MakeLandscape(){
-  const int n=110;var vs=new Vector3[(n+1)*(n+1)];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*45,pz=(z-n/2)*45;vs[z*(n+1)+x]=new Vector3(px,Ground(px,pz),pz);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;
+  const int n=110;var vs=new Vector3[(n+1)*(n+1)];var terrainUv=new Vector2[vs.Length];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*45,pz=(z-n/2)*45;vs[z*(n+1)+x]=new Vector3(px,Ground(px,pz),pz);terrainUv[z*(n+1)+x]=new Vector2(px/12,pz/12);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.uv=terrainUv;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;
   var foliage=Mat("Pine foliage",new Color(.17f,.27f,.18f));var bark=Mat("Pine trunks",new Color(.28f,.24f,.19f));var stone=Mat("Limestone",new Color(.61f,.60f,.52f));UnityEngine.Random.InitState(2000);
-  for(int i=0;i<700;i++){var p=new Vector3(UnityEngine.Random.Range(-1600,1600),0,UnityEngine.Random.Range(-1600,1600));float dist=DistanceToTrack(p,out _);if(dist<24)continue;p.y=Ground(p.x,p.z);float h=UnityEngine.Random.Range(5,12);Box("Pine trunk",p+Vector3.up*h*.4f,new Vector3(.5f,h*.8f,.5f),bark);var crown=GameObject.CreatePrimitive(PrimitiveType.Sphere);crown.name="Windswept pine";crown.transform.position=p+Vector3.up*h;crown.transform.localScale=new Vector3(h*.85f,h*.65f,h*.7f);crown.GetComponent<Renderer>().sharedMaterial=foliage;Destroy(crown.GetComponent<Collider>());}
+  for(int i=0;i<700;i++){var p=new Vector3(UnityEngine.Random.Range(-1600,1600),0,UnityEngine.Random.Range(-1600,1600));float dist=DistanceToTrack(p,out _);if(dist<24)continue;p.y=Ground(p.x,p.z);float h=UnityEngine.Random.Range(5,12);VisualUpgrade.Pine(p,h,foliage,bark);}
+
+  for(int i=0;i<track.Count;i+=9){var d=(track[(i+1)%track.Count]-track[i]).normalized;var r=Vector3.Cross(Vector3.up,d);foreach(int side in new[]{-1,1}){var p=track[i]+r*side*UnityEngine.Random.Range(20,65);p.y=Ground(p.x,p.z);VisualUpgrade.Pine(p,UnityEngine.Random.Range(3,8),foliage,bark);}}
   for(int i=0;i<160;i++){var p=new Vector3(UnityEngine.Random.Range(-1400,1400),0,UnityEngine.Random.Range(-1400,1400));if(DistanceToTrack(p,out _)<25)continue;p.y=Ground(p.x,p.z);var b=Box("Quarry stone",p,new Vector3(4,2,3)*UnityEngine.Random.Range(.6f,2),stone);b.transform.rotation=Quaternion.Euler(0,UnityEngine.Random.Range(0,180),0);}
   for(int i=0;i<7;i++){var p=new Vector3(-1150+i*360,0,1200);p.y=Ground(p.x,p.z);Box("Wind turbine tower",p+Vector3.up*37,new Vector3(2.5f,74,2.5f),white);var hub=p+Vector3.up*75;for(int j=0;j<3;j++){float a=j*120*Mathf.Deg2Rad;var blade=Box("Wind turbine blade",hub+new Vector3(Mathf.Sin(a),Mathf.Cos(a),0)*17,new Vector3(2,34,.7f),white);blade.transform.rotation=Quaternion.Euler(0,0,-j*120);}}
 
   for(int i=0;i<45;i++){var p=track[i];var d=(track[i+1]-p).normalized;var r=Vector3.Cross(Vector3.up,d);var wall=Box("Pit wall",p-r*12+Vector3.up*.6f,new Vector3(.35f,1.2f,Vector3.Distance(p,track[i+1])+.2f),white);wall.transform.rotation=Quaternion.LookRotation(d);Box("Fence post",p-r*12+Vector3.up*2,new Vector3(.07f,2.8f,.07f),silver);}
   var st=track[0];var tangent=(track[1]-st).normalized;var right=Vector3.Cross(Vector3.up,tangent);for(int i=0;i<6;i++){var p=st+right*42+tangent*(i*15-35);p.y=Ground(p.x,p.z)+3;var garage=Box("Pit garage",p,new Vector3(15,6,12),stone);garage.transform.rotation=Quaternion.LookRotation(tangent);var roof=Box("Pit roof",p+Vector3.up*3.3f,new Vector3(16,.6f,13),black);roof.transform.rotation=garage.transform.rotation;}
  }
+ void BatchScenery(){var root=new GameObject("Static circuit geometry");foreach(var r in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){if(r.GetComponent<TextMesh>()||r.name=="Coastal pine billboard")continue;r.transform.SetParent(root.transform,true);}StaticBatchingUtility.Combine(root);}
  void MakeCar(){
   car=new GameObject("2000 Impreza GT - photo-inspired").transform;
   wheel=ImprezaModel.Create(car,red,black,silver);
@@ -74,15 +80,16 @@ public class RingDrive : MonoBehaviour
   if(Input.GetKeyDown(KeyCode.F3)){if(settingsOpen)CloseSettings(false);else OpenSettings();}
   if(Input.GetKeyDown(KeyCode.Escape)){if(settingsOpen)CloseSettings(false);else SetPaused(!paused);}
   if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C))view=(view+1)%3;if(!settingsOpen && Input.GetKeyDown(KeyCode.R))ResetCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))ResetCar(0);if(Input.GetKeyDown(KeyCode.F2))ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../GotlandRing-screenshot.png"));
-  if(!paused){lookYaw=Mathf.Clamp(lookYaw+Input.GetAxis("Mouse X")*2,-115,115);lookPitch=Mathf.Clamp(lookPitch-Input.GetAxis("Mouse Y")*1.5f,-45,40);if(Input.GetMouseButtonDown(1))lookYaw=lookPitch=0;}
+  if(modelPreview){lookYaw=lookPitch=0;}
+  if(!paused && !modelPreview){lookYaw=Mathf.Clamp(lookYaw+Input.GetAxis("Mouse X")*2,-115,115);lookPitch=Mathf.Clamp(lookPitch-Input.GetAxis("Mouse Y")*1.5f,-45,40);if(Input.GetMouseButtonDown(1))lookYaw=lookPitch=0;}
   if(view==0){head.localPosition=new Vector3(-.4f,1.34f,-.18f);head.localRotation=Quaternion.Euler(lookPitch,lookYaw,-steer*velocity.magnitude*.015f);}
   else{head.localPosition=view==1?new Vector3(0,1.05f,1.75f):new Vector3(0,3.1f,-6.4f);head.localRotation=Quaternion.Euler(view==1?lookPitch:12+lookPitch,lookYaw,0);}
-  if(modelPreview && Time.timeSinceLevelLoad>5){head.localPosition=new Vector3(4,2.4f,5.5f);head.localRotation=Quaternion.LookRotation(new Vector3(0,.8f,0)-head.localPosition);}
+  if(modelPreview && Time.timeSinceLevelLoad>5){head.localPosition=(Time.timeSinceLevelLoad>10?new Vector3(-3.3f,1.95f,-5.1f):new Vector3(3.6f,1.85f,5.1f));head.localRotation=Quaternion.LookRotation(new Vector3(0,.8f,0)-head.localPosition);}
   cam.fieldOfView=Mathf.Lerp(cam.fieldOfView,76+velocity.magnitude*.12f,Time.deltaTime*3);wheel.localRotation=Quaternion.Euler(0,0,-steer*110);
   motor.Rpm=rpm;motor.Load=throttle;motor.Speed=velocity.magnitude;motor.Slip=slip;motor.Muted=muted||paused;
  }
  bool reversing;
- float slip; void FixedUpdate(){if(paused)return;float dt=Time.fixedDeltaTime;float speed=velocity.magnitude;float dist=DistanceToTrack(car.position,out nearest);bool road=dist<7.5f;float input=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);throttle=(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0;float brake=(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0;
+ float slip; void FixedUpdate(){if(paused||modelPreview)return;float dt=Time.fixedDeltaTime;float speed=velocity.magnitude;float dist=DistanceToTrack(car.position,out nearest);bool road=dist<7.5f;float input=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);throttle=(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0;float brake=(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0;
   if(automatic){var aim=track[(nearest+7)%track.Count]-car.position;float angle=Vector3.SignedAngle(car.forward,aim,Vector3.up);input=Mathf.Clamp(angle/18,-1,1);throttle=speed<24?1:0;brake=speed>27?1:0;if(smokeBrake){throttle=0;brake=1;}}
   steer=Mathf.MoveTowards(steer,input,dt*dynamics.response);Vector3 f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));Vector3 right=Vector3.Cross(Vector3.up,f);float longitudinal=Vector3.Dot(velocity,f),lateral=Vector3.Dot(velocity,right);
   float wheelRpm=Mathf.Abs(longitudinal)/(.32f*2*Mathf.PI)*60;float target=Mathf.Max(900,wheelRpm*ratios[gear-1]*4.11f);if(target>6400&&gear<5){gear++;target*=.72f;}else if(target<2200&&gear>1){gear--;target*=1.3f;}rpm=Mathf.Lerp(rpm,target+throttle*350,dt*8);boost=Mathf.MoveTowards(boost,throttle*Mathf.InverseLerp(2100,4000,rpm),dt*.7f);
@@ -139,6 +146,7 @@ public class RingDrive : MonoBehaviour
   Debug.Log("SETTINGS_TEST passed: cancel, apply, persistence, pause restoration");yield return new WaitForSeconds(2);Application.Quit();
  }
  string Format(float t)=>$"{(int)t/60:00}:{t%60:00.00}";
- IEnumerator ModelPreview(){yield return new WaitForSeconds(3);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../cockpit-detail.png"));yield return new WaitForSeconds(5);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../model-detail.png"));yield return new WaitForSeconds(2);Application.Quit();}
+ IEnumerator RenderStats(){yield return new WaitForSeconds(2);int first=Time.frameCount;float start=Time.realtimeSinceStartup;yield return new WaitForSeconds(5);Debug.Log($"RENDER_STATS fps={(Time.frameCount-first)/(Time.realtimeSinceStartup-start):F1} resolution={Screen.width}x{Screen.height} gpu={SystemInfo.graphicsDeviceName}");}
+ IEnumerator ModelPreview(){yield return new WaitForSeconds(3);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../cockpit-detail.png"));yield return new WaitForSeconds(5);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../model-detail.png"));yield return new WaitForSeconds(5);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../rear-detail.png"));yield return new WaitForSeconds(2);Application.Quit();}
  IEnumerator SmokeTest(){yield return new WaitForSeconds(30);Debug.Log($"SMOKE_TEST speed={velocity.magnitude:F1} distanceFromStart={Vector3.Distance(car.position,track[0]):F1} rpm={rpm:F0} track={track.Count} length={length}");ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../smoke-test.png"));smokeBrake=true;yield return new WaitForSeconds(4);Debug.Log("BRAKE_TEST speed="+velocity.magnitude.ToString("F2")+" pass="+(velocity.magnitude<1));Application.Quit();}
 }

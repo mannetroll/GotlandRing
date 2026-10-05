@@ -1,15 +1,19 @@
-# Gotland Ring - Impreza v0.1.0
+# Gotland Ring - Impreza v0.1.1
 
-A photo-inspired Windows driving prototype: red Subaru Impreza 2000 GT 2.0 S, a hand-traced Gotland Ring layout, cockpit/bonnet/chase cameras, automatic gears, lap timing and RPM-responsive audio incorporating a filtered sample from the supplied driving footage.
+Visual update for the Windows driving prototype:
 
-Updated build: denser Impreza bodywork and wheels, 40% stronger default cornering grip, configurable driving dynamics, reverse controls, and a custom red Impreza executable icon.
+- Curved rear wing with broad integrated supports, based on IMG_0287.
+- Rounded rear bumper, revised tail lamps, boot lettering and rear number plate.
+- HDR sky, reflective paint and glass, linear lighting, and 4x MSAA.
+- Scanned asphalt, grass and gravel materials, with natural pine billboards.
+- WASD/arrows, X reverse, configurable driving dynamics with F3, and the red Impreza icon.
 
-Download **GotlandRing-Portable.exe** and run it. Copy this one file to another Windows x64 PC; Unity and .NET installations are not required. First launch extracts the bundled game into LocalAppData. The executable is unsigned.
+Download **GotlandRing-Portable.exe** and run it on Windows x64. No Unity or .NET installation is required. The approximately 97 MB executable extracts the game to LocalAppData. It is unsigned.
 
-**Controls:** WASD or arrows to accelerate/brake/steer, mouse to look, right mouse to center, C to change camera, R to recover, Home to restart, Escape to pause, M to mute, X to reverse, F3 for saved driving dynamics.
+Driving/braking smoke test passed: 23.9 m/s, 527.7 m from the start, braking to 0.00 m/s. Short rendering measurement: approximately 32 FPS at 1600x900 on RTX 3090 in the test session.
 
-This is an early prototype with simplified handling, approximate track geometry, and no scenery collisions, damage. See the README for build instructions and limitations.
+This is still a procedural prototype, not a photorealistic replica or calibrated simulator. Track geometry is approximate, trees use billboards, and scenery collision/damage are not implemented. See the README and asset credits for details.
 
-![Gotland Ring cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/cockpit-hires.png)
+![Updated rear](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.1/docs/rear-v0.1.1.png)
 
-![Updated Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.0/docs/impreza.png)
+![Cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.1/docs/cockpit-hires.png)
