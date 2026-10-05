@@ -1,0 +1,17 @@
+/Library/
+/Temp/
+/Logs/
+/Obj/
+/UserSettings/
+/Build/
+/Tools/
+/ReferenceFrames/
+*.log
+*.csproj
+!PortableLauncher/PortableLauncher.csproj
+*.sln
+/PortableLauncher/bin/
+/PortableLauncher/obj/
+/PortableLauncher/publish/
+/GotlandRing-Portable.exe
+/IMG_*

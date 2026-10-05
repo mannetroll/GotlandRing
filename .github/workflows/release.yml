@@ -1,0 +1,32 @@
+name: Publish portable game
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build self-contained launcher with tested Unity payload
+        run: dotnet publish PortableLauncher/PortableLauncher.csproj -c Release -o dist
+      - name: Publish EXE
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if ($tag -notmatch '^v') { throw 'Run this workflow against a release tag.' }
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --verify-tag --title "Gotland Ring $tag" --notes-file docs/release-notes.md
+            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          }
+          gh release upload $tag dist/GotlandRing-Portable.exe --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'EXE upload failed' }
