@@ -2,6 +2,8 @@
 
 **A red Impreza. A Baltic circuit. An open practice session.**
 
+> **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
+
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.2/GotlandRing-Portable.exe) | [Release v0.1.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.2)
 
 ![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/rear-v0.1.2.png)
@@ -107,10 +109,16 @@ The rear now follows IMG_0287: a low curved wing with integrated broad supports,
 
 The cabin includes a solid floor, inner door panels, rear seats and roof lining to eliminate unintended see-through gaps.
 
+## Licensing
+
+Original project software/source code and the bundled engine recording (`Assets/Resources/TrackEngine.wav`) are licensed under the [MIT License](LICENSE), except where another file or notice states otherwise.
+
+Track data and derived geospatial data have separate licensing requirements; see [DATA_LICENSES.md](DATA_LICENSES.md). Third-party and separately licensed assets, the Unity runtime, and the engine recording are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ## CSV track reconstruction
 
 ![Gotland Ring centerline and elevation validation](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/gotland_ring_validation.png)
 
-The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `gotland_ring_full_centerline_3m.csv`. The importer omits only the duplicate closing position. The 2,405 unique points define 7,214.397 m horizontally / 7,218.329 m in 3D, with 23.685 m elevation variation. No horizontal scaling is applied. Short elevation spikes are smoothed locally at runtime using a Gaussian filter with a 9 m standard deviation and 27 m support radius with cosine-tapered affected regions. The source CSV is unchanged; corrections are capped at 1 m, and the broad elevation range is preserved. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
+The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `track/gotland_ring_full_centerline_3m.csv`. The importer omits only the duplicate closing position. The 2,405 unique points define 7,214.397 m horizontally / 7,218.329 m in 3D, with 23.685 m elevation variation. No horizontal scaling is applied. Short elevation spikes are smoothed locally at runtime using a Gaussian filter with a 9 m standard deviation and 27 m support radius with cosine-tapered affected regions. The source CSV is unchanged; corrections are capped at 1 m, and the broad elevation range is preserved. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
 
-See [CSV documentation](README_CSV.md) and [validation image](gotland_ring_validation.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.
+See [CSV documentation](TRACK.md) and [validation image](track/gotland_ring_validation.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.
