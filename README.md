@@ -61,6 +61,8 @@ The original photographs and videos stay outside the repository. The derived eng
 
 ## Build it
 
+For a complete setup from a fresh machine, see [Windows 11 setup](Unity_Win11_Setup.md) or [macOS setup](Unity_macOS_Setup.md), including tool downloads, build commands, tests and packaging.
+
 **Game:** Unity **6000.3.25f1 LTS**, Mono, built-in renderer. Windows x64 uses Direct3D 11; macOS ARM64 uses Metal and runs natively on Apple Silicon.
 **Windows portable launcher:** .NET **10**, self-contained Windows x64.
 
@@ -110,6 +112,8 @@ open -n -W Build/macOS/GotlandRing.app --args --autopilot-test -logFile "$PWD/Lo
 ```
 
 ### Windows (x64)
+
+Use **PowerShell 7** for the packaging script and install the **.NET 10 SDK** to build the portable launcher; see the [Windows 11 setup guide](Unity_Win11_Setup.md).
 
 ```powershell
 & 'C:\Program Files\Unity\Hub\Editor\6000.3.25f1\Editor\Unity.exe' -batchmode -nographics -buildTarget StandaloneWindows64 -projectPath $PWD -executeMethod BuildGame.Build -quit -logFile build.log
