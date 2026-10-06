@@ -11,6 +11,7 @@ Verified on an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
 
 ## macOS runtime
 
+- The custom Impreza startup splash was visually checked in the rebuilt macOS app: centered artwork on black, no Unity logo, followed by the driving scene. The standalone smoke test reached 24.0 m/s and braking reached 0.00 m/s (`pass=True`); log: `Logs/splash-smoke-macOS.log`.
 - Native macOS window resizing preserves the game area's 16:9 aspect ratio, excluding the title bar. Corner, side and bottom-edge drags were checked at approximately 1428×804, 1202×676 and 1596×898 (AppKit rounds to whole display points). The HUD, pause menu and driving settings retain their proportions; F3 and Escape were checked at the resized dimensions.
 - `--smoke-test`: reached 24.0 m/s (86.4 km/h), 222.3 m displacement from the start, and 5,857 RPM after 30 seconds. Four seconds of braking reduced speed to 0.00 m/s (`pass=True`).
 - The runtime reads the low-pass CSV coordinates directly, with no additional height filtering. Imported elevation range is 23.374 m.

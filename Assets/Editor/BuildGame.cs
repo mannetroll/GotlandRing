@@ -34,6 +34,12 @@ public static class BuildGame {
   PlayerSettings.bundleVersion="0.1.3";
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
   PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
+  PlayerSettings.SplashScreen.show=true;
+  PlayerSettings.SplashScreen.showUnityLogo=false;
+  PlayerSettings.SplashScreen.animationMode=PlayerSettings.SplashScreen.AnimationMode.Static;
+  PlayerSettings.SplashScreen.backgroundColor=Color.black;
+  PlayerSettings.SplashScreen.overlayOpacity=0;
+  PlayerSettings.SplashScreen.logos=new[]{PlayerSettings.SplashScreenLogo.Create(2.5f,AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Artwork/ImprezaIcon.png"))};
   PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900;
   PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.resizableWindow=true; PlayerSettings.runInBackground=false;
   PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);
