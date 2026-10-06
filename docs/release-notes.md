@@ -10,7 +10,7 @@ Download **GotlandRing-Portable.exe** for Windows x64. No Unity or .NET installa
 
 Import and smoothing checks passed, as did the CSV-track driving/braking smoke test. The centerline is a geospatial reconstruction, not a surveyed road model; widths, camber and surrounding scenery remain approximate. The origin is used as the gameplay start, not a surveyed start/finish line.
 
-The source CSV, validation image and README_CSV.md are included in the extracted distribution. Attribution: OpenStreetMap contributors (ODbL 1.0); Lantmateriet Min karta (CC BY 4.0), processed information. See README_CSV.md for full provenance.
+The source CSV and validation image in `track/`, plus `TRACK.md` and the license notices, are included in game builds. Attribution: OpenStreetMap contributors (ODbL 1.0); Lantmateriet Min karta (CC BY 4.0), processed information. See `TRACK.md` for full provenance.
 
 ![Updated circuit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/cockpit-hires.png)
 

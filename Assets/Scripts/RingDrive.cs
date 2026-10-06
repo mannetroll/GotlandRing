@@ -86,7 +86,7 @@ public class RingDrive : MonoBehaviour
 
   if(Input.GetKeyDown(KeyCode.F3)){if(settingsOpen)CloseSettings(false);else OpenSettings();}
   if(Input.GetKeyDown(KeyCode.Escape)){if(settingsOpen)CloseSettings(false);else SetPaused(!paused);}
-  if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C))view=(view+1)%3;if(!settingsOpen && Input.GetKeyDown(KeyCode.R))ResetCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))ResetCar(0);if(Input.GetKeyDown(KeyCode.F2))ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../GotlandRing-screenshot.png"));
+  if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C))view=(view+1)%3;if(!settingsOpen && Input.GetKeyDown(KeyCode.R))ResetCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))ResetCar(0);if(Input.GetKeyDown(KeyCode.F2))CaptureScreenshot("GotlandRing-screenshot.png");
   if(modelPreview){lookYaw=lookPitch=0;}
   if(!paused && !modelPreview){lookYaw=Mathf.Clamp(lookYaw+Input.GetAxis("Mouse X")*2,-115,115);lookPitch=Mathf.Clamp(lookPitch-Input.GetAxis("Mouse Y")*1.5f,-45,40);if(Input.GetMouseButtonDown(1))lookYaw=lookPitch=0;}
   if(view==0){head.localPosition=new Vector3(-.4f,1.34f,-.18f);head.localRotation=Quaternion.Euler(lookPitch,lookYaw,-steer*velocity.magnitude*.015f);}
@@ -132,14 +132,14 @@ public class RingDrive : MonoBehaviour
   GUI.color=new Color(.035f,.055f,.07f,.98f);GUI.DrawTexture(new Rect(425,145,750,610),Texture2D.whiteTexture);GUI.color=Color.white;
   GUI.Label(new Rect(470,170,650,40),"DRIVING DYNAMICS",label);
   GUI.Label(new Rect(470,211,650,30),"Driving is paused. Apply saves your setup for the next launch.",small);
-  draft.grip=Setting("Cornering grip (m/s²)",draft.grip,10,40,260);
-  draft.lateralGrip=Setting("Side-slip recovery (m/s²)",draft.lateralGrip,10,60,306);
+  draft.grip=Setting("Cornering grip (m/sÂ²)",draft.grip,10,40,260);
+  draft.lateralGrip=Setting("Side-slip recovery (m/sÂ²)",draft.lateralGrip,10,60,306);
   draft.steering=Setting("Low-speed steering (degrees)",draft.steering,25,55,352);
   draft.highSpeedSteering=Setting("High-speed steering (degrees)",draft.highSpeedSteering,8,25,398);
   draft.response=Setting("Steering response",draft.response,2,10,444);
   draft.acceleration=Setting("Acceleration multiplier",draft.acceleration,.5f,1.8f,490,"0.00");
-  draft.braking=Setting("Braking (m/s²)",draft.braking,6,20,536);
-  draft.offRoadGrip=Setting("Off-road grip (m/s²)",draft.offRoadGrip,3,12,582);
+  draft.braking=Setting("Braking (m/sÂ²)",draft.braking,6,20,536);
+  draft.offRoadGrip=Setting("Off-road grip (m/sÂ²)",draft.offRoadGrip,3,12,582);
   GUI.Label(new Rect(470,625,650,35),"Higher grip keeps tighter turns; these are arcade handling settings.",small);
   if(GUI.Button(new Rect(470,685,180,40),"Restore defaults"))draft=new DrivingSettings();
   if(GUI.Button(new Rect(735,685,180,40),"Cancel"))CloseSettings(false);
@@ -150,11 +150,12 @@ public class RingDrive : MonoBehaviour
   Debug.Assert(dynamics.grip==original.grip && !paused,"Cancel must preserve dynamics and resume");
   OpenSettings();draft.grip=31;CloseSettings(true);Debug.Assert(DrivingSettings.Load().grip==31,"Apply must persist dynamics");
   dynamics=original;dynamics.Save();SetPaused(true);OpenSettings();CloseSettings(false);Debug.Assert(paused,"Dialog must preserve existing pause");
-  SetPaused(false);OpenSettings();yield return new WaitForSeconds(2);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../dynamics-dialog.png"));
+  SetPaused(false);OpenSettings();yield return new WaitForSeconds(2);CaptureScreenshot("dynamics-dialog.png");
   Debug.Log("SETTINGS_TEST passed: cancel, apply, persistence, pause restoration");yield return new WaitForSeconds(2);Application.Quit();
  }
  string Format(float t)=>$"{(int)t/60:00}:{t%60:00.00}";
  IEnumerator RenderStats(){yield return new WaitForSeconds(2);int first=Time.frameCount;float start=Time.realtimeSinceStartup;yield return new WaitForSeconds(5);Debug.Log($"RENDER_STATS fps={(Time.frameCount-first)/(Time.realtimeSinceStartup-start):F1} resolution={Screen.width}x{Screen.height} gpu={SystemInfo.graphicsDeviceName}");}
- IEnumerator ModelPreview(){yield return new WaitForSeconds(3);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../cockpit-detail.png"));yield return new WaitForSeconds(5);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../model-detail.png"));yield return new WaitForSeconds(5);ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../rear-detail.png"));yield return new WaitForSeconds(2);Application.Quit();}
- IEnumerator SmokeTest(){yield return new WaitForSeconds(30);Debug.Log($"SMOKE_TEST speed={velocity.magnitude:F1} distanceFromStart={Vector3.Distance(car.position,track[0]):F1} rpm={rpm:F0} track={track.Count} length={length}");ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Application.dataPath,"../smoke-test.png"));smokeBrake=true;yield return new WaitForSeconds(4);Debug.Log("BRAKE_TEST speed="+velocity.magnitude.ToString("F2")+" pass="+(velocity.magnitude<1));Application.Quit();}
+ void CaptureScreenshot(string filename){var directory=Application.platform==RuntimePlatform.OSXPlayer?Application.persistentDataPath:System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath,".."));var path=System.IO.Path.Combine(directory,filename);ScreenCapture.CaptureScreenshot(path);Debug.Log("SCREENSHOT "+path);}
+ IEnumerator ModelPreview(){yield return new WaitForSeconds(3);CaptureScreenshot("cockpit-detail.png");yield return new WaitForSeconds(5);CaptureScreenshot("model-detail.png");yield return new WaitForSeconds(5);CaptureScreenshot("rear-detail.png");yield return new WaitForSeconds(2);Application.Quit();}
+ IEnumerator SmokeTest(){yield return new WaitForSeconds(30);Debug.Log($"SMOKE_TEST speed={velocity.magnitude:F1} distanceFromStart={Vector3.Distance(car.position,track[0]):F1} rpm={rpm:F0} track={track.Count} length={length}");CaptureScreenshot("smoke-test.png");smokeBrake=true;yield return new WaitForSeconds(4);Debug.Log("BRAKE_TEST speed="+velocity.magnitude.ToString("F2")+" pass="+(velocity.magnitude<1));Application.Quit();}
 }

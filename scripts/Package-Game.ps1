@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$buildRoot = Join-Path $projectRoot 'Build'
+$buildRoot = Join-Path $projectRoot 'Build/Windows'
 if (-not (Test-Path (Join-Path $buildRoot 'GotlandRing.exe'))) { throw 'Build the Unity game first.' }
 $payload = Join-Path $projectRoot 'PortableLauncher\Game.zip'
 $stream = [IO.File]::Open($payload,[IO.FileMode]::Create)

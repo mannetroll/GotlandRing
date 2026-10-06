@@ -18,6 +18,8 @@ Download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and wor
 
 The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow about 250 MB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
 
+**macOS Apple Silicon:** build using the instructions below, then open `Build/macOS/GotlandRing.app`. The app includes the Unity runtime; the Windows portable launcher is only needed on Windows. Keep the accompanying track data and notices when distributing the macOS build.
+
 | Control | Action |
 |---|---|
 | W / Up arrow | Accelerate |
@@ -51,16 +53,44 @@ The original photographs and videos stay outside the repository. The derived eng
 
 ## Build it
 
-**Game:** Unity **6000.3.25f1 LTS**, Windows x64, Mono, built-in renderer / Direct3D 11.
-**Portable launcher:** .NET **10**, self-contained Windows x64.
+**Game:** Unity **6000.3.25f1 LTS**, Mono, built-in renderer. Windows x64 uses Direct3D 11; macOS ARM64 uses Metal and runs natively on Apple Silicon.
+**Windows portable launcher:** .NET **10**, self-contained Windows x64.
 
 Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`.
 
-```powershell
-& 'C:\Program Files\Unity\Hub\Editor\6000.3.25f1\Editor\Unity.exe' -batchmode -nographics -projectPath $PWD -executeMethod BuildGame.Build -quit -logFile build.log
+### macOS (Apple Silicon)
+
+Install the Apple Silicon edition of Unity **6000.3.25f1** through Unity Hub and activate your Unity license. Run:
+
+```bash
+./scripts/Build-macOS.sh
+open Build/macOS/GotlandRing.app
 ```
 
-After rebuilding the game, refresh the embedded payload and publish the launcher:
+The script also detects a local editor at `Tools/Unity/6000.3.25f1/Unity.app`. For an editor installed elsewhere, set `UNITY_EDITOR` to the executable:
+
+```bash
+UNITY_EDITOR="/path/to/Unity.app/Contents/MacOS/Unity" ./scripts/Build-macOS.sh
+```
+
+The build log is `Logs/build-macOS.log`. The output is `Build/macOS/GotlandRing.app`, with track data and attribution files beside it. The app is a local build, without Developer ID signing or notarization. In the editor, select macOS in Build Profiles and use **Gotland Ring > Build macOS Apple Silicon**.
+
+F2 screenshots and automated test images on macOS are saved under `~/Library/Application Support/com.Mannetroll-Solutions-AB.Gotland-Ring---Impreza/`. The player log also records each screenshot path. On keyboards that use the function keys for system controls, hold Fn when pressing F2 or F3.
+
+Run the existing standalone checks with graphics enabled:
+
+```bash
+open -n -W Build/macOS/GotlandRing.app --args --smoke-test -logFile "$PWD/Logs/smoke-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --settings-test -logFile "$PWD/Logs/settings-macOS.log"
+```
+
+### Windows (x64)
+
+```powershell
+& 'C:\Program Files\Unity\Hub\Editor\6000.3.25f1\Editor\Unity.exe' -batchmode -nographics -buildTarget StandaloneWindows64 -projectPath $PWD -executeMethod BuildGame.Build -quit -logFile build.log
+```
+
+The game is built to `Build/Windows/GotlandRing.exe`. In the editor, use **Gotland Ring > Build Windows x64**. After rebuilding the game, refresh the embedded Windows payload and publish the launcher:
 
 ```powershell
 .\scripts\Package-Game.ps1
@@ -75,7 +105,8 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 | `Assets/Scripts/ImprezaModel.cs` | Detailed procedural car geometry |
 | `Assets/Scripts/DrivingSettings.cs` | Saved handling configuration |
 | `Assets/Scripts/BoxerAudio.cs` | Responsive engine synthesis and recording layer |
-| `Assets/Editor/BuildGame.cs` | Scene generation and Windows build |
+| `Assets/Editor/BuildGame.cs` | Scene generation, Windows x64 and macOS ARM64 builds |
+| `scripts/Build-macOS.sh` | Command-line macOS build |
 | `PortableLauncher/` | Single-file launcher and game payload |
 | `.github/workflows/release.yml` | Tagged GitHub release and EXE upload |
 
