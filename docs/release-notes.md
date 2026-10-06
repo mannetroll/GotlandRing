@@ -1,21 +1,24 @@
 # Gotland Ring - Impreza v0.1.3
 
-Merged the macOS branch into the shared multi-platform main.
+Refreshed 6 October 2026 with autopilot and desktop-window improvements.
 
-- Separate Windows x64 (Direct3D 11) and macOS Apple Silicon ARM64 (Metal) build targets and output folders.
-- 42 numbered track-name boards with Swedish names and approach-facing placement.
-- Whole-lap low-pass CSV elevation profile, used directly without additional runtime filtering.
-- Resizable windows, macOS 16:9 window sizing, refined steering defaults and a brown leather steering wheel.
-- Retains FPS/frame-time HUD, configurable dynamics, reverse, curved wing, enclosed cabin and blank plates.
+- **Ctrl+P / Cmd+P:** toggle Auto(P)ilot, with advance braking, corner-speed planning and continuous steering. Any driving key returns control to you.
+- **Live WASD display:** green throttle, orange brake and blue steering, with proportional fill.
+- **Ctrl+F / Cmd+F:** fullscreen toggle, restoring the previous window dimensions.
+- **16:9 window resizing on Windows and macOS**, with correctly scaled HUD and settings.
+- Steering response defaults to **2** on both platforms. Existing saved settings are preserved and can be reset through F3.
+- Fixed lap checkpoint counting during recovery near the start line.
+- Refreshed README, autopilot screenshot and track validation image.
+- Retains the shared Windows x64/Direct3D 11 and macOS ARM64/Metal project, 42 named track boards, low-pass CSV elevations, configurable dynamics, reverse and FPS display.
 
-**Windows:** download GotlandRing-Portable.exe. The self-contained executable requires no Unity or .NET installation.
+**Windows:** download **GotlandRing-Portable.exe**. No Unity or .NET installation is required. Replace your previous EXE to use this refreshed build.
 
-**macOS Apple Silicon:** build from this tag using scripts/Build-macOS.sh with Unity 6000.3.25f1. This release attaches the Windows EXE; a macOS binary is not included.
+**macOS Apple Silicon:** build this tag with `scripts/Build-macOS.sh` and Unity 6000.3.25f1. No macOS binary is attached. The new shortcuts still need runtime verification on a Mac.
 
-Windows build, driving/braking, settings persistence, all 42 signs and 820 tree-clearance checks passed after the merge. Portable extraction was verified. macOS build support and its prior verification are preserved; macOS was not rerun on the Windows release host. See VERIFICATION.md.
+**Verification:** five full-track autopilot laps passed across multiple handling configurations, plus reverse/off-road recovery. Default best lap: **3:01.12**, top speed **217.9 km/h**, maximum centreline deviation **1.51 m**. Windows resize/maximize/fullscreen checks passed; the extracted portable game scripts match the tested build. See VERIFICATION.md.
 
-The track is an approximate geospatial reconstruction. Geometry, terrain and handling are not survey/simulator-grade. Data attribution and notices accompany the game.
+The track and handling remain approximate rather than survey/simulator-grade. Attribution and licensing notices accompany the game.
 
-![Cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/cockpit-hires.png)
+![Auto(P)ilot and live inputs](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/autopilot-v0.1.3.png)
 
-![Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/rear-v0.1.3.png)
+![Track validation](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/track/gotland_ring_validation.png)

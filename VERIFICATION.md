@@ -35,3 +35,21 @@ Built natively on Windows with Unity 6000.3.25f1, Windows x64, Mono and Direct3D
 - Regenerated `PortableLauncher/Game.zip` exclusively from `Build/Windows`, published the .NET 10 self-contained launcher, and verified extraction. The packaged game executable matches the tested executable; track data, both validation images and licensing notices are included.
 
 Logs: `Logs/merge-build-windows.log`, `Logs/merge-smoke-windows.log`, `Logs/merge-settings-windows.log`, `Logs/merge-sign-windows.log` (ignored).
+
+## Autopilot and fullscreen (6 October 2026)
+
+- Windows standalone full-lap regression uses the game's ordinary 0.01-second physics step, batched between frames. Five laps passed, with all 2,405 track segments visited in each scenario. These timings are simulated driving times, not test wall-clock durations.
+- Default handling: two laps, best 181.12 seconds, maximum 217.9 km/h, maximum centreline deviation 1.51 m.
+- Low grip / weak brakes: 248.28 seconds, maximum 217.0 km/h, maximum deviation 0.94 m. High power / slow steering: 154.68 seconds, 233.1 km/h, maximum deviation 2.28 m. The saved-settings lap also passed (185.50 seconds).
+- Every scenario exercised braking and both steering directions. Reverse/off-road recovery, pause preservation and autopilot state checks passed. Recovery now requires actual forward checkpoint crossings before a lap can count.
+- The live WASD overlay was inspected in the Windows player. Windows Ctrl+P switched autopilot off; the macOS Cmd shortcut has not been tested on this host.
+- Fullscreen Windows build passed. Actual Ctrl+F input switched from a 1600x900 window to 1920x1200 borderless fullscreen and back to exactly 1600x900. Both transitions were visually inspected and confirmed by `DISPLAY_MODE` log entries. No game exception was logged.
+- macOS Cmd+F and its interaction with AppKit's 16:9 window constraint still need a runtime check on a Mac. The macOS ARM64/Metal build configuration remains intact.
+
+Logs: `Logs/autopilot-laps.log`, `Logs/fullscreen-build.log`, `Logs/fullscreen-controls.log` (ignored).
+
+### Windows 16:9 resize recheck
+
+Native Windows resizing was exercised with the settings dialog open. Corner, right-edge and bottom-edge drags produced client areas of 1259x708, 1099x618 and 940x529 respectively, all within half-pixel aspect rounding. The dialog and HUD remained correctly proportioned. Maximizing produced a 1920x1080 game area beneath the title bar. Ctrl+F entered 1920x1200 borderless fullscreen and restored exactly 940x529 on return, with the settings dialog and paused state preserved. No runtime exceptions were logged. Evidence: `Logs/aspect-recheck.log`; native window screenshots were visually inspected.
+
+Release refresh: the final Windows build passed all five autopilot laps again. The saved-settings lap with steering response 2 completed in 186.40 seconds; reverse/off-road recovery ended 0.37 m from the centreline. Fresh 1600x900 screenshot: docs/autopilot-v0.1.3.png. Logs: Logs/release-autopilot-build.log and Logs/release-autopilot-test.log.
