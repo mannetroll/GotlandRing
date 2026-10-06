@@ -18,6 +18,8 @@ Download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and wor
 
 The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow about 250 MB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
 
+**macOS Apple Silicon:** build using the instructions below, then open `Build/macOS/GotlandRing.app`. The app includes the Unity runtime; the Windows portable launcher is only needed on Windows. Keep the accompanying track data and notices when distributing the macOS build.
+
 | Control | Action |
 |---|---|
 | W / Up arrow | Accelerate |
@@ -39,6 +41,7 @@ The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\Gotland
 - Red bodywork, hood scoop, rear wing and three-gauge dashboard pod based on the reference car.
 - Full circuit loaded from the supplied 3 m centerline CSV, preserving local metre coordinates and terrain elevations.
 - Blue-and-white kerbs, limestone runoff, pines, pit wall and wind turbines inspired by the onboard footage.
+- 42 numbered name boards on the right side of the circuit, matching the locations in `track/track_points.jpeg` approximately. Boards face approaching drivers and include both names where the map lists alternatives.
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
@@ -51,16 +54,47 @@ The original photographs and videos stay outside the repository. The derived eng
 
 ## Build it
 
-**Game:** Unity **6000.3.25f1 LTS**, Windows x64, Mono, built-in renderer / Direct3D 11.
-**Portable launcher:** .NET **10**, self-contained Windows x64.
+**Game:** Unity **6000.3.25f1 LTS**, Mono, built-in renderer. Windows x64 uses Direct3D 11; macOS ARM64 uses Metal and runs natively on Apple Silicon.
+**Windows portable launcher:** .NET **10**, self-contained Windows x64.
 
 Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`.
 
-```powershell
-& 'C:\Program Files\Unity\Hub\Editor\6000.3.25f1\Editor\Unity.exe' -batchmode -nographics -projectPath $PWD -executeMethod BuildGame.Build -quit -logFile build.log
+Built games start in a resizable 1600×900 window. Press **Escape** to release the mouse, then drag a window edge or corner to resize it. On macOS, the game area keeps its 16:9 aspect ratio while resizing. The HUD and driving settings scale with the window.
+
+### macOS (Apple Silicon)
+
+Install the Apple Silicon edition of Unity **6000.3.25f1** through Unity Hub and activate your Unity license. Run:
+
+```bash
+./scripts/Build-macOS.sh
+open Build/macOS/GotlandRing.app
 ```
 
-After rebuilding the game, refresh the embedded payload and publish the launcher:
+The script also detects a local editor at `Tools/Unity/6000.3.25f1/Unity.app`. For an editor installed elsewhere, set `UNITY_EDITOR` to the executable:
+
+```bash
+UNITY_EDITOR="/path/to/Unity.app/Contents/MacOS/Unity" ./scripts/Build-macOS.sh
+```
+
+The build log is `Logs/build-macOS.log`. The output is `Build/macOS/GotlandRing.app`, with track data and attribution files beside it. The app is a local build, without Developer ID signing or notarization. In the editor, select macOS in Build Profiles and use **Gotland Ring > Build macOS Apple Silicon**.
+
+F2 screenshots and automated test images on macOS are saved under `~/Library/Application Support/com.Mannetroll-Solutions-AB.Gotland-Ring---Impreza/`. The player log also records each screenshot path. On keyboards that use the function keys for system controls, hold Fn when pressing F2 or F3.
+
+Run the existing standalone checks with graphics enabled:
+
+```bash
+open -n -W Build/macOS/GotlandRing.app --args --smoke-test -logFile "$PWD/Logs/smoke-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --settings-test -logFile "$PWD/Logs/settings-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --sign-test -logFile "$PWD/Logs/signs-macOS.log"
+```
+
+### Windows (x64)
+
+```powershell
+& 'C:\Program Files\Unity\Hub\Editor\6000.3.25f1\Editor\Unity.exe' -batchmode -nographics -buildTarget StandaloneWindows64 -projectPath $PWD -executeMethod BuildGame.Build -quit -logFile build.log
+```
+
+The game is built to `Build/Windows/GotlandRing.exe`. In the editor, use **Gotland Ring > Build Windows x64**. After rebuilding the game, refresh the embedded Windows payload and publish the launcher:
 
 ```powershell
 .\scripts\Package-Game.ps1
@@ -74,8 +108,10 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 | `Assets/Scripts/RingDrive.cs` | Circuit, scenery, car, handling, controls and HUD |
 | `Assets/Scripts/ImprezaModel.cs` | Detailed procedural car geometry |
 | `Assets/Scripts/DrivingSettings.cs` | Saved handling configuration |
+| `Assets/Scripts/TrackLandmarks.cs` | Names and approximate CSV positions for the 42 numbered track signs |
 | `Assets/Scripts/BoxerAudio.cs` | Responsive engine synthesis and recording layer |
-| `Assets/Editor/BuildGame.cs` | Scene generation and Windows build |
+| `Assets/Editor/BuildGame.cs` | Scene generation, Windows x64 and macOS ARM64 builds |
+| `scripts/Build-macOS.sh` | Command-line macOS build |
 | `PortableLauncher/` | Single-file launcher and game payload |
 | `.github/workflows/release.yml` | Tagged GitHub release and EXE upload |
 
@@ -97,7 +133,7 @@ The remodeled Impreza uses a continuous curved body mesh with wheel-arch opening
 
 ### Driving dynamics
 
-Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Default road cornering grip is now 28 m/s^2 for forgiving arcade handling. The body has denser curved surfaces and fuller fenders, with 96-segment tires.
+Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Steering response ranges from 1 to 9 and defaults to 2. Default road cornering grip is now 28 m/s^2 for forgiving arcade handling. The body has denser curved surfaces and fuller fenders, with 96-segment tires.
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
 
@@ -119,6 +155,6 @@ Track data and derived geospatial data have separate licensing requirements; see
 
 ![Gotland Ring centerline and elevation validation](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/gotland_ring_validation.png)
 
-The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `track/gotland_ring_full_centerline_3m.csv`. The importer omits only the duplicate closing position. The 2,405 unique points define 7,214.397 m horizontally / 7,218.329 m in 3D, with 23.685 m elevation variation. No horizontal scaling is applied. Short elevation spikes are smoothed locally at runtime using a Gaussian filter with a 9 m standard deviation and 27 m support radius with cosine-tapered affected regions. The source CSV is unchanged; corrections are capped at 1 m, and the broad elevation range is preserved. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
+The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `track/gotland_ring_full_centerline_3m_lowpass.csv`. The importer omits only the duplicate closing position and uses the supplied coordinates directly, without runtime height filtering or horizontal scaling. The 2,405 unique points define approximately 7,214.398 m horizontally / 7,216.638 m in 3D, with 23.374 m elevation variation. The CSV already contains the whole-lap low-pass height profile described in `TRACK.md`. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
 
-See [CSV documentation](TRACK.md) and [validation image](track/gotland_ring_validation.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.
+See [CSV documentation](TRACK.md), [validation image](track/gotland_ring_validation.png), and [low-pass elevation profile](track/gotland_ring_whole_lap_lowpass.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.

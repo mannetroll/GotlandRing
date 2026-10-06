@@ -3,7 +3,20 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.Build.Reporting;
 public static class BuildGame {
+ [MenuItem("Gotland Ring/Build Windows x64")]
  public static void Build() {
+  PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneWindows64,false);
+  PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64,new[]{UnityEngine.Rendering.GraphicsDeviceType.Direct3D11});
+  BuildPlayer(BuildTarget.StandaloneWindows64,"Build/Windows/GotlandRing.exe");
+ }
+ [MenuItem("Gotland Ring/Build macOS Apple Silicon")]
+ public static void BuildMacOS() {
+  EditorUserBuildSettings.SetPlatformSettings("OSXUniversal","Architecture","ARM64");
+  PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneOSX,false);
+  PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneOSX,new[]{UnityEngine.Rendering.GraphicsDeviceType.Metal});
+  BuildPlayer(BuildTarget.StandaloneOSX,"Build/macOS/GotlandRing.app");
+ }
+ static void BuildPlayer(BuildTarget target,string outputPath) {
   TrackImportChecks.Run();
   PlayerSettings.colorSpace=ColorSpace.Linear;
   foreach(var path in System.IO.Directory.GetFiles("Assets/Resources/Visuals","*.jpg")){
@@ -22,19 +35,23 @@ public static class BuildGame {
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
   PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
   PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900;
-  PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.runInBackground=false;
+  PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.resizableWindow=true; PlayerSettings.runInBackground=false;
   PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);
-  PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneWindows64,false);
-  PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64,new[]{UnityEngine.Rendering.GraphicsDeviceType.Direct3D11});
   if(!AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/DrivingMaterial.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")),"Assets/Resources/DrivingMaterial.mat");
   AssetDatabase.SaveAssets();
   var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
   new GameObject("Gotland Ring").AddComponent<RingDrive>();
   System.IO.Directory.CreateDirectory("Assets/Scenes");
   EditorSceneManager.SaveScene(scene,"Assets/Scenes/Gotland.unity");
-  var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Scenes/Gotland.unity"},locationPathName="Build/GotlandRing.exe",target=BuildTarget.StandaloneWindows64,options=BuildOptions.None});
+  var outputDirectory=System.IO.Path.GetDirectoryName(outputPath);
+  System.IO.Directory.CreateDirectory(outputDirectory);
+  var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Scenes/Gotland.unity"},locationPathName=outputPath,target=target,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded) throw new System.Exception("Build failed: "+report.summary.result);
-  foreach(var file in new[]{"README_CSV.md","gotland_ring_full_centerline_3m.csv","gotland_ring_validation.png"})System.IO.File.Copy(file,System.IO.Path.Combine("Build",file),true);
-  Debug.Log("GOTLAND_BUILD_SUCCESS "+report.summary.totalSize);
+  foreach(var file in new[]{"README.md","LICENSE","DATA_LICENSES.md","THIRD_PARTY_NOTICES.md","TRACK.md","docs/ASSET-CREDITS.md","track/gotland_ring_full_centerline_3m_lowpass.csv","track/gotland_ring_validation.png","track/gotland_ring_whole_lap_lowpass.png"}){
+   var destination=System.IO.Path.Combine(outputDirectory,file);
+   System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(destination));
+   System.IO.File.Copy(file,destination,true);
+  }
+  Debug.Log("GOTLAND_BUILD_SUCCESS "+target+" "+outputPath+" "+report.summary.totalSize);
  }
 }

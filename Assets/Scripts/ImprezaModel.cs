@@ -110,10 +110,11 @@ public static class ImprezaModel
   Rounded("Curved instrument hood",root,new Vector3(-.4f,1.08f,.35f),new Vector3(.51f,.15f,.24f),.07f,rubber);
   for(int i=0;i<3;i++)Gauge(root,new Vector3(-.11f+i*.17f,1.11f,.39f),.067f);
   for(int i=0;i<2;i++)Gauge(root,new Vector3(-.50f+i*.19f,1.08f,.215f),.071f);
+  var leather=ColorMat(rubber,"Saddle brown steering leather",new Color(.55f,.29f,.13f));leather.SetFloat("_Glossiness",.25f);
   var steering=new GameObject("Steering wheel").transform;steering.SetParent(root,false);steering.localPosition=new Vector3(-.4f,1.035f,.10f);
-  Tube("Smooth leather steering rim",steering,Vector3.zero,.185f,.018f,rubber);
+  Tube("Smooth leather steering rim",steering,Vector3.zero,.185f,.018f,leather);
   for(int i=0;i<3;i++){float a=(30+i*120)*Mathf.Deg2Rad;Beam("Steering spoke",steering,Vector3.zero,new Vector3(Mathf.Cos(a),Mathf.Sin(a),0)*.17f,.025f,alloy);}
-  Rounded("Steering center",steering,Vector3.zero,new Vector3(.12f,.095f,.06f),.028f,rubber);
+  Rounded("Steering center",steering,Vector3.zero,new Vector3(.12f,.095f,.06f),.028f,leather);
   int triangles=0;foreach(var filter in root.GetComponentsInChildren<MeshFilter>())triangles+=filter.sharedMesh.triangles.Length/3;Debug.Log("IMPREZA_MODEL triangles="+triangles);
   return steering;
  }
