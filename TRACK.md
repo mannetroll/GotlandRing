@@ -2,6 +2,30 @@
 
 **A geospatial reconstruction of the full modern layout, not a surveyed/exact track centerline.** It includes both loops, the GP connectors and southern Mannerheim chicane. The reference photograph was used to check the route, not to generate coordinates. No authoritative downloadable surveyed centerline was found.
 
+## Recommended Unity version: whole-lap low-pass filter
+
+Use **`gotland_ring_full_centerline_3m_lowpass.csv`** for the revised smooth track. It has the same 2,406 rows, columns and import procedure. Horizontal coordinates, chainage, headings, horizontal curvature and the coordinate reference origin are unchanged.
+
+The original terrain heights were filtered once with a **circular, symmetric Gaussian low-pass filter**, standard deviation **15 m**, approximately 35.3 m full width at half maximum. The kernel is truncated at ±60 m and wraps across the start/finish. This introduces no spatial phase shift. The duplicate closing point is excluded during filtering and restored afterward. A constant correction preserves the distance-weighted lap mean exactly before CSV rounding. The saved CSV preserves both mean absolute elevation and mean Unity Y within 0.1 mm of the original. This is numerical preservation, not survey accuracy.
+
+This is a conservative modeling choice for the broad road profile, not a racing-track certification rule or a suspension-scale surface model. The ideal filter retains about 89.5% of a 200 m sinusoidal variation, 98.2% at 500 m, and only 0.7% at 30 m. Mean preservation applies to the full lap; individual short sections and extrema can change. [Filter implementation documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html).
+
+| Check | Whole-lap filtered version |
+|---|---|
+| Mean elevation before / after | 32.477016 m / 32.477016 m RH 2000 |
+| Mean Unity Y before / after | −6.030335 m / −6.030335 m |
+| Maximum / RMS height adjustment | 1.023 m / 0.100 m |
+| Filtered minimum / maximum | 19.062 m / 42.436 m RH 2000 |
+| Filtered elevation range | 23.374 m |
+| Horizontal / 3D length | 7214.397 m / 7216.637 m |
+| Closure and coordinate checks | Passed |
+
+Grade and cumulative 3D distance were recalculated. The vertical reference remains **38.507350922 m RH 2000**. Because row 0 itself is filtered, its local position is now approximately **(0, 0.012774, 0) m**, rather than Y=0. Keeping this fixed reference preserves mean Unity Y as well as mean elevation. The final row repeats this position exactly. Continue to omit that final duplicate when using a closed Unity spline.
+
+See `gotland_ring_whole_lap_lowpass.png` for the full profile, close-ups and height adjustments. The original CSV is retained. These edits assume short terrain fluctuations are unwanted in the road model; they do not establish the actual road surface. The source and accuracy limits below still apply.
+
+## Original terrain version
+
 `gotland_ring_full_centerline_3m.csv` contains 2,406 rows (2,405 unique positions), sampled approximately every 2.9999 m. UTF-8, comma separator, decimal point, one header row, no missing values. Created 6 October 2026.
 
 ## Validation and limitations
@@ -26,7 +50,7 @@ Heights represent **ground terrain**, not a dedicated track-surface survey. Bank
 - Local X/Z: WGS84 azimuthal equidistant projection centered on row 0. X points east and Z north at the origin; units are metres. This avoids the roughly 3.2° grid-north rotation of raw SWEREF99 TM offsets here.
 - Origin: **57.8357569254° N, 18.8308560921° E**, elevation **38.507351 m RH 2000**.
 - The same origin in SWEREF99 TM: E **727401.318349**, N **6416863.884251** m.
-- `y_m = elevation_m − 38.507351`. Row 0 is `(0,0,0)` on the south main straight, proceeding ENE toward the north-loop connector. It is an arbitrary sampling origin, not a surveyed start/finish line.
+- `y_m = elevation_m − 38.507351`. In the original terrain CSV, row 0 is `(0,0,0)` on the south main straight, proceeding ENE toward the north-loop connector. It is an arbitrary sampling origin, not a surveyed start/finish line. The filtered row 0 has the small Y offset documented above.
 
 Projection definition: `+proj=aeqd +lat_0=57.835756925442 +lon_0=18.830856092125 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs`
 
@@ -44,7 +68,7 @@ Projection definition: `+proj=aeqd +lat_0=57.835756925442 +lon_0=18.830856092125
 | curvature_per_m | Signed horizontal curvature: positive right turn |
 | distance_3d_m | Cumulative distance including terrain elevation |
 
-Heading, grade and curvature use a periodic 11-point cubic Savitzky–Golay fit, spanning approximately 30 m. Heights themselves are not smoothed. Optional derivative columns describe broad geometry, not suspension-scale road detail.
+Heading, grade and curvature use a periodic 11-point cubic Savitzky–Golay fit, spanning approximately 30 m. Heights in the original terrain CSV are not smoothed; the low-pass version uses the height filter above. Optional derivative columns describe broad geometry, not suspension-scale road detail.
 
 Copy the CSV into Unity's Assets folder and load it as a `TextAsset`. Skip the header, split each row on commas, and use columns 5, 6 and 7 for positions:
 
