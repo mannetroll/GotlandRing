@@ -1,6 +1,6 @@
 # Gotland Ring / Impreza
 
-**A red Impreza. A Baltic circuit. An open practice session.**
+**A rally Impreza. A Baltic circuit. An open practice session.**
 
 > **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
 
@@ -10,7 +10,7 @@
 
 ![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/rear-v0.1.3.png)
 
-A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, with the red bonnet and scoop ahead of you.
+A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, in a detailed Impreza rally coupe with a full cockpit.
 
 ## Get behind the wheel
 
@@ -31,18 +31,19 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | Ctrl+P (Windows) / Cmd+P (macOS) | Toggle Auto(P)ilot |
 | Ctrl+F (Windows) / Cmd+F (macOS) | Toggle fullscreen / restore window size |
 | F3 | Configure and save driving dynamics |
-| Mouse | Turn your head |
-| Right mouse | Center your view |
-| C | Cockpit / bonnet / chase camera |
-| R | Recover to the nearest track point |
-| Home | Restart at the start line |
+| Mouse | Look around in cockpit/bonnet view; orbit the car in chase view |
+| Right mouse | Center your view; return behind the car in chase view |
+| C | Cycle cockpit / bonnet / chase camera (starts behind the car) |
+| R | Recover to the nearest track point, preserving lap time and checkpoint progress |
+| Home | Restart the current lap at the start line |
 | Escape | Pause / resume and release the mouse |
+| T | Cycle paint: Splash red → rally blue → white → Splash red |
 | M | Mute / unmute |
 | F2 | Save a screenshot alongside the extracted game |
 
 ## Inside the prototype
 
-- Red bodywork, hood scoop, rear wing and three-gauge dashboard pod based on the reference car.
+- Imported Impreza rally coupe with textured bodywork, cockpit, roll cage, occupants, steering-wheel animation and rotating/steering road wheels.
 - Full circuit loaded from the supplied 3 m centerline CSV, preserving local metre coordinates and terrain elevations.
 - Blue-and-white kerbs, limestone runoff, pines, pit wall and wind turbines inspired by the onboard footage.
 - 42 numbered name boards on the right side of the circuit, matching the locations in `track/track_points.jpeg` approximately. Boards face approaching drivers and include both names where the map lists alternatives.
@@ -53,9 +54,11 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 
 ## What v0.1.3 is
 
-Refreshed on **6 October 2026** with an Impreza artwork startup splash, fast Auto(P)ilot, a live WASD input display, Ctrl/Cmd+F fullscreen, fixed 16:9 window resizing on both platforms, and updated track validation imagery. Steering response defaults to **2** on Windows and macOS; existing saved configurations remain editable in F3.
+Refreshed on **6 October 2026** with an Impreza artwork startup splash, fast Auto(P)ilot, a live WASD input display, Ctrl/Cmd+F fullscreen, fixed 16:9 window resizing on both platforms, and updated track validation imagery. Steering response defaults to **5** on Windows and macOS; existing saved configurations remain editable in F3.
 
 A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
+
+The car model and its textures are [Rally Car by SpatialNeglect (@jeandiz)](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02), licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Builds containing this asset are for noncommercial use; the original C# source remains MIT licensed. See [asset credits](docs/ASSET-CREDITS.md).
 
 The original photographs and videos stay outside the repository. The derived engine sample required by the game is included.
 
@@ -66,7 +69,7 @@ For a complete setup from a fresh machine, see [Windows 11 setup](Unity_Win11_Se
 **Game:** Unity **6000.3.25f1 LTS**, Mono, built-in renderer. Windows x64 uses Direct3D 11; macOS ARM64 uses Metal and runs natively on Apple Silicon.
 **Windows portable launcher:** .NET **10**, self-contained Windows x64.
 
-Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`.
+Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`. The imported car is `Assets/Resources/RallyCar.prefab`; **Gotland Ring > Prepare rally car prefab** regenerates its material assignments, camera anchors and animated pivots. Both build commands run this preparation automatically.
 
 The startup splash uses `Assets/Artwork/ImprezaIcon.png` (the same image as `docs/Splash.png`) on black for at least 2.5 seconds while the game loads, with the Unity logo disabled. Both build targets share these splash settings.
 
@@ -107,6 +110,7 @@ F2 screenshots and automated test images on macOS are saved under `~/Library/App
 Run the existing standalone checks with graphics enabled:
 
 ```bash
+open -n -W Build/macOS/GotlandRing.app --args --model-preview -logFile "$PWD/Logs/rally-model-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --smoke-test -logFile "$PWD/Logs/smoke-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --settings-test -logFile "$PWD/Logs/settings-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --sign-test -logFile "$PWD/Logs/signs-macOS.log"
@@ -133,7 +137,9 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 | Location | Purpose |
 |---|---|
 | `Assets/Scripts/RingDrive.cs` | Circuit, scenery, car, handling, controls and HUD |
-| `Assets/Scripts/ImprezaModel.cs` | Detailed procedural car geometry |
+| `Assets/Scripts/ImprezaModel.cs` | Imported car steering, wheel animation and cockpit visibility |
+| `Assets/Models/RallyCar` | FBX model, textures and materials by SpatialNeglect (CC BY-NC 4.0) |
+| `Assets/Editor/RallyCarImport.cs` | Prepare the scaled car prefab and camera/wheel pivots |
 | `Assets/Scripts/DrivingSettings.cs` | Saved handling configuration |
 | `Assets/Scripts/AutopilotController.cs` | Track curvature, braking envelope and steering/throttle/brake controller |
 | `Assets/Scripts/RingDrive.AutopilotChecks.cs` | Full-lap and recovery regression using the game's actual physics |
@@ -149,6 +155,8 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 
 ## Verification
 
+The current macOS source builds successfully and is installed locally. The imported car and paint colours were rendered and checked. The orbit camera, updated defaults and lap-preserving recovery were compiled without further runtime tests. The full-lap results below used steering response 2; see [verification details](VERIFICATION.md) for coverage.
+
 Windows build and launch passed on the RTX 3090. Five full-track autopilot laps passed across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default handling, the best lap was **3:01.12**, top speed **217.9 km/h**, and maximum centreline deviation **1.51 m**. Tests use the actual 100 Hz driving physics, batched between frames; lap times are simulated driving time.
 
 Reverse/off-road recovery, braking, both steering directions and complete track coverage passed. The live WASD display was visually inspected. Windows corner/side/bottom resizing and maximize preserved 16:9; fullscreen restored the previous window dimensions while retaining the settings dialog and pause state. The portable payload was verified against the tested game scripts.
@@ -157,17 +165,15 @@ The macOS ARM64/Metal build passed the same five-lap autopilot regression, recov
 
 Steering is tuned for keyboard play: faster turn-in and centering, a wider steering range, and stronger asphalt grip. These are arcade-friendly settings rather than measured Impreza tire limits.
 
-The remodeled Impreza uses a continuous curved body mesh with wheel-arch openings, rounded bumpers and scoop, detailed alloys, tinted side/rear glazing, and circular cockpit instruments.
-
 ### Driving dynamics
 
-Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Steering response ranges from 1 to 9 and defaults to 2 on both Windows and macOS. Existing saved values are preserved; choose Restore defaults and Apply to reset them. Default road cornering grip is now 28 m/s^2 for forgiving arcade handling. The body has denser curved surfaces and fuller fenders, with 96-segment tires.
+Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side-slip recovery, low/high-speed steering angle, steering response, acceleration, braking and off-road grip. **Apply & close** saves settings locally between launches; **Cancel** discards edits. **Restore defaults** resets the draft until Apply. Steering response ranges from 1 to 9 and defaults to 5 on both Windows and macOS. Existing saved values are preserved; choose Restore defaults and Apply to reset them. Default road cornering grip is now 28 m/s^2 for forgiving arcade handling.
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
 
 ### Auto(P)ilot
 
-Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again, or any driving key (WASD, arrows or X), to take over. Mouse look and camera selection remain available. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
+Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again, or any driving key (WASD, arrows or X), to take over. Mouse look and camera selection remain available. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
 
 The controller accelerates on straights, plans braking before corners and steers continuously around the complete CSV circuit. Corner speeds respect configured grip and steering limits, with a small allowance for position correction. It follows the centreline, uses the ordinary throttle/brake/steering inputs and attempts to rejoin when engaged off track or facing the wrong way. This is a fast practice driver, not a mathematically optimal racing-line solver; engaging at an excessive speed inside a corner can still run wide. The HUD shows its state, target speed, throttle and brake. A small WASD keyboard lights green for gas, orange for braking and blue for left/right steering; the fill represents input strength, and steering shows the actual applied angle after steering response. Keys go inactive while paused.
 
@@ -175,11 +181,11 @@ Run `Build/Windows/GotlandRing.exe --autopilot-test -logFile Logs/autopilot-wind
 
 ## Visual upgrade in v0.1.3
 
-The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and natural pine billboards. The procedural car and scenery remain approximations; this is not yet a photorealistic recreation of the reference car. Billboard trees are optimized for driving views and are not full 3D trees. See `docs/ASSET-CREDITS.md` for asset provenance.
+The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and natural pine billboards. The imported rally coupe and procedural scenery are not an exact recreation of the reference road car. Billboard trees are optimized for driving views and are not full 3D trees. See `docs/ASSET-CREDITS.md` for asset provenance.
 
-The rear now follows IMG_0287: a low curved wing with integrated broad supports, rounded bumper, wraparound rear lamps, boot lettering and blank front and rear number plates.
+The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. Steering and road-wheel animation follow the game controls.
 
-The cabin includes a solid floor, inner door panels, rear seats and roof lining to eliminate unintended see-through gaps.
+The cabin includes a dashboard, racing seats, roll cage, driver and co-driver. The driver mesh and its seatbelts are hidden in cockpit view to keep mouse-look clear. The dashboard screen is part of the supplied artwork; current speed, RPM and gear are shown by the game HUD.
 
 ## Licensing
 

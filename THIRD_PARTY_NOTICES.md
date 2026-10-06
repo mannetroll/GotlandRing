@@ -16,6 +16,16 @@ See `docs/ASSET-CREDITS.md` for the exact asset pages and provenance.
 Poly Haven licence:
 https://polyhaven.com/license
 
+## Rally Car — CC BY-NC 4.0
+
+“Rally Car” by SpatialNeglect (@jeandiz), including the FBX and textures in `Assets/Models/RallyCar` and the derived car prefab.
+
+- Model: https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02
+- Author: https://sketchfab.com/jeandiz
+- License: https://creativecommons.org/licenses/by-nc/4.0/
+
+Adapted with Unity materials, packed metallic/smoothness maps, scale and placement adjustments, wheel/steering pivots, camera anchors, cockpit driver visibility and red/blue paint tints. Attribution and noncommercial use are required. This license is separate from the MIT license for original project code. See [asset credits](docs/ASSET-CREDITS.md) for details.
+
 ## Geospatial data
 
 Track data has separate licensing and attribution requirements from OpenStreetMap and Lantmäteriet. See [DATA_LICENSES.md](DATA_LICENSES.md) and [TRACK.md](TRACK.md).

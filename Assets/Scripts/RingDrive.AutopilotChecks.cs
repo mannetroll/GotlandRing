@@ -24,7 +24,7 @@ public partial class RingDrive
         for (int scenario = 0; scenario < setups.Length; scenario++)
         {
             dynamics = setups[scenario];
-            ResetCar(0); lap = 1; best = 0; lapStart = 0;
+            RestartLap(); lap = 1; best = 0; lapStart = 0;
             SetAutopilot(true);
             int requiredLaps = scenario == 0 ? 2 : 1;
             int steps = 0, brakeSteps = 0, leftSteps = 0, rightSteps = 0, visitedCount = 0;
@@ -57,7 +57,7 @@ public partial class RingDrive
             if (!passed) { Application.Quit(1); yield break; }
         }
         dynamics = original;
-        ResetCar(0); lap = 1; lapStart = 0;
+        RestartLap(); lap = 1; lapStart = 0;
         car.position += car.right * 10;
         yaw += 110;
         velocity = -new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad)) * 4;

@@ -18,13 +18,13 @@ public static class BuildGame {
  }
  static void BuildPlayer(BuildTarget target,string outputPath) {
   TrackImportChecks.Run();
+  RallyCarImport.Prepare();
   PlayerSettings.colorSpace=ColorSpace.Linear;
   foreach(var path in System.IO.Directory.GetFiles("Assets/Resources/Visuals","*.jpg")){
    var importer=(TextureImporter)AssetImporter.GetAtPath(path);if(importer==null)continue;importer.maxTextureSize=2048;importer.anisoLevel=8;
    if(path.Contains("Normal"))importer.textureType=TextureImporterType.NormalMap;
    importer.SaveAndReimport();
   }
-  if(!AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/Visuals/Glass.mat"))AssetDatabase.CreateAsset(new Material(Shader.Find("Gotland/AutomotiveGlass")),"Assets/Resources/Visuals/Glass.mat");
   var pinePath="Assets/Resources/Visuals/Pine.mat";var pine=AssetDatabase.LoadAssetAtPath<Material>(pinePath);if(!pine){pine=new Material(Shader.Find("Gotland/Pine"));AssetDatabase.CreateAsset(pine,pinePath);}pine.mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Visuals/Pine.png");EditorUtility.SetDirty(pine);
   var skyPath="Assets/Resources/Visuals/PhotographicSky.mat";
   var sky=AssetDatabase.LoadAssetAtPath<Material>(skyPath);

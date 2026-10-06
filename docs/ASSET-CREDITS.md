@@ -8,4 +8,15 @@ Photographic environment and scanned material assets from Poly Haven, distribute
 - [Gravel Floor](https://polyhaven.com/a/gravel_floor), 2K diffuse and OpenGL normal map.
 - [Poly Haven license](https://polyhaven.com/license).
 
-The pine cutout and application icon were AI-generated for this project. The procedural car mesh, number plate texture, track and shaders were authored for this project. Original user car/track photographs remain outside the repository; no third-party vehicle mesh is included.
+## Rally car — CC BY-NC 4.0
+
+- **Title:** Rally Car
+- **Author:** [SpatialNeglect (@jeandiz)](https://sketchfab.com/jeandiz)
+- **Source:** [Rally Car on Sketchfab](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02)
+- **License:** [Creative Commons Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
+- **Files:** `Assets/Models/RallyCar/` and the derived `Assets/Resources/RallyCar.prefab`.
+- **Adaptations:** Unity Standard materials; metallic/smoothness texture packing; normal-map and glass configuration; uniform scaling and placement; camera anchors; animated wheel/steering pivots; driver visibility for the cockpit camera. The original white paint texture is retained, with optional red and blue material tints. Model geometry is retained.
+
+Credit the author, link the source and license, identify modifications, and retain the noncommercial restriction when redistributing these assets or builds containing them. These assets are not covered by the repository's MIT license.
+
+The pine cutout and application icon were AI-generated for this project. The track and project shaders were authored for this project. Original user car/track photographs remain outside the repository.
