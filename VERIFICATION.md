@@ -2,7 +2,7 @@
 
 Build and runtime checks use an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
 
-Current source coverage: the macOS build succeeds and is installed at `/Applications/GotlandRing.app`. Car import, rendering, animation and paint cycling have been checked. The orbit camera, steering response 5, red/rear-view defaults and lap-preserving recovery have been compiled without further runtime tests. Windows cross-compilation covers the car and paint changes; its current source and packaged launcher still need rebuilding. Full-lap results below use steering response 2.
+Current source coverage: the macOS build succeeds and is installed at `/Applications/GotlandRing.app`. Car import, rendering, animation and paint cycling have been checked. The orbit camera, steering response 5, red/rear-view defaults, lap-preserving recovery and the single-driver cockpit have been compiled without further runtime tests. Windows cross-compilation covers the car and paint changes; its current source and packaged launcher still need rebuilding. Full-lap results below use steering response 2.
 
 ## Builds
 
@@ -14,7 +14,7 @@ Current source coverage: the macOS build succeeds and is installed at `/Applicat
 
 ## macOS runtime
 
-- The SpatialNeglect rally car imports with 91 meshes and 19 assigned materials. The prefab is 4.32 m long, grounded at its tyre bottoms, with a 0.339 m wheel radius. Both build targets prepare the same prefab.
+- The SpatialNeglect rally car produces a game prefab with 89 meshes and 18 assigned materials, with a separate driver head and no co-driver, worn passenger harness or pace-note book. The prefab is 4.32 m long, grounded at its tyre bottoms, with a 0.339 m wheel radius. Both build targets prepare the same prefab.
 - `--model-preview`: forward/reverse wheel rotation, front steering axes, stable axle centres, paused animation, cockpit driver visibility and an unchanged physics root all pass. Cockpit forward/left/right, bonnet, chase, front, rear and steered-wheel captures were visually inspected. Evidence: `Build/RallyCar/` and `Logs/rally-model-macOS.log` (ignored).
 - With the imported car, driving/braking, five full autopilot laps, all 42 track signs, and settings save/cancel/persistence/pause checks passed. Logs: `Logs/rally-smoke-macOS.log`, `Logs/rally-autopilot-macOS.log`, `Logs/rally-sign-macOS.log`, `Logs/rally-settings-macOS.log`. The installed app also passed the driver-view sign check (`Logs/rally-installed-sign-macOS.log`). No game exceptions or shader errors were reported.
 - The custom Impreza startup splash was visually checked in the rebuilt macOS app: centered artwork on black, no Unity logo, followed by the driving scene. The release build's standalone smoke test reached 24.0 m/s and braking reached 0.00 m/s (`pass=True`); log: `Logs/release-macOS-smoke.log`.

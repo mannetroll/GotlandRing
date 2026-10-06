@@ -5,6 +5,8 @@ License: Creative Commons Attribution-NonCommercial 4.0 International
 https://creativecommons.org/licenses/by-nc/4.0/
 
 Includes original FBX and textures plus adapted Unity materials, metallic/smoothness
-maps, scaling, wheel/steering pivots, camera anchors and cockpit driver visibility.
-The geometry and white paint texture are retained, with optional red and blue material tints. Credit the author and identify
+maps, scaling, wheel/steering pivots, camera anchors and driver head/body separation.
+The pace-note book, co-driver and worn passenger harness are removed from the
+game prefab. Cockpit view hides only the driver head and helmet. The white
+paint texture is retained, with optional red and blue material tints. Credit the author and identify
 modifications. Noncommercial use only. These assets are not MIT licensed.

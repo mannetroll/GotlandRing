@@ -40,7 +40,9 @@ public partial class RingDrive
   carModel.Animate(.75f,25,10,.017f,true);
   if(Quaternion.Angle(initial,carModel.wheelSpin[0].localRotation)<10)throw new Exception("Road wheels did not roll");
   foreach(var pivot in carModel.frontSteering)if(Vector3.Dot(pivot.forward,car.right)<.3f)throw new Exception("Front wheel steering axis is incorrect");
-  foreach(var r in carModel.cockpitHidden)if(r.enabled)throw new Exception("Driver geometry obscures cockpit view");
+  if(carModel.cockpitHead.enabled)throw new Exception("Driver head obscures cockpit view");
+  foreach(var r in car.GetComponentsInChildren<MeshRenderer>().Where(r=>r.name=="driver"||r.name=="seatbelts"))
+   if(!r.enabled)throw new Exception("Driver body or belts hidden in cockpit view");
   carModel.Animate(0,0,-10,.017f,false);
   if(Quaternion.Angle(initial,carModel.wheelSpin[0].localRotation)>.1f)throw new Exception("Reverse wheel rotation is incorrect");
   for(int n=0;n<30;n++){
@@ -50,7 +52,7 @@ public partial class RingDrive
   var beforePause=carModel.wheelSpin.Select(t=>t.localRotation).ToArray();
   carModel.Animate(0,0,10,0,false);
   for(int i=0;i<beforePause.Length;i++)if(Quaternion.Angle(beforePause[i],carModel.wheelSpin[i].localRotation)>.01f)throw new Exception("Paused wheel animation moved");
-  foreach(var r in carModel.cockpitHidden)if(!r.enabled)throw new Exception("Driver missing in exterior view");
+  if(!carModel.cockpitHead.enabled)throw new Exception("Driver head missing in exterior view");
   if(car.position!=position || Quaternion.Angle(rotation,car.rotation)>.01f)throw new Exception("Visual animation moved the physics root");
   Debug.Log("RALLY_ANIMATION_TEST passed: forward/reverse roll, steering axes, axle centers, pause, camera visibility, stable physics root");
  }

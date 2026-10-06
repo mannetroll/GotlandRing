@@ -5,7 +5,7 @@ public sealed class ImprezaModel : MonoBehaviour
  public Transform steeringWheel;
  public Transform[] frontSteering;
  public Transform[] wheelSpin;
- public Renderer[] cockpitHidden;
+ public Renderer cockpitHead;
  public Transform cockpitView;
  public Transform bonnetView;
  public float wheelRadius;
@@ -42,6 +42,6 @@ public sealed class ImprezaModel : MonoBehaviour
   foreach(var pivot in frontSteering)pivot.localRotation=Quaternion.Euler(0,roadWheelAngle,0);
   roll=Mathf.Repeat(roll+forwardSpeed*dt/wheelRadius*Mathf.Rad2Deg,360);
   foreach(var pivot in wheelSpin)pivot.localRotation=Quaternion.Euler(roll,0,0);
-  foreach(var mesh in cockpitHidden)mesh.enabled=!cockpit;
+  cockpitHead.enabled=!cockpit;
  }
 }

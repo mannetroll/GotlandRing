@@ -24,7 +24,7 @@ https://polyhaven.com/license
 - Author: https://sketchfab.com/jeandiz
 - License: https://creativecommons.org/licenses/by-nc/4.0/
 
-Adapted with Unity materials, packed metallic/smoothness maps, scale and placement adjustments, wheel/steering pivots, camera anchors, cockpit driver visibility and red/blue paint tints. Attribution and noncommercial use are required. This license is separate from the MIT license for original project code. See [asset credits](docs/ASSET-CREDITS.md) for details.
+Adapted with Unity materials, packed metallic/smoothness maps, scale and placement adjustments, wheel/steering pivots, camera anchors, driver head/body mesh separation, red/blue paint tints, and removal of the pace-note book, co-driver and worn passenger harness. Attribution and noncommercial use are required. This license is separate from the MIT license for original project code. See [asset credits](docs/ASSET-CREDITS.md) for details.
 
 ## Geospatial data
 

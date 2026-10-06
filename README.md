@@ -185,7 +185,7 @@ The current source adds linear lighting, an HDR photographic sky, local sky/circ
 
 The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. Steering and road-wheel animation follow the game controls.
 
-The cabin includes a dashboard, racing seats, roll cage, driver and co-driver. The driver mesh and its seatbelts are hidden in cockpit view to keep mouse-look clear. The dashboard screen is part of the supplied artwork; current speed, RPM and gear are shown by the game HUD.
+The cabin includes a dashboard, racing seats, roll cage and a single driver. Cockpit view hides only the driver’s head and helmet; the arms, body and seatbelts remain visible. Exterior views show the complete driver. The dashboard screen is part of the supplied artwork; current speed, RPM and gear are shown by the game HUD.
 
 ## Licensing
 
