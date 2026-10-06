@@ -2,7 +2,7 @@
 
 Refreshed 6 October 2026 with the Impreza artwork startup splash, autopilot and desktop-window improvements.
 
-- **Startup splash:** the rebuilt Windows EXE shows the Impreza artwork on black for at least 2.5 seconds during loading. Windows and macOS share the splash configuration.
+- **Startup splash:** the rebuilt Windows EXE and macOS app show the Impreza artwork on black for at least 2.5 seconds during loading.
 
 - **Ctrl+P / Cmd+P:** toggle Auto(P)ilot, with advance braking, corner-speed planning and continuous steering. Any driving key returns control to you.
 - **Live WASD display:** green throttle, orange brake and blue steering, with proportional fill.
@@ -14,8 +14,6 @@ Refreshed 6 October 2026 with the Impreza artwork startup splash, autopilot and 
 - Retains the shared Windows x64/Direct3D 11 and macOS ARM64/Metal project, 42 named track boards, low-pass CSV elevations, configurable dynamics, reverse and FPS display.
 
 **Windows:** download **GotlandRing-Portable.exe**. No Unity or .NET installation is required. Replace your previous EXE to use this refreshed build.
-
-This refresh replaces the Windows EXE. The macOS ZIP is retained from its previously verified build, before the splash change.
 
 **macOS Apple Silicon:** download [GotlandRing-macOS-arm64.zip](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-macOS-arm64.zip), extract it, then open **GotlandRing.app**. Requires macOS 12 or later and an Apple Silicon Mac (M1 or newer). Unity is included; keep the accompanying track data and notices with the app. The app is not Developer ID signed or notarized; see [Apple's opening instructions](https://support.apple.com/en-us/102445) if macOS blocks it.
 

@@ -5,13 +5,14 @@ Verified on an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
 ## Builds
 
 - macOS: `Build/macOS/GotlandRing.app`, native ARM64, Mono, Metal. The app and embedded libraries pass `codesign --verify --deep --strict` with Unity's local ad-hoc signature; this is not a notarized distribution.
+- macOS release ZIP: extraction preserves the executable and signature. The extracted app and `/Applications/GotlandRing.app` match the tested build byte for byte; the packaged README matches the release source.
 - Windows: `Build/Windows/GotlandRing.exe`, x86-64, Mono, Direct3D 11. Cross-compilation succeeded on macOS. The Windows executable was not run in this verification, and the committed portable launcher payload was not regenerated.
 - Both builds pass `TrackImportChecks`: the bundled CSV matches `track/gotland_ring_full_centerline_3m_lowpass.csv`, with 2,405 unique points, approximately 7,214.398 m horizontal length / 7,216.638 m 3D length, minimum/maximum Y of −19.445 / 3.929 m, all-point height projection, and malformed input rejection. Unity's single-precision length accumulation reports 7,216.641 m in 3D.
 - Both output folders include the low-pass source centerline, validation image, low-pass elevation profile, track documentation, and license/asset notices. The bundled resource and distributed CSVs match the source byte for byte. Windows packaging reads only `Build/Windows` and includes both track images.
 
 ## macOS runtime
 
-- The custom Impreza startup splash was visually checked in the rebuilt macOS app: centered artwork on black, no Unity logo, followed by the driving scene. The standalone smoke test reached 24.0 m/s and braking reached 0.00 m/s (`pass=True`); log: `Logs/splash-smoke-macOS.log`.
+- The custom Impreza startup splash was visually checked in the rebuilt macOS app: centered artwork on black, no Unity logo, followed by the driving scene. The release build's standalone smoke test reached 24.0 m/s and braking reached 0.00 m/s (`pass=True`); log: `Logs/release-macOS-smoke.log`.
 - Native macOS window resizing preserves the game area's 16:9 aspect ratio, excluding the title bar. Corner, side and bottom-edge drags were checked at approximately 1428×804, 1202×676 and 1596×898 (AppKit rounds to whole display points). The HUD, pause menu and driving settings retain their proportions; F3 and Escape were checked at the resized dimensions.
 - `--smoke-test`: reached 24.0 m/s (86.4 km/h), 222.3 m displacement from the start, and 5,857 RPM after 30 seconds. Four seconds of braking reduced speed to 0.00 m/s (`pass=True`).
 - The runtime reads the low-pass CSV coordinates directly, with no additional height filtering. Imported elevation range is 23.374 m.
@@ -58,4 +59,4 @@ Release refresh: the final Windows build passed all five autopilot laps again. T
 
 ## Windows splash release refresh (6 October 2026)
 
-Rebuilt Windows x64 from the shared Impreza artwork splash configuration. Unity's splash preparation and build succeeded. Standalone driving/braking passed: 24.0 m/s, 222.2 m displacement, then 0.00 m/s under braking. All 820 trees passed clearance validation; no game exceptions were logged. Logs: Logs/splash-release-build.log and Logs/splash-release-smoke.log. The existing macOS ZIP is retained; it was built before the splash change.
+Rebuilt Windows x64 from the shared Impreza artwork splash configuration. Unity's splash preparation and build succeeded. Standalone driving/braking passed: 24.0 m/s, 222.2 m displacement, then 0.00 m/s under braking. All 820 trees passed clearance validation; no game exceptions were logged. Logs: Logs/splash-release-build.log and Logs/splash-release-smoke.log.
