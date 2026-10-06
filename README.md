@@ -53,7 +53,7 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 
 ## What v0.1.3 is
 
-Refreshed on **6 October 2026** with fast Auto(P)ilot, a live WASD input display, Ctrl/Cmd+F fullscreen, fixed 16:9 window resizing on both platforms, and updated track validation imagery. Steering response defaults to **2** on Windows and macOS; existing saved configurations remain editable in F3.
+Refreshed on **6 October 2026** with an Impreza artwork startup splash, fast Auto(P)ilot, a live WASD input display, Ctrl/Cmd+F fullscreen, fixed 16:9 window resizing on both platforms, and updated track validation imagery. Steering response defaults to **2** on Windows and macOS; existing saved configurations remain editable in F3.
 
 A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
 

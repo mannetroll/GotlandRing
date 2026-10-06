@@ -55,3 +55,7 @@ Logs: `Logs/autopilot-laps.log`, `Logs/fullscreen-build.log`, `Logs/fullscreen-c
 Native Windows resizing was exercised with the settings dialog open. Corner, right-edge and bottom-edge drags produced client areas of 1259x708, 1099x618 and 940x529 respectively, all within half-pixel aspect rounding. The dialog and HUD remained correctly proportioned. Maximizing produced a 1920x1080 game area beneath the title bar. Ctrl+F entered 1920x1200 borderless fullscreen and restored exactly 940x529 on return, with the settings dialog and paused state preserved. No runtime exceptions were logged. Evidence: `Logs/aspect-recheck.log`; native window screenshots were visually inspected.
 
 Release refresh: the final Windows build passed all five autopilot laps again. The saved-settings lap with steering response 2 completed in 186.40 seconds; reverse/off-road recovery ended 0.37 m from the centreline. Fresh 1600x900 screenshot: docs/autopilot-v0.1.3.png. Logs: Logs/release-autopilot-build.log and Logs/release-autopilot-test.log.
+
+## Windows splash release refresh (6 October 2026)
+
+Rebuilt Windows x64 from the shared Impreza artwork splash configuration. Unity's splash preparation and build succeeded. Standalone driving/braking passed: 24.0 m/s, 222.2 m displacement, then 0.00 m/s under braking. All 820 trees passed clearance validation; no game exceptions were logged. Logs: Logs/splash-release-build.log and Logs/splash-release-smoke.log. The existing macOS ZIP is retained; it was built before the splash change.
