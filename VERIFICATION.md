@@ -11,7 +11,7 @@ Verified on an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
 
 ## macOS runtime
 
-- Window resizing was checked by dragging the corner from 1600×900 to 1200×680 and back. The HUD, pause menu and driving settings scale with the window; settings were opened with F3 at the smaller size.
+- Native macOS window resizing preserves the game area's 16:9 aspect ratio, excluding the title bar. Corner, side and bottom-edge drags were checked at approximately 1428×804, 1202×676 and 1596×898 (AppKit rounds to whole display points). The HUD, pause menu and driving settings retain their proportions; F3 and Escape were checked at the resized dimensions.
 - `--smoke-test`: reached 24.0 m/s (86.4 km/h), 222.3 m displacement from the start, and 5,857 RPM after 30 seconds. Four seconds of braking reduced speed to 0.00 m/s (`pass=True`).
 - The runtime reads the low-pass CSV coordinates directly, with no additional height filtering. Imported elevation range is 23.374 m.
 - Rendering sample with all 42 track signs: 120.0 FPS at 1600×900 using the Apple M1 Max Metal device. This is a short sample, not a sustained performance benchmark.

@@ -59,7 +59,7 @@ The original photographs and videos stay outside the repository. The derived eng
 
 Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`.
 
-Built games start in a resizable 1600×900 window. Press **Escape** to release the mouse, then drag a window edge or corner to resize it. The HUD and driving settings scale with the window.
+Built games start in a resizable 1600×900 window. Press **Escape** to release the mouse, then drag a window edge or corner to resize it. On macOS, the game area keeps its 16:9 aspect ratio while resizing. The HUD and driving settings scale with the window.
 
 ### macOS (Apple Silicon)
 
