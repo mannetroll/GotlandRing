@@ -1,17 +1,21 @@
-# Gotland Ring - Impreza v0.1.2
+# Gotland Ring - Impreza v0.1.3
 
-- Replaced the hand-traced circuit with the supplied 3 m centerline CSV: 2,405 unique points, approximately 7.214 km horizontally, preserving local metre coordinates.
-- Track and driving heights use `gotland_ring_full_centerline_3m_lowpass.csv` directly, with a 23.374 m elevation range and no runtime height filtering.
-- Fixed trees appearing on nearby road sections at tight bends. All 820 placed trees pass road/runoff clearance checks.
-- Updated minimap proportions and displayed track length.
-- Retains configurable handling, reverse, FPS/frame-time HUD, curved wing, enclosed cabin and blank plates.
+Merged the macOS branch into the shared multi-platform main.
 
-Download **GotlandRing-Portable.exe** for Windows x64. No Unity or .NET installation needed. The unsigned portable EXE extracts its contents to LocalAppData.
+- Separate Windows x64 (Direct3D 11) and macOS Apple Silicon ARM64 (Metal) build targets and output folders.
+- 42 numbered track-name boards with Swedish names and approach-facing placement.
+- Whole-lap low-pass CSV elevation profile, used directly without additional runtime filtering.
+- Resizable windows, macOS 16:9 window sizing, refined steering defaults and a brown leather steering wheel.
+- Retains FPS/frame-time HUD, configurable dynamics, reverse, curved wing, enclosed cabin and blank plates.
 
-Build checks validate the bundled low-pass source, track geometry and height projection. The centerline is a geospatial reconstruction, not a surveyed road model; widths, camber and surrounding scenery remain approximate. The origin is used as the gameplay start, not a surveyed start/finish line.
+**Windows:** download GotlandRing-Portable.exe. The self-contained executable requires no Unity or .NET installation.
 
-The low-pass source CSV, validation image and low-pass elevation profile in `track/`, plus `TRACK.md` and the license notices, are included in game builds. Attribution: OpenStreetMap contributors (ODbL 1.0); Lantmateriet Min karta (CC BY 4.0), processed information. See `TRACK.md` for full provenance.
+**macOS Apple Silicon:** build from this tag using scripts/Build-macOS.sh with Unity 6000.3.25f1. This release attaches the Windows EXE; a macOS binary is not included.
 
-![Updated circuit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/cockpit-hires.png)
+Windows build, driving/braking, settings persistence, all 42 signs and 820 tree-clearance checks passed after the merge. Portable extraction was verified. macOS build support and its prior verification are preserved; macOS was not rerun on the Windows release host. See VERIFICATION.md.
 
-![Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/rear-v0.1.2.png)
+The track is an approximate geospatial reconstruction. Geometry, terrain and handling are not survey/simulator-grade. Data attribution and notices accompany the game.
+
+![Cockpit](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/cockpit-hires.png)
+
+![Impreza](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/rear-v0.1.3.png)

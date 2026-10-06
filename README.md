@@ -4,11 +4,11 @@
 
 > **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.2/GotlandRing-Portable.exe) | [Release v0.1.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.2)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-Portable.exe) | [Release v0.1.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.3)
 
-![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/rear-v0.1.2.png)
+![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/rear-v0.1.3.png)
 
-![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/docs/cockpit-hires.png)
+![Cockpit view on Gotland Ring](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/cockpit-hires.png)
 
 A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, with the red bonnet and scoop ahead of you.
 
@@ -46,7 +46,7 @@ The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\Gotland
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
 
-## What v0.1.2 is
+## What v0.1.3 is
 
 A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
 
@@ -137,7 +137,7 @@ Press **F3**, or click **Dynamics**, to pause and configure cornering grip, side
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
 
-## Visual upgrade in v0.1.2
+## Visual upgrade in v0.1.3
 
 The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and natural pine billboards. The procedural car and scenery remain approximations; this is not yet a photorealistic recreation of the reference car. Billboard trees are optimized for driving views and are not full 3D trees. See `docs/ASSET-CREDITS.md` for asset provenance.
 
@@ -153,7 +153,7 @@ Track data and derived geospatial data have separate licensing requirements; see
 
 ## CSV track reconstruction
 
-![Gotland Ring centerline and elevation validation](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.2/gotland_ring_validation.png)
+![Gotland Ring centerline and elevation validation](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/track/gotland_ring_validation.png)
 
 The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `track/gotland_ring_full_centerline_3m_lowpass.csv`. The importer omits only the duplicate closing position and uses the supplied coordinates directly, without runtime height filtering or horizontal scaling. The 2,405 unique points define approximately 7,214.398 m horizontally / 7,216.638 m in 3D, with 23.374 m elevation variation. The CSV already contains the whole-lap low-pass height profile described in `TRACK.md`. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
 
