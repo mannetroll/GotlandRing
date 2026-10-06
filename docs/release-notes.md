@@ -13,9 +13,9 @@ Refreshed 6 October 2026 with autopilot and desktop-window improvements.
 
 **Windows:** download **GotlandRing-Portable.exe**. No Unity or .NET installation is required. Replace your previous EXE to use this refreshed build.
 
-**macOS Apple Silicon:** build this tag with `scripts/Build-macOS.sh` and Unity 6000.3.25f1. No macOS binary is attached. The new shortcuts still need runtime verification on a Mac.
+**macOS Apple Silicon:** download [GotlandRing-macOS-arm64.zip](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-macOS-arm64.zip), extract it, then open **GotlandRing.app**. Requires macOS 12 or later and an Apple Silicon Mac (M1 or newer). Unity is included; keep the accompanying track data and notices with the app. The app is not Developer ID signed or notarized; see [Apple's opening instructions](https://support.apple.com/en-us/102445) if macOS blocks it.
 
-**Verification:** five full-track autopilot laps passed across multiple handling configurations, plus reverse/off-road recovery. Default best lap: **3:01.12**, top speed **217.9 km/h**, maximum centreline deviation **1.51 m**. Windows resize/maximize/fullscreen checks passed; the extracted portable game scripts match the tested build. See VERIFICATION.md.
+**Verification:** five full-track autopilot laps passed on Windows and macOS across multiple handling configurations, plus reverse/off-road recovery. Default best lap: **3:01.12**, top speed **217.9 km/h**, maximum centreline deviation **1.51 m**. Windows resize/maximize/fullscreen checks passed; the extracted portable game scripts match the tested build. macOS driving/braking, settings and all 42 track-sign checks passed. Cmd+P toggled autopilot; Cmd+F entered fullscreen and restored the 1600×900 window while preserving the settings dialog and paused autopilot. See VERIFICATION.md.
 
 The track and handling remain approximate rather than survey/simulator-grade. Attribution and licensing notices accompany the game.
 

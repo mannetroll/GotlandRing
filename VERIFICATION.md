@@ -20,7 +20,7 @@ Verified on an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
 - `--sign-test`: all 42 numbered name boards pass right-side placement, approach-facing orientation, text-fit and road/runoff-clearance checks. Minimum clearance from any track segment is 12.51 m, beyond the 11.5 m runoff boundary. Driver-view screenshots of signs 1, 3, 11, 31, 35 and 42 were inspected, including paired names and Swedish characters. Lettering respects scenery and car-body depth.
 - The panoramic `Sky.hdr` texture is imported without mipmaps to prevent a vertical filtering seam at the longitude wrap. The sky is continuous in the six captured driver views; the corresponding render check is logged in `Logs/sky-macOS.log`.
 
-Build and runtime logs are in the ignored `Logs/` folder. Commands to reproduce these checks are in `README.md`. These checks do not validate a full lap, calibrated vehicle dynamics, or exact acoustic fidelity.
+Build and runtime logs are in the ignored `Logs/` folder. Commands to reproduce these checks are in `README.md`. Full-lap autopilot checks are detailed below; these checks do not validate calibrated vehicle dynamics or exact acoustic fidelity.
 
 ## Windows verification after merging macOS into main (6 October 2026)
 
@@ -40,13 +40,14 @@ Logs: `Logs/merge-build-windows.log`, `Logs/merge-smoke-windows.log`, `Logs/merg
 
 - Windows standalone full-lap regression uses the game's ordinary 0.01-second physics step, batched between frames. Five laps passed, with all 2,405 track segments visited in each scenario. These timings are simulated driving times, not test wall-clock durations.
 - Default handling: two laps, best 181.12 seconds, maximum 217.9 km/h, maximum centreline deviation 1.51 m.
+- macOS ARM64/Metal passed all five laps with all 2,405 track segments visited per scenario. Default, low-grip/weak-brake and high-power/slow-steering results match Windows; the Mac's saved-settings lap took 187.73 seconds. Reverse/off-road recovery finished 0.08 m from the centreline at 34.66 m/s. Driving/braking, settings and all 42 track-sign checks also passed.
 - Low grip / weak brakes: 248.28 seconds, maximum 217.0 km/h, maximum deviation 0.94 m. High power / slow steering: 154.68 seconds, 233.1 km/h, maximum deviation 2.28 m. The saved-settings lap also passed (185.50 seconds).
 - Every scenario exercised braking and both steering directions. Reverse/off-road recovery, pause preservation and autopilot state checks passed. Recovery now requires actual forward checkpoint crossings before a lap can count.
-- The live WASD overlay was inspected in the Windows player. Windows Ctrl+P switched autopilot off; the macOS Cmd shortcut has not been tested on this host.
+- The live WASD overlay was inspected in both players. Windows Ctrl+P and macOS Cmd+P toggled autopilot; paused inputs were also inspected on macOS.
 - Fullscreen Windows build passed. Actual Ctrl+F input switched from a 1600x900 window to 1920x1200 borderless fullscreen and back to exactly 1600x900. Both transitions were visually inspected and confirmed by `DISPLAY_MODE` log entries. No game exception was logged.
-- macOS Cmd+F and its interaction with AppKit's 16:9 window constraint still need a runtime check on a Mac. The macOS ARM64/Metal build configuration remains intact.
+- macOS Cmd+F entered fullscreen and returned to the 1600×900 game window. Both transitions were visually inspected, with the settings dialog and paused autopilot preserved. No runtime exception was logged.
 
-Logs: `Logs/autopilot-laps.log`, `Logs/fullscreen-build.log`, `Logs/fullscreen-controls.log` (ignored).
+Logs: `Logs/autopilot-laps.log`, `Logs/fullscreen-build.log`, `Logs/fullscreen-controls.log`, `Logs/autopilot-macOS.log`, `Logs/controls-macOS.log`, `Logs/smoke-macOS.log`, `Logs/settings-macOS.log`, `Logs/sign-macOS.log` (ignored).
 
 ### Windows 16:9 resize recheck
 

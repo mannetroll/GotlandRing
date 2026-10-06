@@ -4,7 +4,7 @@
 
 > **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-Portable.exe) | [Release v0.1.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.3)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-macOS-arm64.zip) | [Release v0.1.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.3)
 
 ![Auto(P)ilot with live WASD inputs](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/autopilot-v0.1.3.png)
 
@@ -14,11 +14,13 @@ A small Unity driving prototype inspired by personal photographs and onboard foo
 
 ## Get behind the wheel
 
-Download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and working graphics drivers are required. No Unity or .NET installation is needed. The download is approximately **97 MB**.
+**Windows:** download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and working graphics drivers are required. No Unity or .NET installation is needed. The download is approximately **97 MB**.
 
 The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow about 250 MB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
 
-**macOS Apple Silicon:** build using the instructions below, then open `Build/macOS/GotlandRing.app`. The app includes the Unity runtime; the Windows portable launcher is only needed on Windows. Keep the accompanying track data and notices when distributing the macOS build.
+**macOS Apple Silicon:** download **GotlandRing-macOS-arm64.zip**, double-click to extract it, then open **GotlandRing.app** inside the extracted folder. Requires macOS **12 or later** and an Apple Silicon Mac (M1 or newer). The Unity runtime is included; no Unity installation is needed. Keep the app, track data and notices together in the extracted folder.
+
+The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [Apple's instructions for opening an app from an unidentified developer](https://support.apple.com/en-us/102445).
 
 | Control | Action |
 |---|---|
@@ -87,6 +89,15 @@ UNITY_EDITOR="/path/to/Unity.app/Contents/MacOS/Unity" ./scripts/Build-macOS.sh
 
 The build log is `Logs/build-macOS.log`. The output is `Build/macOS/GotlandRing.app`, with track data and attribution files beside it. The app is a local build, without Developer ID signing or notarization. In the editor, select macOS in Build Profiles and use **Gotland Ring > Build macOS Apple Silicon**.
 
+After building and testing, package the app, track data and current notices for download:
+
+```bash
+./scripts/Package-macOS.sh
+gh release upload v0.1.3 Build/GotlandRing-macOS-arm64.zip
+```
+
+The ZIP is built locally on macOS and attached to the release alongside the Windows EXE. The Windows release workflow builds and uploads only the EXE.
+
 F2 screenshots and automated test images on macOS are saved under `~/Library/Application Support/com.Mannetroll-Solutions-AB.Gotland-Ring---Impreza/`. The player log also records each screenshot path. On keyboards that use the function keys for system controls, hold Fn when pressing F2 or F3.
 
 Run the existing standalone checks with graphics enabled:
@@ -126,6 +137,7 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 | `Assets/Scripts/BoxerAudio.cs` | Responsive engine synthesis and recording layer |
 | `Assets/Editor/BuildGame.cs` | Scene generation, Windows x64 and macOS ARM64 builds |
 | `scripts/Build-macOS.sh` | Command-line macOS build |
+| `scripts/Package-macOS.sh` | macOS release ZIP with app, track data and notices |
 | `PortableLauncher/` | Single-file launcher and game payload |
 | `.github/workflows/release.yml` | Tagged GitHub release and EXE upload |
 
@@ -135,7 +147,7 @@ Windows build and launch passed on the RTX 3090. Five full-track autopilot laps 
 
 Reverse/off-road recovery, braking, both steering directions and complete track coverage passed. The live WASD display was visually inspected. Windows corner/side/bottom resizing and maximize preserved 16:9; fullscreen restored the previous window dimensions while retaining the settings dialog and pause state. The portable payload was verified against the tested game scripts.
 
-The macOS ARM64/Metal build remains supported, but the new Cmd+P/Cmd+F controls have not been runtime-tested on a Mac. See [verification details](VERIFICATION.md) for current checks and earlier multi-platform results.
+The macOS ARM64/Metal build passed the same five-lap autopilot regression, recovery, driving/braking, settings and 42-sign checks on an Apple M1 Max. Cmd+P toggled autopilot, and Cmd+F entered fullscreen and restored the 1600×900 window while preserving the settings dialog and paused autopilot. See [verification details](VERIFICATION.md).
 
 Steering is tuned for keyboard play: faster turn-in and centering, a wider steering range, and stronger asphalt grip. These are arcade-friendly settings rather than measured Impreza tire limits.
 
