@@ -35,7 +35,7 @@ public static class BuildGame {
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
   PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
   PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900;
-  PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.runInBackground=false;
+  PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.resizableWindow=true; PlayerSettings.runInBackground=false;
   PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);
   if(!AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/DrivingMaterial.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")),"Assets/Resources/DrivingMaterial.mat");
   AssetDatabase.SaveAssets();
@@ -47,7 +47,7 @@ public static class BuildGame {
   System.IO.Directory.CreateDirectory(outputDirectory);
   var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Scenes/Gotland.unity"},locationPathName=outputPath,target=target,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded) throw new System.Exception("Build failed: "+report.summary.result);
-  foreach(var file in new[]{"README.md","LICENSE","DATA_LICENSES.md","THIRD_PARTY_NOTICES.md","TRACK.md","docs/ASSET-CREDITS.md","track/gotland_ring_full_centerline_3m.csv","track/gotland_ring_validation.png"}){
+  foreach(var file in new[]{"README.md","LICENSE","DATA_LICENSES.md","THIRD_PARTY_NOTICES.md","TRACK.md","docs/ASSET-CREDITS.md","track/gotland_ring_full_centerline_3m_lowpass.csv","track/gotland_ring_validation.png","track/gotland_ring_whole_lap_lowpass.png"}){
    var destination=System.IO.Path.Combine(outputDirectory,file);
    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(destination));
    System.IO.File.Copy(file,destination,true);

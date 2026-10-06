@@ -4,10 +4,13 @@ This repository contains geospatial data with licensing separate from the projec
 
 ## Track centerline
 
-The following files contain the same adapted centerline database:
+The following files contain versions of the adapted centerline database:
 
 - `track/gotland_ring_full_centerline_3m.csv`
+- `track/gotland_ring_full_centerline_3m_lowpass.csv`
 - `Assets/Resources/Track/Centerline.csv`
+
+The bundled Unity resource is an unchanged copy of the low-pass CSV.
 
 The centerline was derived in part from OpenStreetMap data and is distributed under the Open Database License (ODbL) 1.0.
 

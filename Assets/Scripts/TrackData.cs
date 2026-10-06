@@ -23,21 +23,6 @@ public sealed class TrackData {
   for(int i=0;i<data.Points.Count;i++){var p=data.Points[i];var d=data.Points[(i+1)%data.Points.Count]-p;float h=Mathf.Sqrt(d.x*d.x+d.z*d.z);if(h<.001f)throw new FormatException("Duplicate consecutive centerline point");data.HorizontalLength+=h;data.Length3D+=d.magnitude;data.MinY=Mathf.Min(data.MinY,p.y);data.MaxY=Mathf.Max(data.MaxY,p.y);}
   Debug.Log($"CSV_TRACK points={data.Points.Count} horizontal={data.HorizontalLength:F3} length3d={data.Length3D:F3} minY={data.MinY:F3} maxY={data.MaxY:F3}");return data;
  }
- // Smooth only short-wave elevation defects in the approximately 3 m sampled source.
- // Periodic indexing keeps the closing seam continuous; X/Z and the source asset stay unchanged.
- public void SmoothLocalHeightNoise(){
-  int n=Points.Count;var source=new float[n];var blend=new float[n];for(int i=0;i<n;i++)source[i]=Points[i].y;
-  for(int i=0;i<n;i++)if(Mathf.Abs(source[(i+1)%n]-2*source[i]+source[(i+n-1)%n])>.25f){
-   for(int j=-12;j<=12;j++){int index=(i+j+n)%n;blend[index]=Mathf.Max(blend[index],.5f+.5f*Mathf.Cos(Mathf.PI*j/12));}
-  }
-  float maxDelta=0,sumSquares=0;int changed=0;MinY=float.MaxValue;MaxY=float.MinValue;Length3D=0;
-  for(int i=0;i<n;i++){float sum=0,weight=0;for(int j=-9;j<=9;j++){float w=Mathf.Exp(-j*j/18f);sum+=source[(i+j+n)%n]*w;weight+=w;}
-   float delta=Mathf.Clamp((sum/weight-source[i])*blend[i],-1,1);var p=Points[i];p.y+=delta;Points[i]=p;
-   if(Mathf.Abs(delta)>.00001f)changed++;maxDelta=Mathf.Max(maxDelta,Mathf.Abs(delta));sumSquares+=delta*delta;MinY=Mathf.Min(MinY,p.y);MaxY=Mathf.Max(MaxY,p.y);
-  }
-  for(int i=0;i<n;i++)Length3D+=Vector3.Distance(Points[i],Points[(i+1)%n]);
-  Debug.Log($"HEIGHT_SMOOTH points={changed} maxCorrection={maxDelta:F3} rmsCorrection={Mathf.Sqrt(sumSquares/n):F3} elevationRange={MaxY-MinY:F3}");
- }
  public float Nearest(float x,float z,out int index,out float height){float best=float.MaxValue;height=0;index=0;
   for(int i=0;i<Points.Count;i++){var a=Points[i];var b=Points[(i+1)%Points.Count];float dx=b.x-a.x,dz=b.z-a.z;float t=Mathf.Clamp01(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz));float ex=x-a.x-t*dx,ez=z-a.z-t*dz;float d=ex*ex+ez*ez;if(d<best){best=d;index=i;height=Mathf.Lerp(a.y,b.y,t);}}
   return Mathf.Sqrt(best);
