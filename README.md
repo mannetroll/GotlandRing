@@ -181,7 +181,7 @@ Run `Build/Windows/GotlandRing.exe --autopilot-test -logFile Logs/autopilot-wind
 
 ## Visual upgrade in v0.1.3
 
-The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and natural pine billboards. The imported rally coupe and procedural scenery are not an exact recreation of the reference road car. Billboard trees are optimized for driving views and are not full 3D trees. See `docs/ASSET-CREDITS.md` for asset provenance.
+The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and mapped pine woodland. Tree distribution follows the canopy visible in `track/check_*.png` and `track/south_grid.png`; `track/KOENIGSEGG.webm` guides the height and density of the treeline. Northern woodland, southern forest islands and open quarry/paddock areas follow those references. Tree species, heights and individual positions are approximate. Pines use varied, camera-facing cutouts grouped into 96 m tiles for rendering and culling; they are not full 3D trees. See [track documentation](TRACK.md) and [asset credits](docs/ASSET-CREDITS.md).
 
 The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. Steering and road-wheel animation follow the game controls.
 

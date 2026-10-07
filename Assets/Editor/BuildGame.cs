@@ -18,6 +18,7 @@ public static class BuildGame {
  }
  static void BuildPlayer(BuildTarget target,string outputPath) {
   TrackImportChecks.Run();
+  ForestImport.Prepare();
   RallyCarImport.Prepare();
   PlayerSettings.colorSpace=ColorSpace.Linear;
   foreach(var path in System.IO.Directory.GetFiles("Assets/Resources/Visuals","*.jpg")){

@@ -17,8 +17,4 @@ public static class VisualUpgrade
   var probe=new GameObject("Local sky and circuit reflections").AddComponent<ReflectionProbe>();probe.transform.position=car.position+Vector3.up*2;
   probe.mode=ReflectionProbeMode.Realtime;probe.refreshMode=ReflectionProbeRefreshMode.ViaScripting;probe.timeSlicingMode=ReflectionProbeTimeSlicingMode.AllFacesAtOnce;probe.resolution=128;probe.size=Vector3.one*10000;probe.nearClipPlane=3;probe.farClipPlane=1800;probe.clearFlags=ReflectionProbeClearFlags.Skybox;probe.RenderProbe();
  }
- // Irregular layered conifer crowns replace the spherical placeholder trees.
- public static void Pine(Vector3 p,float height,Material foliage,Material bark){
-  var tree=GameObject.CreatePrimitive(PrimitiveType.Quad);tree.name="Coastal pine billboard";tree.transform.position=p+Vector3.up*height*.46f;tree.transform.localScale=new Vector3(height*.9f,height,1);tree.GetComponent<Renderer>().sharedMaterial=Resources.Load<Material>("Visuals/Pine");Object.Destroy(tree.GetComponent<Collider>());
- }
 }

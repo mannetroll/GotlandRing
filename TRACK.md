@@ -88,6 +88,16 @@ The saved CSV passed numeric parsing, closure, distance and coordinate round-tri
 
 ## Sources and processing
 
+### Woodland
+
+`Assets/Editor/ForestImport.cs` derives the forest distribution from the supplied aerial crops. The crops register at 1 m/pixel against the documented SWEREF99 TM extent: `check_north.png` starts at pixel (570, 45), `check_southwest.png` at (10, 540), `check_southeast.png` at (680, 480), and `south_grid.png` at (0, 550). Their overlapping imagery was matched to confirm these offsets. A local 3.244° grid rotation aligns the imagery with the game's east/north frame; the orange centerline overlay agrees with the supplied route markings.
+
+Dark canopy coverage over 13 m neighbourhoods controls a deterministic, jittered 7 m planting grid. Explicit exclusions keep quarry water/shadows and the paddock open. Canopies stay at least 19 m from every centerline segment, with additional space for the track signs and game pit garages. Tree bases follow the landscape mesh and its track shoulders. The mapped extent ends at the supplied imagery; unpictured surroundings are not reconstructed.
+
+The supplied full-lap `KOENIGSEGG.webm` is a visual reference for the irregular, mostly low pine treeline and the contrast with open limestone areas. Tree heights of roughly 3–13.5 m, crown widths and individual positions are visual estimates, not a vegetation survey. The forest does not change track geometry or driving physics.
+
+Both Unity build commands regenerate `Assets/Resources/Track/Forest.csv` and check road clearance, tree scale and coverage of both loops. **Gotland Ring > Prepare mapped forest** regenerates it separately. Runtime meshes group the existing pine cutout into 96 m tiles with conservative bounds for camera-facing foliage. The reference video is not bundled into the game. The forest layout is processed Lantmäteriet imagery data under CC BY 4.0; retain the attribution below.
+
 ### Track name boards
 
 The game places 42 numbered boards using the names and approximate locations in the supplied `track/track_points.jpeg`. `Assets/Scripts/TrackLandmarks.cs` maps the photographed diagram to indices in the 3 m centerline. These are visual estimates, not surveyed sign locations. Each board stands on the driver's right, beyond the gravel runoff, and faces traffic following increasing CSV indices. Paired names share a board. The `--sign-test` checks every board's side, facing, text bounds and clearance from all track segments, and captures representative driver views.

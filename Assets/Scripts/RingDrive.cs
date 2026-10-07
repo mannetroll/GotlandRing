@@ -30,7 +30,7 @@ public partial class RingDrive : MonoBehaviour
   RenderSettings.ambientMode=UnityEngine.Rendering.AmbientMode.Flat;RenderSettings.ambientLight=new Color(.48f,.53f,.58f);RenderSettings.fog=true;RenderSettings.fogColor=new Color(.70f,.80f,.85f);RenderSettings.fogDensity=.0005f;
   var sun=new GameObject("Baltic afternoon sun").AddComponent<Light>();sun.type=LightType.Directional;sun.intensity=1.15f;sun.transform.rotation=Quaternion.Euler(38,-32,0);sun.shadows=LightShadows.Soft;QualitySettings.shadowDistance=130;
   VisualUpgrade.Surface(asphalt,"Asphalt",.22f,.45f);VisualUpgrade.Surface(grass,"Grass",.05f,.7f);silver.SetFloat("_Metallic",.85f);
-  kerbBlue=Mat("Blue kerbs",new Color(.2f,.55f,.78f));MakeTrack();MakeLandscape();ValidateTreeClearance();BatchScenery();MakeCar();MakeMap();RecoverCar(0);
+  kerbBlue=Mat("Blue kerbs",new Color(.2f,.55f,.78f));MakeTrack();MakeLandscape();BatchScenery();MakeCar();MakeMap();RecoverCar(0);
   VisualUpgrade.Lighting(cam,car);
   lapStart=Time.time;Cursor.lockState=CursorLockMode.Locked;Cursor.visible=false;
   automatic=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--smoke-test");
@@ -99,18 +99,15 @@ public partial class RingDrive : MonoBehaviour
  void Sign(string text,Vector3 p,Vector3 direction,float size){var o=new GameObject(text);o.transform.position=p;o.transform.rotation=Quaternion.LookRotation(-direction);var t=o.AddComponent<TextMesh>();t.text=text;t.fontSize=64;t.characterSize=size*.1f;t.anchor=TextAnchor.MiddleCenter;t.color=Color.white;}
  void MakeLandscape(){
   const int n=220;var vs=new Vector3[(n+1)*(n+1)];var terrainUv=new Vector2[vs.Length];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*18,pz=(z-n/2)*18;vs[z*(n+1)+x]=new Vector3(px,Ground(px,pz)-3,pz);terrainUv[z*(n+1)+x]=new Vector2(px/12,pz/12);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.uv=terrainUv;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;
-  var foliage=Mat("Pine foliage",new Color(.17f,.27f,.18f));var bark=Mat("Pine trunks",new Color(.28f,.24f,.19f));var stone=Mat("Limestone",new Color(.61f,.60f,.52f));UnityEngine.Random.InitState(2000);
-  for(int i=0;i<700;i++){var p=new Vector3(UnityEngine.Random.Range(-1600,1600),0,UnityEngine.Random.Range(-1600,1600));float dist=DistanceToTrack(p,out _);if(dist<24)continue;p.y=Ground(p.x,p.z)-3;float h=UnityEngine.Random.Range(5,12);VisualUpgrade.Pine(p,h,foliage,bark);}
-
-  for(int i=0;i<track.Count;i+=26){var d=(track[(i+1)%track.Count]-track[i]).normalized;var r=Vector3.Cross(Vector3.up,d);foreach(int side in new[]{-1,1}){var p=track[i]+r*side*UnityEngine.Random.Range(20,65);float h=UnityEngine.Random.Range(3,8);if(DistanceToTrack(p,out _)<24+h*.45f)continue;p.y=Ground(p.x,p.z)-3;VisualUpgrade.Pine(p,h,foliage,bark);}}
+  TrackForest.Create();
+  var stone=Mat("Limestone",new Color(.61f,.60f,.52f));UnityEngine.Random.InitState(2000);
   for(int i=0;i<160;i++){var p=new Vector3(UnityEngine.Random.Range(-1400,1400),0,UnityEngine.Random.Range(-1400,1400));if(DistanceToTrack(p,out _)<25)continue;p.y=Ground(p.x,p.z)-3;var b=Box("Quarry stone",p,new Vector3(4,2,3)*UnityEngine.Random.Range(.6f,2),stone);b.transform.rotation=Quaternion.Euler(0,UnityEngine.Random.Range(0,180),0);}
   for(int i=0;i<7;i++){var p=new Vector3(-1150+i*360,0,1200);p.y=Ground(p.x,p.z)-3;Box("Wind turbine tower",p+Vector3.up*37,new Vector3(2.5f,74,2.5f),white);var hub=p+Vector3.up*75;for(int j=0;j<3;j++){float a=j*120*Mathf.Deg2Rad;var blade=Box("Wind turbine blade",hub+new Vector3(Mathf.Sin(a),Mathf.Cos(a),0)*17,new Vector3(2,34,.7f),white);blade.transform.rotation=Quaternion.Euler(0,0,-j*120);}}
 
   for(int i=0;i<45;i++){var p=track[i];var d=(track[i+1]-p).normalized;var r=Vector3.Cross(Vector3.up,d);var wall=Box("Pit wall",p-r*12+Vector3.up*.6f,new Vector3(.35f,1.2f,Vector3.Distance(p,track[i+1])+.2f),white);wall.transform.rotation=Quaternion.LookRotation(d);Box("Fence post",p-r*12+Vector3.up*2,new Vector3(.07f,2.8f,.07f),silver);}
   var st=track[0];var tangent=(track[1]-st).normalized;var right=Vector3.Cross(Vector3.up,tangent);for(int i=0;i<6;i++){var p=st+right*42+tangent*(i*15-35);p.y=Ground(p.x,p.z);var garage=Box("Pit garage",p,new Vector3(15,6,12),stone);garage.transform.rotation=Quaternion.LookRotation(tangent);var roof=Box("Pit roof",p+Vector3.up*3.3f,new Vector3(16,.6f,13),black);roof.transform.rotation=garage.transform.rotation;}
  }
- void ValidateTreeClearance(){int count=0;float minimum=float.MaxValue;foreach(var r in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){if(r.name!="Coastal pine billboard")continue;float edge=DistanceToTrack(r.transform.position,out _)-r.transform.localScale.x*.5f;minimum=Mathf.Min(minimum,edge);count++;if(edge<11.5f)throw new InvalidOperationException("Tree overlaps track/runoff: "+r.transform.position);}Debug.Log($"TREE_CLEARANCE_TEST trees={count} minimumCanopyClearanceFromCenterline={minimum:F2} pass=True");}
- void BatchScenery(){var root=new GameObject("Static circuit geometry");foreach(var r in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){if(r.GetComponent<TextMesh>()||r.name=="Coastal pine billboard")continue;r.transform.SetParent(root.transform,true);}StaticBatchingUtility.Combine(root);}
+ void BatchScenery(){var root=new GameObject("Static circuit geometry");foreach(var r in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){if(r.GetComponent<TextMesh>()||r.GetComponentInParent<TrackForest>())continue;r.transform.SetParent(root.transform,true);}StaticBatchingUtility.Combine(root);}
  void MakeCar(){
   car=Instantiate(Resources.Load<GameObject>("RallyCar")).transform;
   carModel=car.GetComponent<ImprezaModel>();

@@ -2,7 +2,7 @@
 
 Build and runtime checks use an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
 
-Current source coverage: the macOS build succeeds and is installed at `/Applications/GotlandRing.app`. Car import, rendering, animation and paint cycling have been checked. The orbit camera, steering response 5, red/rear-view defaults, lap-preserving recovery and the single-driver cockpit have been compiled without further runtime tests. Windows cross-compilation covers the car and paint changes; its current source and packaged launcher still need rebuilding. Full-lap results below use steering response 2.
+Current source coverage: the macOS build succeeds and is installed at `/Applications/GotlandRing.app`. Car import, rendering, animation and paint cycling have been checked. The orbit camera, steering response 5, red/rear-view defaults, lap-preserving recovery, single-driver cockpit and mapped forest have been compiled without further runtime tests. Forest placement was inspected over the supplied aerial references; Unity build checks validate canopy clearance and coverage of both loops. Forest rendering and frame rate have not been measured in the player. Windows cross-compilation covers the car and paint changes; its current source and packaged launcher still need rebuilding. Full-lap results below use steering response 2.
 
 ## Builds
 
@@ -22,7 +22,7 @@ Current source coverage: the macOS build succeeds and is installed at `/Applicat
 - `--smoke-test` with the imported car: reached 24.0 m/s (86.4 km/h), 221.7 m displacement from the start, and 5,822 RPM after 30 seconds. Four seconds of braking reduced speed to 0.00 m/s (`pass=True`).
 - The runtime reads the low-pass CSV coordinates directly, with no additional height filtering. Imported elevation range is 23.374 m.
 - Rendering sample with the imported car and all 42 track signs: 118.0 FPS at 2866×1612 using the Apple M1 Max Metal device. This is a short sample, not a sustained performance benchmark.
-- Runtime tree-clearance check passed for 820 trees. No game exceptions or shader errors were reported in the driving test.
+- Forest import checks validate a minimum 19 m canopy clearance from all road segments, plausible tree sizes and woodland in both northern and southern sectors. Placement evidence: `Build/ForestReference/forest-placement.png`; build log: `Logs/build-macOS.log` (ignored).
 - The captured cockpit screenshot was inspected. macOS screenshots are written to `Application.persistentDataPath`, outside the signed app bundle.
 - `--sign-test`: all 42 numbered name boards pass right-side placement, approach-facing orientation, text-fit and road/runoff-clearance checks. Minimum clearance from any track segment is 12.51 m, beyond the 11.5 m runoff boundary. Driver-view screenshots of signs 1, 3, 11, 31, 35 and 42 were inspected, including paired names and Swedish characters. Lettering respects scenery and car-body depth.
 - The panoramic `Sky.hdr` texture is imported without mipmaps to prevent a vertical filtering seam at the longitude wrap. The sky is continuous in the six captured driver views; the corresponding render check is logged in `Logs/sky-macOS.log`.

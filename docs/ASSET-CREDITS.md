@@ -19,4 +19,4 @@ Photographic environment and scanned material assets from Poly Haven, distribute
 
 Credit the author, link the source and license, identify modifications, and retain the noncommercial restriction when redistributing these assets or builds containing them. These assets are not covered by the repository's MIT license.
 
-The pine cutout and application icon were AI-generated for this project. The track and project shaders were authored for this project. Original user car/track photographs remain outside the repository.
+The pine cutout and application icon were AI-generated for this project. The track and project shaders were authored for this project. Forest distribution in `Assets/Resources/Track/Forest.csv` is derived from the supplied Lantmäteriet aerial crops in `track/`: © Lantmäteriet, CC BY 4.0, processed information. See [track sources and woodland processing](../TRACK.md). The supplied `KOENIGSEGG.webm` is used as a visual reference only; its footage is not included in the built game.
