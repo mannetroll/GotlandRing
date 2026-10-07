@@ -1,67 +1,61 @@
-# Verification
+# v0.1.4 verification
 
-Build and runtime checks use an Apple M1 Max running macOS 15.7.9 with Unity 6000.3.25f1.
+Verified on 7 October 2026 with Unity 6000.3.25f1. Both platform builds and all five standalone test suites passed with the high-resolution Impreza and mapped forest.
 
-Current source coverage: the macOS build succeeds and is installed at `/Applications/GotlandRing.app`. Car import, rendering, animation and paint cycling have been checked. The orbit camera, steering response 5, red/rear-view defaults, lap-preserving recovery, single-driver cockpit and mapped forest have been compiled without further runtime tests. Forest placement was inspected over the supplied aerial references; Unity build checks validate canopy clearance and coverage of both loops. Forest rendering and frame rate have not been measured in the player. Windows cross-compilation covers the car and paint changes; its current source and packaged launcher still need rebuilding. Full-lap results below use steering response 2.
+## Platforms and builds
 
-## Builds
+- **macOS:** ARM64, Mono, Metal; Apple M1 Max, macOS 15.7.9. Output: `Build/macOS/GotlandRing.app`.
+- **Windows 11:** x64, Mono, Direct3D 11; NVIDIA GeForce RTX 3090 on `fractal`. The game was built using the Mac editor's Windows Build Support and tested in the signed-in Windows desktop session. Output: `Build/Windows/GotlandRing.exe`. The portable launcher is built on Windows with .NET SDK 10.0.401.
+- Both game versions are 0.1.4. Steering response defaults to **5** in the shared settings class; existing saved preferences are retained. F3 → Restore defaults → Apply selects the defaults for an existing profile.
+- Both builds pass track import checks: 2,405 unique points, 7,214.398 m horizontal length, 7,216.638 m double-precision 3D length, and elevations from −19.445 to 3.929 m. Unity's single-precision 3D length is 7,216.641 m. The resource CSV matches the supplied low-pass CSV byte for byte; malformed input rejection and all-point height projection pass.
+- Car preparation passes: 89 meshes, 18 materials, 4.32 m body length and 0.339 m wheel radius. The cockpit contains one driver with a separately hidden head.
+- Forest preparation passes: 10,710 trees in 143 render tiles, with at least 19 m canopy clearance from the road. Northern and southern woodland coverage and tree dimensions pass import validation.
 
-- macOS: `Build/macOS/GotlandRing.app`, native ARM64, Mono, Metal. The app and embedded libraries pass `codesign --verify --deep --strict` with Unity's local ad-hoc signature; this is not a notarized distribution.
-- macOS release ZIP: needs repackaging from the current app before publishing. The installed app has the current source changes.
-- Windows: `Build/Windows/GotlandRing.exe`, x86-64, Mono, Direct3D 11. Cross-compilation with the imported rally car succeeded on macOS (`Logs/rally-build-Windows.log`). The Windows executable was not run in this verification, and the committed portable launcher payload was not regenerated.
-- Both builds pass `TrackImportChecks`: the bundled CSV matches `track/gotland_ring_full_centerline_3m_lowpass.csv`, with 2,405 unique points, approximately 7,214.398 m horizontal length / 7,216.638 m 3D length, minimum/maximum Y of −19.445 / 3.929 m, all-point height projection, and malformed input rejection. Unity's single-precision length accumulation reports 7,216.641 m in 3D.
-- Both output folders include the low-pass source centerline, validation image, low-pass elevation profile, track documentation, and license/asset notices. The bundled resource and distributed CSVs match the source byte for byte. Windows packaging reads only `Build/Windows` and includes both track images.
+## Standalone suites
 
-## macOS runtime
+| Check | macOS | Windows 11 |
+|---|---|---|
+| `--model-preview` | Passed | Passed |
+| `--smoke-test` | Passed | Passed |
+| `--settings-test` | Passed | Passed |
+| `--sign-test` | Passed | Passed |
+| `--autopilot-test` | Passed | Passed |
 
-- The SpatialNeglect rally car produces a game prefab with 89 meshes and 18 assigned materials, with a separate driver head and no co-driver, worn passenger harness or pace-note book. The prefab is 4.32 m long, grounded at its tyre bottoms, with a 0.339 m wheel radius. Both build targets prepare the same prefab.
-- `--model-preview`: forward/reverse wheel rotation, front steering axes, stable axle centres, paused animation, cockpit driver visibility and an unchanged physics root all pass. Cockpit forward/left/right, bonnet, chase, front, rear and steered-wheel captures were visually inspected. Evidence: `Build/RallyCar/` and `Logs/rally-model-macOS.log` (ignored).
-- With the imported car, driving/braking, five full autopilot laps, all 42 track signs, and settings save/cancel/persistence/pause checks passed. Logs: `Logs/rally-smoke-macOS.log`, `Logs/rally-autopilot-macOS.log`, `Logs/rally-sign-macOS.log`, `Logs/rally-settings-macOS.log`. The installed app also passed the driver-view sign check (`Logs/rally-installed-sign-macOS.log`). No game exceptions or shader errors were reported.
-- The custom Impreza startup splash was visually checked in the rebuilt macOS app: centered artwork on black, no Unity logo, followed by the driving scene. The release build's standalone smoke test reached 24.0 m/s and braking reached 0.00 m/s (`pass=True`); log: `Logs/release-macOS-smoke.log`.
-- Native macOS window resizing preserves the game area's 16:9 aspect ratio, excluding the title bar. Corner, side and bottom-edge drags were checked at approximately 1428×804, 1202×676 and 1596×898 (AppKit rounds to whole display points). The HUD, pause menu and driving settings retain their proportions; F3 and Escape were checked at the resized dimensions.
-- `--smoke-test` with the imported car: reached 24.0 m/s (86.4 km/h), 221.7 m displacement from the start, and 5,822 RPM after 30 seconds. Four seconds of braking reduced speed to 0.00 m/s (`pass=True`).
-- The runtime reads the low-pass CSV coordinates directly, with no additional height filtering. Imported elevation range is 23.374 m.
-- Rendering sample with the imported car and all 42 track signs: 118.0 FPS at 2866×1612 using the Apple M1 Max Metal device. This is a short sample, not a sustained performance benchmark.
-- Forest import checks validate a minimum 19 m canopy clearance from all road segments, plausible tree sizes and woodland in both northern and southern sectors. Placement evidence: `Build/ForestReference/forest-placement.png`; build log: `Logs/build-macOS.log` (ignored).
-- The captured cockpit screenshot was inspected. macOS screenshots are written to `Application.persistentDataPath`, outside the signed app bundle.
-- `--sign-test`: all 42 numbered name boards pass right-side placement, approach-facing orientation, text-fit and road/runoff-clearance checks. Minimum clearance from any track segment is 12.51 m, beyond the 11.5 m runoff boundary. Driver-view screenshots of signs 1, 3, 11, 31, 35 and 42 were inspected, including paired names and Swedish characters. Lettering respects scenery and car-body depth.
-- The panoramic `Sky.hdr` texture is imported without mipmaps to prevent a vertical filtering seam at the longitude wrap. The sky is continuous in the six captured driver views; the corresponding render check is logged in `Logs/sky-macOS.log`.
+Each process exited with code 0 and its expected success marker. No game exceptions, shader errors, failed assertions or `pass=False` results appeared in these ten logs.
 
-Build and runtime logs are in the ignored `Logs/` folder. Commands to reproduce these checks are in `README.md`. Full-lap autopilot checks are detailed below; these checks do not validate calibrated vehicle dynamics or exact acoustic fidelity.
+- **Model:** forward/reverse wheel rotation, steering axes, stable axle centres, paused animation, cockpit visibility and unchanged physics root pass. Captures cover cockpit, bonnet, chase, front/rear, steering and all three paint colours. Cockpit, chase, paint and woodland rendering were visually inspected on both platforms; the co-driver and pace-note book are absent.
+- **Driving and braking:** both players reached 24.0 m/s after 30 seconds. macOS travelled 222.3 m at 5,857 RPM; Windows travelled 222.1 m at 5,839 RPM. Four seconds of braking brought both to 0.00 m/s.
+- **Settings:** cancel, apply/save, persistence and pause restoration pass without replacing the original saved setup.
+- **Signs:** all 42 boards pass placement, approach-facing orientation, text-fit and clearance checks. Minimum clearance is 12.51 m. Captures include Swedish lettering and paired sign names.
+- **macOS keyboard check:** T changed red to rally blue, C selected the cockpit, and R recovered the car without resetting its elapsed lap time. F3 and Escape opened/closed the settings dialog; fullscreen and windowed modes were reached. Native edge/corner resizing and exact window-size restoration were not revalidated in this run.
 
-## Windows verification after merging macOS into main (6 October 2026)
+## Full-lap autopilot
 
-Built natively on Windows with Unity 6000.3.25f1, Windows x64, Mono and Direct3D 11, to `Build/Windows/GotlandRing.exe`. The separate macOS ARM64/Metal build entry point and script are preserved; macOS was not rerun on this Windows host.
+Both platforms pass five laps using the normal 0.01-second physics step batched between rendered frames. Times below are simulated driving times, not wall-clock test durations. All four scenarios visit every one of the 2,405 track segments and exercise braking plus left and right steering.
 
-- Import checks passed against the low-pass CSV, including point count, metric lengths, elevations and malformed input rejection.
-- Driving test reached 24.0 m/s, 222.1 m displacement and 5,839 RPM. Braking reached 0.00 m/s (`pass=True`).
-- Settings save/cancel, persistence and pause restoration passed. Existing saved steering preferences are preserved.
-- All 42 track signs passed orientation, placement, text-fit and clearance tests (minimum 12.51 m). Swedish lettering and the settings dialog were visually inspected.
-- All 820 trees passed clearance checks. No game exceptions, assertion failures or shader errors appeared in the three runtime logs.
-- Short rendering sample: 32.0 FPS at 1600x900 on NVIDIA RTX 3090 in this session; not a sustained benchmark.
-- Regenerated `PortableLauncher/Game.zip` exclusively from `Build/Windows`, published the .NET 10 self-contained launcher, and verified extraction. The packaged game executable matches the tested executable; track data, both validation images and licensing notices are included.
+| Scenario | Laps | Best lap | Maximum speed | Maximum centreline deviation |
+|---|---:|---:|---:|---:|
+| Defaults, steering response 5 | 2 | 180.30 s | 217.9 km/h | 1.34 m |
+| Low grip / weak brakes | 1 | 248.28 s | 217.0 km/h | 0.94 m |
+| High power / slow steering | 1 | 154.68 s | 233.1 km/h | 2.28 m |
+| Saved settings | 1 | 185.50 s | 217.9 km/h | 1.31 m |
 
-Logs: `Logs/merge-build-windows.log`, `Logs/merge-smoke-windows.log`, `Logs/merge-settings-windows.log`, `Logs/merge-sign-windows.log` (ignored).
+Pause, autopilot toggle/state and reverse/off-road recovery also pass. Recovery ends 0.16 m from the centreline at 35.04 m/s on both platforms.
 
-## Autopilot and fullscreen (6 October 2026)
+## Rendering samples and limits
 
-- Windows standalone full-lap regression uses the game's ordinary 0.01-second physics step, batched between frames. Five laps passed, with all 2,405 track segments visited in each scenario. These timings are simulated driving times, not test wall-clock durations.
-- Default handling: two laps, best 181.12 seconds, maximum 217.9 km/h, maximum centreline deviation 1.51 m.
-- macOS ARM64/Metal passed all five laps with all 2,405 track segments visited per scenario. Default, low-grip/weak-brake and high-power/slow-steering results match Windows; the Mac's saved-settings lap took 187.73 seconds. Reverse/off-road recovery finished 0.08 m from the centreline at 34.66 m/s. Driving/braking, settings and all 42 track-sign checks also passed.
-- Low grip / weak brakes: 248.28 seconds, maximum 217.0 km/h, maximum deviation 0.94 m. High power / slow steering: 154.68 seconds, 233.1 km/h, maximum deviation 2.28 m. The saved-settings lap also passed (185.50 seconds).
-- Every scenario exercised braking and both steering directions. Reverse/off-road recovery, pause preservation and autopilot state checks passed. Recovery now requires actual forward checkpoint crossings before a lap can count.
-- The live WASD overlay was inspected in both players. Windows Ctrl+P and macOS Cmd+P toggled autopilot; paused inputs were also inspected on macOS.
-- Fullscreen Windows build passed. Actual Ctrl+F input switched from a 1600x900 window to 1920x1200 borderless fullscreen and back to exactly 1600x900. Both transitions were visually inspected and confirmed by `DISPLAY_MODE` log entries. No game exception was logged.
-- macOS Cmd+F entered fullscreen and returned to the 1600×900 game window. Both transitions were visually inspected, with the settings dialog and paused autopilot preserved. No runtime exception was logged.
+The ordinary driving smoke test sampled **115.5 FPS** on the M1 Max and **32.0 FPS** on the RTX 3090, both at 1600×900. Windows ran in an active Remote Desktop session, which can affect presentation rate. These short samples are not sustained performance benchmarks or a GPU comparison. The batched autopilot test's frame rate measures accelerated simulation work and should not be read as normal driving performance.
 
-Logs: `Logs/autopilot-laps.log`, `Logs/fullscreen-build.log`, `Logs/fullscreen-controls.log`, `Logs/autopilot-macOS.log`, `Logs/controls-macOS.log`, `Logs/smoke-macOS.log`, `Logs/settings-macOS.log`, `Logs/sign-macOS.log` (ignored).
+The tests do not establish calibrated vehicle dynamics, exact sound fidelity, surveyed scenery accuracy, or exhaustive manual input/resize coverage. Both platforms use the same source defaults, physics and scenery. Commands to reproduce the standalone checks are in [README.md](README.md).
 
-### Windows 16:9 resize recheck
+## Evidence
 
-Native Windows resizing was exercised with the settings dialog open. Corner, right-edge and bottom-edge drags produced client areas of 1259x708, 1099x618 and 940x529 respectively, all within half-pixel aspect rounding. The dialog and HUD remained correctly proportioned. Maximizing produced a 1920x1080 game area beneath the title bar. Ctrl+F entered 1920x1200 borderless fullscreen and restored exactly 940x529 on return, with the settings dialog and paused state preserved. No runtime exceptions were logged. Evidence: `Logs/aspect-recheck.log`; native window screenshots were visually inspected.
+Ignored local evidence is under `Build/Release-v0.1.4/`: `macOS-tests/results.json`, `Windows-tests/results.json` and per-suite screenshots. Logs are `Logs/v0.1.4-macOS-*.log` and `Logs/v0.1.4-Windows-*.log`. The current screenshots in `docs/autopilot.png` and `docs/chase.png` come from these verified players.
 
-Release refresh: the final Windows build passed all five autopilot laps again. The saved-settings lap with steering response 2 completed in 186.40 seconds; reverse/off-road recovery ended 0.37 m from the centreline. Fresh 1600x900 screenshot: docs/autopilot-v0.1.3.png. Logs: Logs/release-autopilot-build.log and Logs/release-autopilot-test.log.
+## Release packages
 
-## Windows splash release refresh (6 October 2026)
+- **macOS ZIP:** integrity check passes; all 147 app files match the tested app after extraction. Included README, track CSV, both track images and attribution/license notices match the source files. Extracted and installed app signatures pass `codesign --verify --deep --strict`. The app is locally ad-hoc signed, not Developer ID signed or notarized. `/Applications/GotlandRing.app` contains this tested 0.1.4 build.
+- **Windows portable EXE:** .NET publish succeeds. Running `--extract-only` on Windows succeeds, creates the expected build-hash cache and ready marker, and all 155 extracted files match the tested game and current packaged documentation by SHA-256. Unity player data contains game version 0.1.4 and the launcher version is 0.1.4. The EXE includes its .NET runtime and requires no .NET installation.
+- SHA-256 checksums for both downloadable artifacts are distributed as `SHA256SUMS`. The release workflow downloads both artifacts, checks these hashes and tests macOS ZIP integrity.
 
-Rebuilt Windows x64 from the shared Impreza artwork splash configuration. Unity's splash preparation and build succeeded. Standalone driving/braking passed: 24.0 m/s, 222.2 m displacement, then 0.00 m/s under braking. All 820 trees passed clearance validation; no game exceptions were logged. Logs: Logs/splash-release-build.log and Logs/splash-release-smoke.log.
+Package audit evidence: `Build/Release-v0.1.4/macOS-package.json` and `Windows-package.json` (ignored).

@@ -118,17 +118,19 @@ Close any normal game instance first. Run these tests sequentially with graphics
 
 ```bash
 mkdir -p Logs
+open -n -W Build/macOS/GotlandRing.app --args --model-preview -screen-width 1600 -screen-height 900 -logFile "$PWD/Logs/model-preview-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --smoke-test -screen-width 1600 -screen-height 900 -logFile "$PWD/Logs/smoke-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --settings-test -screen-width 1600 -screen-height 900 -logFile "$PWD/Logs/settings-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --sign-test -screen-width 1600 -screen-height 900 -logFile "$PWD/Logs/signs-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --autopilot-test -screen-width 1600 -screen-height 900 -logFile "$PWD/Logs/autopilot-macOS.log"
-grep -E 'SMOKE_TEST|BRAKE_TEST|SETTINGS_TEST|TRACK_SIGNS_TEST|AUTOPILOT_TEST ALL PASSED' Logs/*-macOS.log
+grep -E 'RALLY_MODEL_TEST|SMOKE_TEST|BRAKE_TEST|SETTINGS_TEST|TRACK_SIGNS_TEST|AUTOPILOT_TEST ALL PASSED' Logs/*-macOS.log
 ```
 
 Read the player logs to establish the result; a successful `open` command alone does not prove a test passed. Do not add `-nographics` to these runtime tests.
 
 | Check | Success evidence |
 |---|---|
+| `--model-preview` | `RALLY_MODEL_TEST passed ...` and car/cockpit/paint screenshots. |
 | `--smoke-test` | Driving statistics followed by braking to approximately zero, `pass=True`. |
 | `--settings-test` | `SETTINGS_TEST passed: cancel, apply, persistence, pause restoration`. |
 | `--sign-test` | `TRACK_SIGNS_TEST passed: 42 boards ...`. |
@@ -163,7 +165,7 @@ Install GitHub CLI using its [macOS installation instructions](https://cli.githu
 
 ```bash
 gh auth login
-release_tag=v0.1.3
+release_tag=v0.1.4
 gh release upload "$release_tag" Build/GotlandRing-macOS-arm64.zip --repo mannetroll/GotlandRing
 ```
 

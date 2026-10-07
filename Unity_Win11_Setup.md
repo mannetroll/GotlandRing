@@ -102,18 +102,19 @@ Close the normal game instance first. These tests need a desktop session and gra
 ```powershell
 $projectRoot = (Get-Location).Path
 New-Item -ItemType Directory -Force Logs | Out-Null
-foreach ($check in 'smoke','settings','sign','autopilot') {
-    $testArguments = '--{0}-test -screen-width 1600 -screen-height 900 -logFile "{1}\Logs\{0}-windows.log"' -f $check, $projectRoot
+foreach ($check in 'model-preview','smoke-test','settings-test','sign-test','autopilot-test') {
+    $testArguments = '--{0} -screen-width 1600 -screen-height 900 -logFile "{1}\Logs\{0}-windows.log"' -f $check, $projectRoot
     $test = Start-Process -FilePath .\Build\Windows\GotlandRing.exe -ArgumentList $testArguments -Wait -PassThru
     if ($test.ExitCode -ne 0) { throw "$check test exited with code $($test.ExitCode)." }
 }
-Select-String -Path Logs/*-windows.log -Pattern 'SMOKE_TEST','BRAKE_TEST','SETTINGS_TEST','TRACK_SIGNS_TEST','AUTOPILOT_TEST ALL PASSED'
+Select-String -Path Logs/*-windows.log -Pattern 'RALLY_MODEL_TEST','SMOKE_TEST','BRAKE_TEST','SETTINGS_TEST','TRACK_SIGNS_TEST','AUTOPILOT_TEST ALL PASSED'
 ```
 
 Inspect the logs as well as exit codes. Expected results are:
 
 | Check | Success evidence |
 |---|---|
+| `--model-preview` | `RALLY_MODEL_TEST passed ...` and car/cockpit/paint screenshots. |
 | `--smoke-test` | Driving statistics, then `BRAKE_TEST ... pass=True`. |
 | `--settings-test` | `SETTINGS_TEST passed: cancel, apply, persistence, pause restoration`. |
 | `--sign-test` | `TRACK_SIGNS_TEST passed: 42 boards ...`. |
@@ -143,7 +144,7 @@ Start-Process -FilePath .\Build\Portable\GotlandRing-Portable.exe
 
 Only the portable EXE needs to be copied to another Windows PC. It extracts its bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Players do not need Unity or .NET installed. This workflow produces an unsigned executable.
 
-The [release workflow](.github/workflows/release.yml) publishes the launcher from the **committed** `PortableLauncher/Game.zip`; it does not rebuild Unity. Include the regenerated payload when releasing changed game code.
+`PortableLauncher/Game.zip` is generated and ignored by Git. Rebuild it for every release, publish the launcher locally, and upload the tested EXE alongside the macOS ZIP and `SHA256SUMS`. The [release workflow](.github/workflows/release.yml) verifies those published downloads; see the [release steps](README.md#publish-a-release).
 
 ## 7. Optional release upload
 
@@ -151,7 +152,7 @@ Install GitHub CLI, authenticate, and set the tag of an existing release that ma
 
 ```powershell
 gh auth login
-$releaseTag = 'v0.1.3'
+$releaseTag = 'v0.1.4'
 gh release upload $releaseTag Build/Portable/GotlandRing-Portable.exe --repo mannetroll/GotlandRing
 ```
 

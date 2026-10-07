@@ -4,19 +4,19 @@
 
 > **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.3/GotlandRing-macOS-arm64.zip) | [Release v0.1.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.3)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.4/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.4/GotlandRing-macOS-arm64.zip) | [Release v0.1.4](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.4)
 
-![Auto(P)ilot with live WASD inputs](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/autopilot-v0.1.3.png)
+![Auto(P)ilot with the detailed Impreza and mapped woodland](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.4/docs/autopilot.png)
 
-![Curved rear wing and updated visuals](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.3/docs/rear-v0.1.3.png)
+![Splash-red Impreza in rear chase view](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.4/docs/chase.png)
 
 A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, in a detailed Impreza rally coupe with a full cockpit.
 
 ## Get behind the wheel
 
-**Windows:** download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and working graphics drivers are required. No Unity or .NET installation is needed. The download is approximately **97 MB**.
+**Windows:** download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and working graphics drivers are required. No Unity or .NET installation is needed.
 
-The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow about 250 MB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
+The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow 500 MB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
 
 **macOS Apple Silicon:** download **GotlandRing-macOS-arm64.zip**, double-click to extract it, then open **GotlandRing.app** inside the extracted folder. Requires macOS **12 or later** and an Apple Silicon Mac (M1 or newer). The Unity runtime is included; no Unity installation is needed. Keep the app, track data and notices together in the extracted folder.
 
@@ -43,7 +43,7 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 
 ## Inside the prototype
 
-- Imported Impreza rally coupe with textured bodywork, cockpit, roll cage, occupants, steering-wheel animation and rotating/steering road wheels.
+- Imported Impreza rally coupe with textured bodywork, cockpit, roll cage, a single driver, steering-wheel animation and rotating/steering road wheels.
 - Full circuit loaded from the supplied 3 m centerline CSV, preserving local metre coordinates and terrain elevations.
 - Blue-and-white kerbs, limestone runoff, pines, pit wall and wind turbines inspired by the onboard footage.
 - 42 numbered name boards on the right side of the circuit, matching the locations in `track/track_points.jpeg` approximately. Boards face approaching drivers and include both names where the map lists alternatives.
@@ -52,15 +52,15 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
 
-## What v0.1.3 is
+## What v0.1.4 is
 
-Refreshed on **6 October 2026** with an Impreza artwork startup splash, fast Auto(P)ilot, a live WASD input display, Ctrl/Cmd+F fullscreen, fixed 16:9 window resizing on both platforms, and updated track validation imagery. Steering response defaults to **5** on Windows and macOS; existing saved configurations remain editable in F3.
+The detailed Impreza starts in red with a rear chase camera. **T** cycles its paint; mouse movement orbits the car in chase view. Cockpit view keeps the driver’s arms and body visible, and **R** recovery preserves lap timing. The circuit includes **10,710 pine trees** distributed from the supplied aerial references. Steering response defaults to **5** on Windows and macOS; existing saved configurations remain editable in F3.
 
 A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
 
 The car model and its textures are [Rally Car by SpatialNeglect (@jeandiz)](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02), licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Builds containing this asset are for noncommercial use; the original C# source remains MIT licensed. See [asset credits](docs/ASSET-CREDITS.md).
 
-The original photographs and videos stay outside the repository. The derived engine sample required by the game is included.
+The repository includes track reference images and the full-lap reference video. The game bundles its derived scenery and engine sample; it does not bundle the reference video.
 
 ## Build it
 
@@ -100,10 +100,10 @@ After building and testing, package the app, track data and current notices for 
 
 ```bash
 ./scripts/Package-macOS.sh
-gh release upload v0.1.3 Build/GotlandRing-macOS-arm64.zip
+gh release upload v0.1.4 Build/GotlandRing-macOS-arm64.zip
 ```
 
-The ZIP is built locally on macOS and attached to the release alongside the Windows EXE. The Windows release workflow builds and uploads only the EXE.
+Both packages are built and tested before upload. The release workflow verifies the published downloads against `SHA256SUMS`.
 
 F2 screenshots and automated test images on macOS are saved under `~/Library/Application Support/com.Mannetroll-Solutions-AB.Gotland-Ring---Impreza/`. The player log also records each screenshot path. On keyboards that use the function keys for system controls, hold Fn when pressing F2 or F3.
 
@@ -129,10 +129,28 @@ The game is built to `Build/Windows/GotlandRing.exe`. In the editor, use **Gotla
 
 ```powershell
 .\scripts\Package-Game.ps1
-dotnet publish PortableLauncher\PortableLauncher.csproj -c Release -o dist
+dotnet publish PortableLauncher\PortableLauncher.csproj -c Release -o Build/Portable
 ```
 
-The release workflow compiles the launcher around the **committed, tested Unity payload** in `PortableLauncher/Game.zip`. It does not rebuild Unity in CI or require a Unity license on the GitHub runner. Regenerate that payload whenever the Unity game changes.
+`PortableLauncher/Game.zip` is a generated, Git-ignored build payload. Rebuild Unity and regenerate it before publishing the launcher. GitHub releases contain the tested Windows EXE, macOS ZIP and `SHA256SUMS`; pushing a tag alone does not upload binaries.
+
+### Publish a release
+
+Set the version in `Assets/Editor/BuildGame.cs`, `ProjectSettings/ProjectSettings.asset` and `PortableLauncher/PortableLauncher.csproj`. Update the download links and `docs/release-notes.md`. Build and run the checks above for both targets, then package the macOS app and Windows portable launcher. Windows builds can use the Mac editor’s Windows Build Support; run the resulting EXE and package checks on Windows.
+
+After copying the tested Windows portable EXE into `Build/Portable/` on the Mac:
+
+```bash
+./scripts/Package-macOS.sh
+(cd Build && shasum -a 256 Portable/GotlandRing-Portable.exe GotlandRing-macOS-arm64.zip) | sed 's|Portable/||' > Build/SHA256SUMS
+git add Assets/Editor/BuildGame.cs ProjectSettings/ProjectSettings.asset PortableLauncher/PortableLauncher.csproj README.md docs/release-notes.md VERIFICATION.md
+git commit -m "Release v0.1.4"
+git tag -a v0.1.4 -m "Gotland Ring v0.1.4"
+git push origin main v0.1.4
+gh release create v0.1.4 --verify-tag --draft --title "Gotland Ring v0.1.4" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
+```
+
+Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.1.4 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
 
 | Location | Purpose |
 |---|---|
@@ -151,19 +169,17 @@ The release workflow compiles the launcher around the **committed, tested Unity 
 | `scripts/Build-macOS.sh` | Command-line macOS build |
 | `scripts/Package-macOS.sh` | macOS release ZIP with app, track data and notices |
 | `PortableLauncher/` | Single-file launcher and game payload |
-| `.github/workflows/release.yml` | Tagged GitHub release and EXE upload |
+| `.github/workflows/release.yml` | Published release checksums and macOS ZIP integrity |
 
 ## Verification
 
-The current macOS source builds successfully and is installed locally. The imported car and paint colours were rendered and checked. The orbit camera, updated defaults and lap-preserving recovery were compiled without further runtime tests. The full-lap results below used steering response 2; see [verification details](VERIFICATION.md) for coverage.
+Both v0.1.4 players passed all five standalone test suites: car rendering/animation, driving/braking, settings, track signs and full-lap autopilot. Tests ran on macOS ARM64/Metal (Apple M1 Max) and Windows 11 x64/Direct3D 11 (RTX 3090). The Windows game was cross-built with Unity's Windows Build Support on macOS, then run on Windows.
 
-Windows build and launch passed on the RTX 3090. Five full-track autopilot laps passed across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default handling, the best lap was **3:01.12**, top speed **217.9 km/h**, and maximum centreline deviation **1.51 m**. Tests use the actual 100 Hz driving physics, batched between frames; lap times are simulated driving time.
+Each platform completed five autopilot laps across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default steering response **5**, the best lap was **3:00.30**, maximum speed **217.9 km/h**, and maximum centreline deviation **1.34 m**. Every scenario covered all 2,405 track segments and exercised braking and both steering directions. Recovery, pause and autopilot state checks passed. Timings are simulated driving time using the actual 100 Hz physics, batched between frames.
 
-Reverse/off-road recovery, braking, both steering directions and complete track coverage passed. The live WASD display was visually inspected. Windows corner/side/bottom resizing and maximize preserved 16:9; fullscreen restored the previous window dimensions while retaining the settings dialog and pause state. The portable payload was verified against the tested game scripts.
+All 42 track boards and the mapped 10,710-tree forest passed placement checks. Car, cockpit and woodland screenshots were inspected on both platforms. No game exceptions, assertion failures or shader errors appeared in the test logs. See [verification details](VERIFICATION.md) for results, packaging checks and coverage limits.
 
-The macOS ARM64/Metal build passed the same five-lap autopilot regression, recovery, driving/braking, settings and 42-sign checks on an Apple M1 Max. Cmd+P toggled autopilot, and Cmd+F entered fullscreen and restored the 1600×900 window while preserving the settings dialog and paused autopilot. See [verification details](VERIFICATION.md).
-
-Steering is tuned for keyboard play: faster turn-in and centering, a wider steering range, and stronger asphalt grip. These are arcade-friendly settings rather than measured Impreza tire limits.
+Steering is tuned for keyboard play. These are arcade handling settings rather than measured Impreza tire limits.
 
 ### Driving dynamics
 
@@ -179,7 +195,7 @@ The controller accelerates on straights, plans braking before corners and steers
 
 Run `Build/Windows/GotlandRing.exe --autopilot-test -logFile Logs/autopilot-windows.log` for the Windows regression. It batches ordinary 0.01-second physics steps between frames: two default laps, laps with low grip/weak brakes and high power/slow steering, a saved-settings lap, and reverse/off-road recovery. It checks full-track coverage, road clearance, acceleration, braking and both steering directions, exits nonzero on failure, and saves `autopilot-test.png`. Test setups do not overwrite saved driving preferences. `--autopilot` starts a normal real-time run with autopilot enabled.
 
-## Visual upgrade in v0.1.3
+## Visuals
 
 The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and mapped pine woodland. Tree distribution follows the canopy visible in `track/check_*.png` and `track/south_grid.png`; `track/KOENIGSEGG.webm` guides the height and density of the treeline. Northern woodland, southern forest islands and open quarry/paddock areas follow those references. Tree species, heights and individual positions are approximate. Pines use varied, camera-facing cutouts grouped into 96 m tiles for rendering and culling; they are not full 3D trees. See [track documentation](TRACK.md) and [asset credits](docs/ASSET-CREDITS.md).
 

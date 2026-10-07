@@ -1,34 +1,20 @@
-name: Publish portable game
+name: Verify release downloads
 on:
-  push:
-    tags: ['v*']
-  workflow_dispatch:
-permissions:
-  contents: write
-jobs:
   release:
-    runs-on: windows-latest
+    types: [published]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-      - name: Build self-contained launcher with tested Unity payload
-        run: dotnet publish PortableLauncher/PortableLauncher.csproj -c Release -o dist
-      - name: Publish EXE
-        shell: pwsh
+      - name: Verify native release packages
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          $tag = '${{ github.ref_name }}'
-          if ($tag -notmatch '^v') { throw 'Run this workflow against a release tag.' }
-          gh release view $tag *> $null
-          if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --verify-tag --title "Gotland Ring $tag" --notes-file docs/release-notes.md
-            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
-          }
-          gh release edit $tag --notes-file docs/release-notes.md
-          if ($LASTEXITCODE -ne 0) { throw 'Release notes update failed' }
-          gh release upload $tag dist/GotlandRing-Portable.exe --clobber
-          if ($LASTEXITCODE -ne 0) { throw 'EXE upload failed' }
+          gh release download "$RELEASE_TAG" --pattern GotlandRing-Portable.exe --pattern GotlandRing-macOS-arm64.zip --pattern SHA256SUMS --dir release
+          cd release
+          sha256sum --check --strict SHA256SUMS
+          unzip -tq GotlandRing-macOS-arm64.zip
