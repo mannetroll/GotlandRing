@@ -8,7 +8,7 @@
 
 ![Auto(P)ilot with the detailed Impreza and mapped woodland](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.4/docs/autopilot.png)
 
-![Splash-red Impreza in rear chase view](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.4/docs/chase.png)
+![Splash-red Impreza viewed from the front and side](docs/front.png)
 
 A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, in a detailed Impreza rally coupe with a full cockpit.
 
