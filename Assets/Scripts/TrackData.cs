@@ -20,6 +20,8 @@ public sealed class TrackData
   public Vector3 Center,Right;
   public float Distance,LeftWidth,RightWidth,Slope,Curve,GroundLeft,GroundRight;
   public bool LeftInferred,RightInferred;
+  // Edge-to-edge angle, including asymmetric widths on crowned/hollow sections.
+  public float BankingDegrees=>Mathf.Atan(Slope+Curve*(RightWidth-LeftWidth))*Mathf.Rad2Deg;
   // Positive crossfall raises the right edge. Banking is already in these heights.
   public Vector3 Road(float offset)=>Center+Right*offset+Vector3.up*(Slope*offset+Curve*offset*offset);
   public Vector3 Ground(float offset){

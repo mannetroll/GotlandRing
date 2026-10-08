@@ -4,21 +4,23 @@
 
 > **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.4/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.4/GotlandRing-macOS-arm64.zip) | [Release v0.1.4](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.4)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.2.0/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.2.0/GotlandRing-macOS-arm64.zip) | [Release v0.2.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.2.0)
 
-These downloads are v0.1.4. The current source is v0.2.0, adding the banked track surface described below.
+**v0.2.0:** two switchable Imprezas, a banked circuit and matching minimap, an optimized autopilot racing line, isolated Impreza engine audio, 12 animated wind turbines and mapped trackside scenery.
 
-![Auto(P)ilot with the detailed Impreza and mapped woodland](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.4/docs/autopilot.png)
+![Impreza Rally in Splash red, captured in v0.2.0](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.2.0/docs/front.png)
 
-![Splash-red Impreza viewed from the front and side](docs/front.png)
+![Subaru Impreza in its blue-and-gold livery, captured in v0.2.0](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.2.0/docs/subaru-impreza.png)
 
-A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, in a detailed Impreza rally coupe with a full cockpit.
+Fresh in-game captures of the two models. Press **Y** to switch between them during a drive.
+
+A small Unity driving prototype inspired by personal photographs and onboard footage of a **Subaru Impreza 2000 GT 2.0 S** at **Gotland Ring**. Drive a CSV-based, approximately 7.214 km circuit through open limestone scenery, choosing between two detailed Impreza models with a shared animated cockpit and driver.
 
 ## Get behind the wheel
 
 **Windows:** download **GotlandRing-Portable.exe**, then double-click it. Windows x64 and working graphics drivers are required. No Unity or .NET installation is needed.
 
-The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow 500 MB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
+The first launch extracts the bundled game to `%LOCALAPPDATA%\Mannetroll\GotlandRing\<build hash>`. Later launches reuse those files. Allow 1 GB for the EXE and extracted runtime. Copy only the portable EXE when moving to another computer. It is unsigned.
 
 **macOS Apple Silicon:** download **GotlandRing-macOS-arm64.zip**, double-click to extract it, then open **GotlandRing.app** inside the extracted folder. Requires macOS **12 or later** and an Apple Silicon Mac (M1 or newer). The Unity runtime is included; no Unity installation is needed. Keep the app, track data and notices together in the extracted folder.
 
@@ -36,35 +38,38 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | Mouse | Look around in cockpit/bonnet view; orbit the car in chase view |
 | Right mouse | Center your view; return behind the car in chase view |
 | C | Cycle cockpit / bonnet / chase camera (starts behind the car) |
+| Y | Switch between Impreza Rally and the blue-and-gold Subaru Impreza, preserving the current drive |
 | R | Recover to the nearest track point, preserving lap time and checkpoint progress |
 | Home | Restart the current lap at the start line |
 | Escape | Pause / resume and release the mouse |
-| T | Cycle paint: Splash red → rally blue → white → Splash red |
+| T | Cycle Impreza Rally paint: Splash red → rally blue → white → Splash red |
 | M | Mute / unmute |
 | F2 | Save a screenshot alongside the extracted game |
 
 ## Inside the prototype
 
 - Imported Impreza rally coupe with textured bodywork, cockpit, roll cage, a single driver, steering-wheel animation and rotating/steering road wheels.
+- A second Subaru Impreza from the supplied `subaru_impreza.glb`, retaining its blue-and-gold livery. **Y** switches car visuals without resetting position, speed, lap timing, camera or autopilot; the second car shares the detailed cockpit and driver.
 - Full circuit loaded from the supplied 3 m surface CSV, preserving the centerline and adding estimated widths, banking and crown/hollow profiles.
-- Limestone aprons, white edge markings, pines, pit wall and wind turbines inspired by the supplied data and onboard footage.
+- Limestone aprons, white edge markings, pines, pit wall and 12 wind turbines at the supplied registry coordinates and terrain elevations. Six V47s have 55 m hubs / 47 m rotors, three V66s have 78 m hubs / 66 m rotors, and three V90s have 105 m hubs / 90 m rotors. Rotors face **W (west)** and turn clockwise from the front at **10 RPM**, using a visual estimate from the 2022 recording, and stop while paused.
 - 42 numbered name boards on the right side of the circuit, matching the locations in `track/track_points.jpeg` approximately. Boards face approaching drivers and include both names where the map lists alternatives.
+- The main building and annex sit north of mapped turbine 2. Mesh catch fencing, Armco rails and concrete barriers follow the styles in the owner's 2022 film; see [scenery references](docs/SCENERY.md).
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
-- Toggleable autopilot with corner-speed planning, advance braking and continuous steering; it uses the same driving physics as the player.
+- Toggleable autopilot with an optimized racing line, corner-speed planning, advance braking and continuous steering; it uses the same driving physics as the player.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
-- Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
+- Engine audio isolated from the owner's 2022 Impreza recording, with speech removed through engine-cycle extraction, RPM-matched playback, throttle-dependent intake tone, lift-off and subdued road/tire noise.
 
 ## What v0.2.0 is
 
-The circuit uses the supplied surface reconstruction for variable asphalt widths, banking and crown/hollow profiles. Road rendering, car contact and recovery share the same surface; driving physics and autopilot account for banking. White edge markings follow the supplied boundary confidence, and scenery heights follow the new surface. Banking ranges from −4.835° to +5.778° in the estimated data.
+The circuit uses the supplied surface reconstruction for variable asphalt widths, banking and crown/hollow profiles. Road rendering, car contact and recovery share the same surface; driving physics and autopilot account for banking. White edge markings follow the supplied boundary confidence, and scenery heights follow the new surface. Banking ranges from −4.835° to +5.778° in the estimated data. The mini-map matches the surface validation image's blue–gray–red banking scale: blue is negative, gray is zero, and red is positive (right edge higher). Its degree legend uses symmetric limits of ±5.8°, and a white marker shows your car.
 
 The detailed Impreza starts in red with a rear chase camera. **T** cycles its paint; mouse movement orbits the car in chase view. Cockpit view keeps the driver’s arms and body visible, and **R** recovery preserves lap timing. The circuit includes **10,710 pine trees** distributed from the supplied aerial references. Steering response defaults to **5** on Windows and macOS; existing saved configurations remain editable in F3.
 
-A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio is inspired by the recording rather than an exact exhaust reproduction.
+A playable first prototype, with simplified geometry and a ground-following bicycle handling model. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Scenery collisions, damage, AI opponents and full suspension physics are not implemented. Audio uses engine-cycle waveforms extracted from the real in-car recording; idle and RPM outside the recorded ranges are pitch-derived.
 
-The car model and its textures are [Rally Car by SpatialNeglect (@jeandiz)](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02), licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Builds containing this asset are for noncommercial use; the original C# source remains MIT licensed. See [asset credits](docs/ASSET-CREDITS.md).
+The car models and textures are [Rally Car by SpatialNeglect (@jeandiz)](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02) and [Subaru Impreza by Mateusz Woliński (@jeandiz)](https://sketchfab.com/3d-models/subaru-impreza-7fb4298d5d8f4185b25bb2c43d7f3787), licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Builds containing these assets are for noncommercial use; the original C# source remains MIT licensed. See [asset credits](docs/ASSET-CREDITS.md).
 
-The repository includes track reference images and the full-lap reference video. The game bundles its derived scenery and engine sample; it does not bundle the reference video.
+The repository includes track reference images and the full-lap track reference video. The owner's source recordings in `sound/` stay local. Builds include the prepared car assets, derived scenery and isolated engine waveforms; the source films are not needed to build or run the game and are not bundled in either download.
 
 ## Build it
 
@@ -73,7 +78,9 @@ For a complete setup from a fresh machine, see [Windows 11 setup](Unity_Win11_Se
 **Game:** Unity **6000.3.25f1 LTS**, Mono, built-in renderer. Windows x64 uses Direct3D 11; macOS ARM64 uses Metal and runs natively on Apple Silicon.
 **Windows portable launcher:** .NET **10**, self-contained Windows x64.
 
-Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`. The imported car is `Assets/Resources/RallyCar.prefab`; **Gotland Ring > Prepare rally car prefab** regenerates its material assignments, camera anchors and animated pivots. Both build commands run this preparation automatically.
+Open this folder in Unity. The scene is `Assets/Scenes/Gotland.unity`. The cars are `Assets/Resources/RallyCar.prefab` and `Assets/Resources/SubaruImpreza.prefab`. The **Gotland Ring > Prepare rally car prefab** and **Prepare Subaru Impreza prefab** editor commands regenerate materials, camera anchors and animated pivots. Both build commands prepare both cars automatically.
+
+The second model's prepared FBX and textures are in `Assets/Models/SubaruImpreza/`. To regenerate them from the supplied `Impreza/subaru_impreza.glb`, run `python3 scripts/Prepare-Subaru.py` with Assimp and ffmpeg installed. Normal builds use the prepared assets and do not require those tools or the original GLB.
 
 The startup splash uses `Assets/Artwork/ImprezaIcon.png` (the same image as `docs/Splash.png`) on black for at least 2.5 seconds while the game loads, with the Unity logo disabled. Both build targets share these splash settings.
 
@@ -115,6 +122,9 @@ Run the existing standalone checks with graphics enabled:
 
 ```bash
 open -n -W Build/macOS/GotlandRing.app --args --model-preview -logFile "$PWD/Logs/rally-model-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --car-switch-test -logFile "$PWD/Logs/car-switch-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --wind-test -logFile "$PWD/Logs/wind-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --scenery-test -logFile "$PWD/Logs/scenery-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --surface-test -logFile "$PWD/Logs/surface-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --smoke-test -logFile "$PWD/Logs/smoke-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --settings-test -logFile "$PWD/Logs/settings-macOS.log"
@@ -162,29 +172,50 @@ Check that both uploaded packages match the local checksums, then publish with `
 | `Assets/Scripts/RingDrive.cs` | Circuit, scenery, car, handling, controls and HUD |
 | `Assets/Scripts/TrackData.cs` / `RingDrive.Surface.cs` | Banked road mesh, matching surface queries, variable asphalt edges and car alignment |
 | `Assets/Scripts/RingDrive.SurfaceChecks.cs` | Forward/reverse ground contact, bank direction, recovery and seam checks |
+| `windmills/` / `Assets/Resources/Track/WindTurbines.csv` | Supplied registry positions, model dimensions and RH2000 base heights; the bundled CSV is unchanged |
+| `Assets/Scripts/RingDrive.WindTurbines.cs` / `WindTurbineData.cs` | Registered turbine placement, scaled procedural geometry and rotor animation |
 | `Assets/Scripts/ImprezaModel.cs` | Imported car steering, wheel animation and cockpit visibility |
 | `Assets/Models/RallyCar` | FBX model, textures and materials by SpatialNeglect (CC BY-NC 4.0) |
 | `Assets/Editor/RallyCarImport.cs` | Prepare the scaled car prefab and camera/wheel pivots |
+| `Assets/Editor/SubaruCarImport.cs` | Prepare the second car's exterior, materials, wheel pivots and shared cockpit |
 | `Assets/Scripts/DrivingSettings.cs` | Saved handling configuration |
 | `Assets/Scripts/AutopilotController.cs` | Track curvature, braking envelope and steering/throttle/brake controller |
 | `Assets/Scripts/RingDrive.AutopilotChecks.cs` | Full-lap and recovery regression using the game's actual physics |
 | `Assets/Scripts/RingDrive.Window.cs` | Ctrl/Cmd shortcuts and fullscreen/window-size restoration |
 | `Assets/Scripts/WindowsWindowAspectRatio.cs` / `MacWindowAspectRatio.cs` | Native 16:9 window resizing, excluding the window frame |
 | `Assets/Scripts/TrackLandmarks.cs` | Names and approximate CSV positions for the 42 numbered track signs |
-| `Assets/Scripts/BoxerAudio.cs` | Responsive engine synthesis and recording layer |
+| `Assets/Scripts/BoxerAudio.cs` / `ImprezaEngineMixer.cs` | Recorded Impreza loops, RPM blending and throttle/road audio |
+| `scripts/Prepare-EngineAudio.py` | Reproduce engine loops from the owner's 2022 recording |
 | `Assets/Editor/BuildGame.cs` | Scene generation, Windows x64 and macOS ARM64 builds |
 | `scripts/Build-macOS.sh` | Command-line macOS build |
 | `scripts/Package-macOS.sh` | macOS release ZIP with app, track data and notices |
 | `PortableLauncher/` | Single-file launcher and game payload |
 | `.github/workflows/release.yml` | Published release checksums and macOS ZIP integrity |
 
+## Lines of code
+
+Source snapshot for **v0.2.0, 8 October 2026**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once.
+
+| Source | Language | Files | LOC |
+|---|---|---:|---:|
+| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 24 | 1,877 |
+| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 537 |
+| Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 |
+| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 3 | 71 |
+| Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 |
+| macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 |
+| Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 |
+| **Total** | | **41** | **2,778** |
+
+The count covers game source, verification code and build/asset tools. It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
+
 ## Verification
 
-The banked-surface source builds for macOS ARM64/Metal and Windows x64/Direct3D 11. Surface contact, driving/braking, track signs and full-lap autopilot checks pass on Apple M1 Max. The Windows build of this surface update has not been runtime-tested or published as a release.
+All nine standalone test suites pass on **macOS 15.7.9 / Apple M1 Max / Metal** and **Windows 11 / fractal / RTX 3090 / Direct3D 11**, at 1920×1080. Coverage includes both car models and switching, wheel animation, turbines, scenery, banked-surface contact, driving/braking, settings, all 42 track signs and full-lap autopilot. Screenshots from both platforms were visually checked; the two images above are fresh macOS captures.
 
-The macOS player completed five autopilot laps across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default steering response **5**, the best lap was **2:59.89**, maximum speed **217.9 km/h**, and maximum centreline deviation **1.34 m**. Every scenario covered all 2,405 track segments and kept the car's reference point within the variable asphalt edges. Recovery, pause and autopilot state checks passed. Timings are simulated driving time using the actual 100 Hz physics, batched between frames.
+Each platform completed five racing-line autopilot laps across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default steering response **5**, both achieved a best lap of **2:43.10**, maximum speed **218.0 km/h**, and minimum measured car-body clearance **1.09 m**. Every scenario covered all 2,405 track segments and passed checks for the four corners of the car staying on asphalt. Recovery, pause and autopilot state checks also pass. Timings are simulated driving time using the actual 100 Hz physics, batched between frames.
 
-All 42 track boards and the mapped 10,710-tree forest pass placement checks. Both banking directions were visually inspected. No game exceptions, assertion failures or shader errors appeared in the successful test logs. See [verification details](VERIFICATION.md) for results and coverage limits.
+Track, woodland, car-import and engine-mixer build checks pass, as does the audio-extraction regression. No game exceptions, assertion failures or shader errors appeared in the successful runtime logs. See [verification details](VERIFICATION.md) for measured results and coverage limits.
 
 Steering is tuned for keyboard play. These are arcade handling settings rather than measured Impreza tire limits.
 
@@ -198,13 +229,17 @@ Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward 
 
 Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again, or any driving key (WASD, arrows or X), to take over. Mouse look and camera selection remain available. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
 
-The controller accelerates on straights, plans braking before corners and steers continuously around the complete CSV circuit. Corner speeds respect configured grip and steering limits, with a small allowance for position correction. It follows the centreline, uses the ordinary throttle/brake/steering inputs and attempts to rejoin when engaged off track or facing the wrong way. This is a fast practice driver, not a mathematically optimal racing-line solver; engaging at an excessive speed inside a corner can still run wide. The HUD shows its state, target speed, throttle and brake. A small WASD keyboard lights green for gas, orange for braking and blue for left/right steering; the fill represents input strength, and steering shows the actual applied angle after steering response. Keys go inactive while paused.
+The controller computes a smooth racing line around the complete circuit, using wider entries and exits and moving toward the apex through bends. It minimizes changes in direction within the supplied asymmetric asphalt boundaries, reserving 2.6 m from the planned car centre to each edge for body width and steering corrections. The line closes smoothly across the start/finish. This is a practical curvature optimization; it does not establish a global minimum lap time.
 
-Run `Build/Windows/GotlandRing.exe --autopilot-test -logFile Logs/autopilot-windows.log` for the Windows regression. It batches ordinary 0.01-second physics steps between frames: two default laps, laps with low grip/weak brakes and high power/slow steering, a saved-settings lap, and reverse/off-road recovery. It checks full-track coverage, road clearance, acceleration, braking and both steering directions, exits nonzero on failure, and saves `autopilot-test.png`. Test setups do not overwrite saved driving preferences. `--autopilot` starts a normal real-time run with autopilot enabled.
+Corner speeds use the racing line's curvature and local banking, configured grip, steering angle and steering response. Braking is planned ahead along the same line. The controller uses ordinary throttle/brake/steering inputs and rejoins the racing line when engaged off track or facing the wrong way. Engaging at an excessive speed inside a corner can still run wide. The HUD shows its state, target speed, throttle and brake. A small WASD keyboard lights green for gas, orange for braking and blue for left/right steering; the fill represents input strength, and steering shows the actual applied angle after steering response. Keys go inactive while paused.
+
+Run `Build/Windows/GotlandRing.exe --autopilot-test -logFile Logs/autopilot-windows.log` for the Windows regression. It batches ordinary 0.01-second physics steps between frames: two default laps, laps with low grip/weak brakes and high power/slow steering, a saved-settings lap, and reverse/off-road recovery. It checks line curvature, use of track width, full-track coverage, car-body clearance, acceleration, braking and both steering directions. It exits nonzero on failure and saves `autopilot-test.png` and the planned `racing-line.csv` in the application's screenshot folder. Test setups do not overwrite saved driving preferences. `--autopilot` starts a normal real-time run with autopilot enabled.
 
 ## Visuals
 
 The current source adds linear lighting, an HDR photographic sky, local sky/circuit reflections, 2K scanned asphalt/grass/gravel with normal maps, 4x MSAA, upgraded car glazing and panel details, and mapped pine woodland. Tree distribution follows the canopy visible in `track/check_*.png` and `track/south_grid.png`; `track/KOENIGSEGG.webm` guides the height and density of the treeline. Northern woodland, southern forest islands and open quarry/paddock areas follow those references. Tree species, heights and individual positions are approximate. Pines use varied, camera-facing cutouts grouped into 96 m tiles for rendering and culling; they are not full 3D trees. See [track documentation](TRACK.md) and [asset credits](docs/ASSET-CREDITS.md).
+
+Turbines use `windmills/gotland_ring_wind_turbines.csv` directly in the track's metre-based coordinate frame, without another offset or terrain snap. The fixed Y origin is 38.507350922 m RH2000. Base positions, hub heights and rotor diameters come from the supplied export. The scene uses a west-facing rotor front (−X), corresponding to wind arriving from W and flowing east (+X), with clockwise rotation at 10 RPM. These are visual estimates from `Gotland Ring 2022 - 1 of 1.mp4`: west is the selected coarse cardinal match from the film/layout comparison, and the blade motion around 02:39–02:41 supports roughly 10 RPM. The bearing is less certain than the rotation rate; neither is calibrated telemetry or a registry field. All turbines share this scene setting. Tower/blade shapes, blade phases and local ground transitions are also visual approximations. Ground transitions connect the supplied base heights to the game's approximate landscape and avoid the road/aprons. They are not additional terrain measurements. Registry position accuracy is unspecified, and ground heights are terrain-model estimates. See [turbine import notes](windmills/WIND_TURBINES_README.txt) and the [location map](windmills/gotland_ring_wind_turbines_map.png).
 
 The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. Steering and road-wheel animation follow the game controls.
 
@@ -212,7 +247,7 @@ The cabin includes a dashboard, racing seats, roll cage and a single driver. Coc
 
 ## Licensing
 
-Original project software/source code and the bundled engine recording (`Assets/Resources/TrackEngine.wav`) are licensed under the [MIT License](LICENSE), except where another file or notice states otherwise.
+Original project software/source code and the bundled engine recordings (`Assets/Resources/Audio/Impreza*.wav`) are licensed under the [MIT License](LICENSE), except where another file or notice states otherwise.
 
 Track data and derived geospatial data have separate licensing requirements; see [DATA_LICENSES.md](DATA_LICENSES.md). Third-party and separately licensed assets, the Unity runtime, and the engine recording are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 

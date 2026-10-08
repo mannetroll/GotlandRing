@@ -165,7 +165,7 @@ Install GitHub CLI using its [macOS installation instructions](https://cli.githu
 
 ```bash
 gh auth login
-release_tag=v0.1.4
+release_tag=v0.2.0
 gh release upload "$release_tag" Build/GotlandRing-macOS-arm64.zip --repo mannetroll/GotlandRing
 ```
 

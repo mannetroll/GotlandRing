@@ -65,6 +65,17 @@ MonoBehaviour:
   bonnetView: {fileID: 8513483776416995907}
   wheelRadius: 0.33865723
   bodyPaint: {fileID: 2100000, guid: b70b2582081fa45388182b146c109b98, type: 2}
+  displayName: Impreza Rally
+  credit: 'Rally Car: SpatialNeglect / CC BY-NC 4.0'
+  paintColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.95, g: 0.035, b: 0.055, a: 1}
+  - {r: 0.035, g: 0.19, b: 0.95, a: 1}
+  paintNames:
+  - White
+  - Splash red
+  - Rally blue
+  initialPaint: 1
 --- !u!1 &69947182796723250
 GameObject:
   m_ObjectHideFlags: 0

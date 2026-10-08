@@ -3,17 +3,34 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class BoxerAudio : MonoBehaviour
 {
- public volatile float Rpm=900,Load,Speed,Slip; public volatile bool Muted;
- AudioSource recording;
- double phase,turboPhase;float smoothedRpm=900,lastLoad,release,noise;uint random=1234567;int rate;
- void Awake(){rate=AudioSettings.outputSampleRate;var source=GetComponent<AudioSource>();source.clip=AudioClip.Create("Procedural boxer carrier",rate,1,rate,false);source.loop=true;source.spatialBlend=0;source.volume=.55f;source.Play();var child=new GameObject("Engine texture from IMG_0286");child.transform.SetParent(transform,false);recording=child.AddComponent<AudioSource>();recording.clip=Resources.Load<AudioClip>("TrackEngine");recording.loop=true;recording.volume=.14f;recording.spatialBlend=0;recording.Play();}
- void Update(){if(recording){recording.pitch=Mathf.Clamp(Rpm/3200f,.45f,2);recording.volume=Muted?0:.08f+Load*.12f;}}
- void OnAudioFilterRead(float[] data,int channels){float target=Rpm,load=Load,speed=Speed,slip=Slip;bool mute=Muted;if(lastLoad>.5f&&load<.1f)release=.22f;lastLoad=load;
-  for(int i=0;i<data.Length;i+=channels){smoothedRpm+=(target-smoothedRpm)*.00012f;phase+=smoothedRpm/120.0/rate;if(phase>=1)phase-=1;double pulse=0;foreach(double offset in offsets){double d=phase-offset;if(d<0)d+=1;pulse+=Math.Exp(-d*65)*Math.Sin(d*130);}
-   random^=random<<13;random^=random>>17;random^=random<<5;float white=(random/(float)uint.MaxValue)*2-1;noise+=.08f*(white-noise);turboPhase+=(1600+load*smoothedRpm*.4)/rate;turboPhase%=1;release=Math.Max(0,release-1f/rate);
-   float value=(float)(pulse*.42+Math.Sin(phase*Math.PI*4)*.09)*( .35f+load*.6f)+noise*(.03f+speed*.0015f+slip*.09f)+(float)Math.Sin(turboPhase*2*Math.PI)*load*.012f+white*release*.3f;
-   value=mute?0:(float)Math.Tanh(value);for(int ch=0;ch<channels;ch++)data[i+ch]=value;
-  }
+ public volatile float Rpm=900,Load,Speed,Slip;
+ public volatile bool Muted;
+ ImprezaEngineMixer mixer;
+ AudioClip carrier;
+
+ void Awake(){
+  int rate=AudioSettings.outputSampleRate;
+  mixer=CreateMixer(rate);
+  var source=GetComponent<AudioSource>();
+  carrier=AudioClip.Create("2022 Impreza recording mixer",rate,1,rate,false);
+  source.clip=carrier;source.loop=true;source.spatialBlend=0;source.volume=1;
+  source.Play();
+  AudioSettings.OnAudioConfigurationChanged+=AudioConfigurationChanged;
  }
- static readonly double[] offsets={0,.18,.5,.68};
+
+ public static ImprezaEngineMixer CreateMixer(int outputRate){
+  var names=new[]{"ImprezaLow","ImprezaMid","ImprezaHigh"};
+  var loops=new float[names.Length][];
+  for(int i=0;i<names.Length;i++){
+   var clip=Resources.Load<AudioClip>("Audio/"+names[i]);
+   if(!clip||clip.channels!=1||clip.frequency!=44100)throw new InvalidOperationException("Expected mono 44.1 kHz engine recording: "+names[i]);
+   loops[i]=new float[clip.samples];
+   if(!clip.GetData(loops[i],0))throw new InvalidOperationException("Cannot read engine recording: "+names[i]);
+  }
+  return new ImprezaEngineMixer(loops,outputRate);
+ }
+
+ void AudioConfigurationChanged(bool deviceWasChanged){mixer.SampleRate=AudioSettings.outputSampleRate;}
+ void OnAudioFilterRead(float[] data,int channels){mixer.Render(data,channels,Rpm,Load,Speed,Slip,Muted);}
+ void OnDestroy(){AudioSettings.OnAudioConfigurationChanged-=AudioConfigurationChanged;Destroy(carrier);}
 }

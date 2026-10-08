@@ -17,11 +17,13 @@ package="$staging/GotlandRing-macOS-arm64"
 mkdir -p "$package"
 ditto --norsrc --noextattr --noqtn "$app" "$package/GotlandRing.app"
 for file in README.md LICENSE DATA_LICENSES.md THIRD_PARTY_NOTICES.md TRACK.md \
-    docs/ASSET-CREDITS.md \
+    docs/ASSET-CREDITS.md docs/ENGINE-AUDIO.md docs/SCENERY.md \
     track/gotland_ring_full_centerline_3m_lowpass.csv \
     track/gotland_ring_full_surface_3m.csv track/SURFACE_README.md \
     track/gotland_ring_surface_validation.png \
-    track/gotland_ring_validation.png track/gotland_ring_whole_lap_lowpass.png; do
+    track/gotland_ring_validation.png track/gotland_ring_whole_lap_lowpass.png \
+    windmills/gotland_ring_wind_turbines.csv windmills/WIND_TURBINES_README.txt \
+    windmills/gotland_ring_wind_turbines_map.png; do
     mkdir -p "$package/$(dirname "$file")"
     cp "$project_root/$file" "$package/$file"
 done

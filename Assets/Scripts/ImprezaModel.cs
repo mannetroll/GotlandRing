@@ -10,17 +10,22 @@ public sealed class ImprezaModel : MonoBehaviour
  public Transform bonnetView;
  public float wheelRadius;
  public Material bodyPaint;
- static readonly Color[] PaintColors={Color.white,new Color(.95f,.035f,.055f),new Color(.035f,.19f,.95f)};
- static readonly string[] PaintNames={"White","Splash red","Rally blue"};
+ public string displayName="Impreza Rally";
+ public string credit="Rally Car: SpatialNeglect / CC BY-NC 4.0";
+ public Color[] paintColors={Color.white,new Color(.95f,.035f,.055f),new Color(.035f,.19f,.95f)};
+ public string[] paintNames={"White","Splash red","Rally blue"};
+ public int initialPaint=1;
  Material paintInstance;
- int paintIndex=1;
- public string PaintName=>PaintNames[paintIndex];
+ int paintIndex;
+ public string PaintName=>paintNames[paintIndex];
+ public bool CanChangePaint=>paintColors.Length>1;
  Quaternion steeringRest;
  float roll;
 
  void Awake(){
   steeringRest=steeringWheel.localRotation;
-  paintInstance=new Material(bodyPaint){color=PaintColors[paintIndex]};
+  paintIndex=initialPaint;
+  paintInstance=new Material(bodyPaint){color=paintColors[paintIndex]};
   foreach(var renderer in GetComponentsInChildren<MeshRenderer>()){
    var materials=renderer.sharedMaterials;bool changed=false;
    for(int i=0;i<materials.Length;i++)if(materials[i]==bodyPaint){materials[i]=paintInstance;changed=true;}
@@ -29,8 +34,8 @@ public sealed class ImprezaModel : MonoBehaviour
  }
 
  public void CyclePaint(){
-  paintIndex=(paintIndex+1)%PaintColors.Length;
-  paintInstance.color=PaintColors[paintIndex];
+  paintIndex=(paintIndex+1)%paintColors.Length;
+  paintInstance.color=paintColors[paintIndex];
   Debug.Log("CAR_PAINT "+PaintName);
  }
 

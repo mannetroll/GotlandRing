@@ -34,7 +34,7 @@ public static class TrackImportChecks
      }
     }
     float bank=Mathf.Atan((row.Road(row.RightWidth).y-row.Road(-row.LeftWidth).y)/(row.RightWidth+row.LeftWidth))*Mathf.Rad2Deg;
-    if(Mathf.Abs(bank-Get("banking_deg"))>.002f)throw new Exception("Banking was lost or applied twice");
+    if(Mathf.Abs(bank-Get("banking_deg"))>.002f||Mathf.Abs(row.BankingDegrees-Get("banking_deg"))>.002f)throw new Exception("Banking was lost or applied twice");
     minBank=Mathf.Min(minBank,bank);maxBank=Mathf.Max(maxBank,bank);
    }
    if(maxError>.01f)throw new Exception($"Rendered/sampled surface mismatch {maxError:F5} m");

@@ -17,6 +17,15 @@ Photographic environment and scanned material assets from Poly Haven, distribute
 - **Files:** `Assets/Models/RallyCar/` and the derived `Assets/Resources/RallyCar.prefab`.
 - **Adaptations:** Unity Standard materials; metallic/smoothness texture packing; normal-map and glass configuration; uniform scaling and placement; camera anchors; animated wheel/steering pivots; head/body mesh separation for cockpit visibility. The original white paint texture is retained, with optional red and blue material tints. The pace-note book, co-driver and co-driver’s worn harness are removed from the game prefab. The driver’s geometry is split at existing seams so only the head and helmet are hidden in cockpit view.
 
-Credit the author, link the source and license, identify modifications, and retain the noncommercial restriction when redistributing these assets or builds containing them. These assets are not covered by the repository's MIT license.
+## Subaru Impreza — CC BY-NC 4.0
+
+- **Title:** Subaru Impreza
+- **Author:** [Mateusz Woliński (@jeandiz)](https://sketchfab.com/jeandiz), as credited in the supplied GLB.
+- **Source:** [Subaru Impreza on Sketchfab](https://sketchfab.com/3d-models/subaru-impreza-7fb4298d5d8f4185b25bb2c43d7f3787)
+- **License:** [Creative Commons Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
+- **Files:** `Assets/Models/SubaruImpreza/` and the derived `Assets/Resources/SubaruImpreza.prefab`. Embedded attribution is retained in `Source/source.json`.
+- **Adaptations:** Geometry converted from the user-supplied `Impreza/subaru_impreza.glb` with Assimp; texture sizes reduced to 2K; metallic/roughness channels packed for Unity Standard materials; glass and light materials configured; vehicle scaled and aligned to the road; wheel steering and rotation pivots added. The original blue-and-gold livery is retained. The cabin shell is supplemented with the cockpit, driver, steering wheel and camera anchors from the separately credited Rally Car above.
+
+Credit the authors, link the sources and licenses, identify modifications, and retain the noncommercial restriction when redistributing these assets or builds containing them. These assets are not covered by the repository's MIT license.
 
 The pine cutout and application icon were AI-generated for this project. The track and project shaders were authored for this project. Forest distribution in `Assets/Resources/Track/Forest.csv` is derived from the supplied Lantmäteriet aerial crops in `track/`: © Lantmäteriet, CC BY 4.0, processed information. See [track sources and woodland processing](../TRACK.md). The supplied `KOENIGSEGG.webm` is used as a visual reference only; its footage is not included in the built game.

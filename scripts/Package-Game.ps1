@@ -7,7 +7,7 @@ $payload = Join-Path $projectRoot 'PortableLauncher\Game.zip'
 $stream = [IO.File]::Open($payload,[IO.FileMode]::Create)
 $archive = [IO.Compression.ZipArchive]::new($stream,[IO.Compression.ZipArchiveMode]::Create)
 try {
- Get-ChildItem -LiteralPath $buildRoot -Recurse -File | Where-Object { ($_.Extension -notin '.png','.log') -or $_.Name -in 'gotland_ring_validation.png','gotland_ring_whole_lap_lowpass.png','gotland_ring_surface_validation.png' } | ForEach-Object {
+ Get-ChildItem -LiteralPath $buildRoot -Recurse -File | Where-Object { ($_.Extension -notin '.png','.log') -or $_.Name -in 'gotland_ring_validation.png','gotland_ring_whole_lap_lowpass.png','gotland_ring_surface_validation.png','gotland_ring_wind_turbines_map.png' } | ForEach-Object {
   $entry = [IO.Path]::GetRelativePath($buildRoot,$_.FullName).Replace('\','/')
   [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$_.FullName,$entry,[IO.Compression.CompressionLevel]::Optimal) | Out-Null
  }
