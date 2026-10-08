@@ -2,15 +2,16 @@
 
 This repository contains geospatial data with licensing separate from the project's MIT-licensed source code.
 
-## Track centerline
+## Track centerline and road surface
 
 The following files contain versions of the adapted centerline database:
 
 - `track/gotland_ring_full_centerline_3m.csv`
 - `track/gotland_ring_full_centerline_3m_lowpass.csv`
-- `Assets/Resources/Track/Centerline.csv`
+- `track/gotland_ring_full_surface_3m.csv`
+- `Assets/Resources/Track/Surface.csv`
 
-The bundled Unity resource is an unchanged copy of the low-pass CSV.
+The bundled Unity resource is an unchanged copy of the surface CSV, which retains all columns of the low-pass centerline and adds estimated road widths, crossfall, crown/hollow and apron heights. The surface database has the same attribution and licensing as the centerline; see [SURFACE_README.md](track/SURFACE_README.md) for its additional terrain and imagery sources and limitations.
 
 The centerline was derived in part from OpenStreetMap data and is distributed under the Open Database License (ODbL) 1.0.
 

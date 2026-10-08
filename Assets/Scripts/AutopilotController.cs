@@ -7,6 +7,7 @@ public sealed class AutopilotController
     const float Wheelbase = 2.52f;
     const float MaximumSpeed = 72f;
     readonly List<Vector3> points;
+    readonly TrackData surface;
     readonly float[] segmentLength, speedPlan;
     DrivingSettings settings;
 
@@ -15,9 +16,10 @@ public sealed class AutopilotController
         public float Steering, Throttle, Brake, TargetSpeed;
     }
 
-    public AutopilotController(List<Vector3> track, DrivingSettings dynamics)
+    public AutopilotController(TrackData track, DrivingSettings dynamics)
     {
-        points = track;
+        surface = track;
+        points = track.Points;
         segmentLength = new float[points.Count];
         speedPlan = new float[points.Count];
         for (int i = 0; i < points.Count; i++)
@@ -33,13 +35,16 @@ public sealed class AutopilotController
         settings = dynamics.Copy();
         // Measure curvature over 12 m, suppressing centimetre-scale CSV rounding.
         // Reserve some lateral grip for correcting position/heading errors.
-        float gripBudget = settings.grip * .88f;
         for (int i = 0; i < points.Count; i++)
         {
             var a = Flat(points[i] - points[(i + points.Count - 2) % points.Count]);
             var b = Flat(points[(i + 2) % points.Count] - points[i]);
-            float curvature = 2 * Mathf.Abs(Vector3.Cross(a, b).y)
+            float signedCurvature = 2 * Vector3.Cross(a, b).y
                 / Mathf.Max(.001f, a.magnitude * b.magnitude * (a + b).magnitude);
+            float curvature = Mathf.Abs(signedCurvature);
+            var normal = surface.Sample(points[i].x, points[i].z).Normal;
+            float bank = TrackData.BankAcceleration(normal, surface.Sections[i].Right);
+            float gripBudget = (settings.grip + Mathf.Sign(signedCurvature) * bank) * .88f;
             float limit = Mathf.Min(MaximumSpeed, Mathf.Sqrt(gripBudget / Mathf.Max(curvature, .00001f)));
             // A low high-speed steering setting can constrain a corner before grip does.
             while (limit > 4 && Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg > SteeringDegrees(limit) * .9f)
@@ -67,8 +72,9 @@ public sealed class AutopilotController
         return Vector3.Lerp(points[segment], points[Next(segment)], distance / segmentLength[segment]);
     }
 
-    public Controls Drive(Vector3 position, float yawDegrees, Vector3 velocity, int nearest, float distanceFromTrack)
+    public Controls Drive(Vector3 position, float yawDegrees, Vector3 velocity, TrackData.SurfaceSample road)
     {
+        int nearest = road.Segment;
         float speed = velocity.magnitude;
         var forward = new Vector3(Mathf.Sin(yawDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(yawDegrees * Mathf.Deg2Rad));
         var segment = Flat(points[Next(nearest)] - points[nearest]);
@@ -95,14 +101,15 @@ public sealed class AutopilotController
         }
         float headingError = Mathf.Abs(angle) * Mathf.Rad2Deg;
         if (headingError > 50) target = Mathf.Min(target, Mathf.Lerp(12, 4, Mathf.InverseLerp(50, 140, headingError)));
-        if (distanceFromTrack > 4.5f) target = Mathf.Min(target, Mathf.Lerp(18, 6, Mathf.InverseLerp(4.5f, 12, distanceFromTrack)));
-        if (distanceFromTrack > 7.5f) target = Mathf.Min(target, Mathf.Sqrt(settings.offRoadGrip / Mathf.Max(Mathf.Abs(curvature), .01f)) * .8f);
+        float edgeFraction = Mathf.Abs(road.Offset) / road.Width;
+        if (edgeFraction > .7f) target = Mathf.Min(target, Mathf.Lerp(18, 6, Mathf.InverseLerp(.7f, 1.6f, edgeFraction)));
+        if (!road.OnRoad) target = Mathf.Min(target, Mathf.Sqrt(settings.offRoadGrip / Mathf.Max(Mathf.Abs(curvature), .01f)) * .8f);
 
         // Feed forward the deceleration along the planned envelope, then correct speed.
         float plannedAcceleration = (speedPlan[Next(nearest)] * speedPlan[Next(nearest)] - speedPlan[nearest] * speedPlan[nearest])
             / (2 * segmentLength[nearest]);
         float desiredAcceleration = (target - speed) * 3 + Mathf.Min(0, plannedAcceleration);
-        float drag = .10f + speed * speed * .0012f + (distanceFromTrack < 7.5f ? 0 : 2.5f);
+        float drag = .10f + speed * speed * .0012f + (road.OnRoad ? 0 : 2.5f);
         float brake = Mathf.Clamp01((-desiredAcceleration - drag) / settings.braking);
         float throttle = brake > .001f ? 0 : Mathf.Clamp01((desiredAcceleration + drag) / (settings.acceleration * 5.9f));
         if (Vector3.Dot(velocity, forward) < -.3f) { brake = 1; throttle = 0; }

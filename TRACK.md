@@ -6,7 +6,7 @@
 
 Use **`gotland_ring_full_centerline_3m_lowpass.csv`** for the revised smooth track. It has the same 2,406 rows, columns and import procedure. Horizontal coordinates, chainage, headings, horizontal curvature and the coordinate reference origin are unchanged.
 
-The game bundles this file unchanged as `Assets/Resources/Track/Centerline.csv` and uses its coordinates directly. No additional height filter is applied at runtime.
+The game's `Assets/Resources/Track/Surface.csv` bundles `track/gotland_ring_full_surface_3m.csv` unchanged. Its first 12 columns preserve this low-pass centerline exactly; the additional columns supply estimated asymmetric road widths, banking, crown/hollow and adjacent ground heights. No additional height filter is applied at runtime. See [SURFACE_README.md](track/SURFACE_README.md) for the surface formula, sign conventions and uncertainty. Road geometry and vehicle surface queries use the same mesh.
 
 The original terrain heights were filtered once with a **circular, symmetric Gaussian low-pass filter**, standard deviation **15 m**, approximately 35.3 m full width at half maximum. The kernel is truncated at ±60 m and wraps across the start/finish. This introduces no spatial phase shift. The duplicate closing point is excluded during filtering and restored afterward. A constant correction preserves the distance-weighted lap mean exactly before CSV rounding. The saved CSV preserves both mean absolute elevation and mean Unity Y within 0.1 mm of the original. This is numerical preservation, not survey accuracy.
 

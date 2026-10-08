@@ -4,7 +4,7 @@
 <SelfContained>true</SelfContained><PublishSingleFile>true</PublishSingleFile><EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>GotlandRing-Portable</AssemblyName><DebugType>none</DebugType><DebugSymbols>false</DebugSymbols>
 <ApplicationIcon>Impreza.ico</ApplicationIcon>
-<Version>0.1.4</Version>
+<Version>0.2.0</Version>
 <Company>Mannetroll Solutions AB</Company><Product>Gotland Ring - Impreza</Product>
 </PropertyGroup>
 <ItemGroup><EmbeddedResource Include="Game.zip" LogicalName="Game.zip" /></ItemGroup>

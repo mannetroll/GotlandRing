@@ -19,6 +19,8 @@ ditto --norsrc --noextattr --noqtn "$app" "$package/GotlandRing.app"
 for file in README.md LICENSE DATA_LICENSES.md THIRD_PARTY_NOTICES.md TRACK.md \
     docs/ASSET-CREDITS.md \
     track/gotland_ring_full_centerline_3m_lowpass.csv \
+    track/gotland_ring_full_surface_3m.csv track/SURFACE_README.md \
+    track/gotland_ring_surface_validation.png \
     track/gotland_ring_validation.png track/gotland_ring_whole_lap_lowpass.png; do
     mkdir -p "$package/$(dirname "$file")"
     cp "$project_root/$file" "$package/$file"

@@ -6,6 +6,8 @@
 
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.4/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.1.4/GotlandRing-macOS-arm64.zip) | [Release v0.1.4](https://github.com/mannetroll/GotlandRing/releases/tag/v0.1.4)
 
+These downloads are v0.1.4. The current source is v0.2.0, adding the banked track surface described below.
+
 ![Auto(P)ilot with the detailed Impreza and mapped woodland](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.1.4/docs/autopilot.png)
 
 ![Splash-red Impreza viewed from the front and side](docs/front.png)
@@ -44,15 +46,17 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 ## Inside the prototype
 
 - Imported Impreza rally coupe with textured bodywork, cockpit, roll cage, a single driver, steering-wheel animation and rotating/steering road wheels.
-- Full circuit loaded from the supplied 3 m centerline CSV, preserving local metre coordinates and terrain elevations.
-- Blue-and-white kerbs, limestone runoff, pines, pit wall and wind turbines inspired by the onboard footage.
+- Full circuit loaded from the supplied 3 m surface CSV, preserving the centerline and adding estimated widths, banking and crown/hollow profiles.
+- Limestone aprons, white edge markings, pines, pit wall and wind turbines inspired by the supplied data and onboard footage.
 - 42 numbered name boards on the right side of the circuit, matching the locations in `track/track_points.jpeg` approximately. Boards face approaching drivers and include both names where the map lists alternatives.
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
 - Toggleable autopilot with corner-speed planning, advance braking and continuous steering; it uses the same driving physics as the player.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Synthesized boxer pulses, turbo lift-off and tire/wind layers, blended with a filtered three-second engine recording from the supplied footage.
 
-## What v0.1.4 is
+## What v0.2.0 is
+
+The circuit uses the supplied surface reconstruction for variable asphalt widths, banking and crown/hollow profiles. Road rendering, car contact and recovery share the same surface; driving physics and autopilot account for banking. White edge markings follow the supplied boundary confidence, and scenery heights follow the new surface. Banking ranges from −4.835° to +5.778° in the estimated data.
 
 The detailed Impreza starts in red with a rear chase camera. **T** cycles its paint; mouse movement orbits the car in chase view. Cockpit view keeps the driver’s arms and body visible, and **R** recovery preserves lap timing. The circuit includes **10,710 pine trees** distributed from the supplied aerial references. Steering response defaults to **5** on Windows and macOS; existing saved configurations remain editable in F3.
 
@@ -100,7 +104,7 @@ After building and testing, package the app, track data and current notices for 
 
 ```bash
 ./scripts/Package-macOS.sh
-gh release upload v0.1.4 Build/GotlandRing-macOS-arm64.zip
+gh release upload v0.2.0 Build/GotlandRing-macOS-arm64.zip
 ```
 
 Both packages are built and tested before upload. The release workflow verifies the published downloads against `SHA256SUMS`.
@@ -111,6 +115,7 @@ Run the existing standalone checks with graphics enabled:
 
 ```bash
 open -n -W Build/macOS/GotlandRing.app --args --model-preview -logFile "$PWD/Logs/rally-model-macOS.log"
+open -n -W Build/macOS/GotlandRing.app --args --surface-test -logFile "$PWD/Logs/surface-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --smoke-test -logFile "$PWD/Logs/smoke-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --settings-test -logFile "$PWD/Logs/settings-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --sign-test -logFile "$PWD/Logs/signs-macOS.log"
@@ -144,17 +149,19 @@ After copying the tested Windows portable EXE into `Build/Portable/` on the Mac:
 ./scripts/Package-macOS.sh
 (cd Build && shasum -a 256 Portable/GotlandRing-Portable.exe GotlandRing-macOS-arm64.zip) | sed 's|Portable/||' > Build/SHA256SUMS
 git add Assets/Editor/BuildGame.cs ProjectSettings/ProjectSettings.asset PortableLauncher/PortableLauncher.csproj README.md docs/release-notes.md VERIFICATION.md
-git commit -m "Release v0.1.4"
-git tag -a v0.1.4 -m "Gotland Ring v0.1.4"
-git push origin main v0.1.4
-gh release create v0.1.4 --verify-tag --draft --title "Gotland Ring v0.1.4" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
+git commit -m "Release v0.2.0"
+git tag -a v0.2.0 -m "Gotland Ring v0.2.0"
+git push origin main v0.2.0
+gh release create v0.2.0 --verify-tag --draft --title "Gotland Ring v0.2.0" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
 ```
 
-Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.1.4 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
+Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.2.0 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
 
 | Location | Purpose |
 |---|---|
 | `Assets/Scripts/RingDrive.cs` | Circuit, scenery, car, handling, controls and HUD |
+| `Assets/Scripts/TrackData.cs` / `RingDrive.Surface.cs` | Banked road mesh, matching surface queries, variable asphalt edges and car alignment |
+| `Assets/Scripts/RingDrive.SurfaceChecks.cs` | Forward/reverse ground contact, bank direction, recovery and seam checks |
 | `Assets/Scripts/ImprezaModel.cs` | Imported car steering, wheel animation and cockpit visibility |
 | `Assets/Models/RallyCar` | FBX model, textures and materials by SpatialNeglect (CC BY-NC 4.0) |
 | `Assets/Editor/RallyCarImport.cs` | Prepare the scaled car prefab and camera/wheel pivots |
@@ -173,11 +180,11 @@ Check that both uploaded packages match the local checksums, then publish with `
 
 ## Verification
 
-Both v0.1.4 players passed all five standalone test suites: car rendering/animation, driving/braking, settings, track signs and full-lap autopilot. Tests ran on macOS ARM64/Metal (Apple M1 Max) and Windows 11 x64/Direct3D 11 (RTX 3090). The Windows game was cross-built with Unity's Windows Build Support on macOS, then run on Windows.
+The banked-surface source builds for macOS ARM64/Metal and Windows x64/Direct3D 11. Surface contact, driving/braking, track signs and full-lap autopilot checks pass on Apple M1 Max. The Windows build of this surface update has not been runtime-tested or published as a release.
 
-Each platform completed five autopilot laps across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default steering response **5**, the best lap was **3:00.30**, maximum speed **217.9 km/h**, and maximum centreline deviation **1.34 m**. Every scenario covered all 2,405 track segments and exercised braking and both steering directions. Recovery, pause and autopilot state checks passed. Timings are simulated driving time using the actual 100 Hz physics, batched between frames.
+The macOS player completed five autopilot laps across default, low-grip/weak-brake, high-power/slow-steering and saved configurations. With default steering response **5**, the best lap was **2:59.89**, maximum speed **217.9 km/h**, and maximum centreline deviation **1.34 m**. Every scenario covered all 2,405 track segments and kept the car's reference point within the variable asphalt edges. Recovery, pause and autopilot state checks passed. Timings are simulated driving time using the actual 100 Hz physics, batched between frames.
 
-All 42 track boards and the mapped 10,710-tree forest passed placement checks. Car, cockpit and woodland screenshots were inspected on both platforms. No game exceptions, assertion failures or shader errors appeared in the test logs. See [verification details](VERIFICATION.md) for results, packaging checks and coverage limits.
+All 42 track boards and the mapped 10,710-tree forest pass placement checks. Both banking directions were visually inspected. No game exceptions, assertion failures or shader errors appeared in the successful test logs. See [verification details](VERIFICATION.md) for results and coverage limits.
 
 Steering is tuned for keyboard play. These are arcade handling settings rather than measured Impreza tire limits.
 
@@ -213,6 +220,16 @@ Track data and derived geospatial data have separate licensing requirements; see
 
 ![Gotland Ring centerline and elevation validation](track/gotland_ring_validation.png)
 
-The bundled `Assets/Resources/Track/Centerline.csv` is an unchanged copy of `track/gotland_ring_full_centerline_3m_lowpass.csv`. The importer omits only the duplicate closing position and uses the supplied coordinates directly, without runtime height filtering or horizontal scaling. The 2,405 unique points define approximately 7,214.398 m horizontally / 7,216.638 m in 3D, with 23.374 m elevation variation. The CSV already contains the whole-lap low-pass height profile described in `TRACK.md`. Road width, camber, scenery and surrounding terrain remain approximate. Row zero is an arbitrary origin used as the gameplay start, not a surveyed start/finish line. The minimap preserves the local east/north aspect ratio.
+The bundled `Assets/Resources/Track/Surface.csv` is an unchanged copy of `track/gotland_ring_full_surface_3m.csv`. Its first 12 columns preserve `track/gotland_ring_full_centerline_3m_lowpass.csv` exactly. The 2,405 unique positions define approximately 7,214.397 m horizontally / 7,216.638 m in 3D, with 23.374 m elevation variation. No additional height filter or horizontal scaling is applied. The mesh repeats the first cross-section to close the lap, while navigation omits that duplicate. Row zero remains an arbitrary gameplay start, not a surveyed start/finish line.
+
+The road uses the supplied asymmetric widths (10.535–17.125 m total), cross-slope and quadratic crown/hollow profile, with 16 subdivisions across the asphalt. Estimated edge-to-edge banking ranges from −4.835° to +5.778°; positive banking raises the right edge. Banking is already encoded in the surface heights and is not applied as a second rotation. Three-metre aprons follow the supplied ground height differences; the broader grass shoulders remain an approximate connection to the existing terrain. White paint follows accepted boundary estimates, with gaps at inferred boundaries. Kerbs are omitted because their positions and profiles are not supplied.
+
+Car height, pitch, roll and asphalt/off-road classification follow the rendered surface. Banking contributes signed gravity to the arcade cornering limit; the autopilot uses the same banking and variable widths. This remains a ground-following bicycle model, without wheel-by-wheel suspension or calibrated tire physics. The estimated surface does not establish surveyed banking or reproduce the historical 10° claim. See [surface data and limitations](track/SURFACE_README.md) and [surface validation](track/gotland_ring_surface_validation.png).
+
+Run `--surface-test` on either standalone player to check banked ground contact, forward/reverse orientation, recovery and the lap seam. On macOS:
+
+```bash
+open -n -W Build/macOS/GotlandRing.app --args --surface-test -logFile "$PWD/Logs/surface-macOS.log"
+```
 
 See [CSV documentation](TRACK.md), [validation image](track/gotland_ring_validation.png), and [low-pass elevation profile](track/gotland_ring_whole_lap_lowpass.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.

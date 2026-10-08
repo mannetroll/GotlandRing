@@ -29,23 +29,26 @@ public partial class RingDrive
             int requiredLaps = scenario == 0 ? 2 : 1;
             int steps = 0, brakeSteps = 0, leftSteps = 0, rightSteps = 0, visitedCount = 0;
             var visited = new bool[track.Count];
-            float maxDeviation = 0, maxSpeed = 0, travelled = 0;
+            float maxDeviation = 0, maxSpeed = 0, travelled = 0, minRoadMargin = float.MaxValue;
             while (lap <= requiredLaps && steps < 90000)
             {
                 for (int batch = 0; batch < 250 && lap <= requiredLaps; batch++)
                 {
                     var before = car.position;
                     StepDriving(.01f, ++steps * .01f);
-                    maxDeviation = Mathf.Max(maxDeviation, DistanceToTrack(car.position, out int index));
+                    var contact = centerline.Sample(car.position.x, car.position.z);
+                    int index = contact.Segment;
+                    maxDeviation = Mathf.Max(maxDeviation, contact.Distance);
+                    minRoadMargin = Mathf.Min(minRoadMargin, contact.Width - Mathf.Abs(contact.Offset));
                     maxSpeed = Mathf.Max(maxSpeed, velocity.magnitude);
                     travelled += Vector3.Distance(before, car.position);
                     if (!visited[index]) { visited[index] = true; visitedCount++; }
                     if (pilotControls.Brake > .1f) brakeSteps++;
                     if (pilotControls.Steering < -.01f) leftSteps++;
                     if (pilotControls.Steering > .01f) rightSteps++;
-                    if (maxDeviation > 6 || !float.IsFinite(velocity.magnitude))
+                    if (!contact.OnRoad || !float.IsFinite(velocity.magnitude))
                     {
-                        Debug.LogError($"AUTOPILOT_TEST FAIL scenario={names[scenario]} time={steps*.01f:F2} index={index} deviation={maxDeviation:F2} speed={velocity.magnitude:F2}");
+                        Debug.LogError($"AUTOPILOT_TEST FAIL scenario={names[scenario]} time={steps*.01f:F2} index={index} deviation={maxDeviation:F2} roadMargin={minRoadMargin:F2} speed={velocity.magnitude:F2}");
                         Application.Quit(1); yield break;
                     }
                 }
@@ -53,7 +56,7 @@ public partial class RingDrive
             }
             bool passed = lap > requiredLaps && visitedCount > track.Count * .98f && travelled > length * requiredLaps * .95f
                 && brakeSteps > 100 && leftSteps > 100 && rightSteps > 100 && maxSpeed > 35;
-            Debug.Log($"AUTOPILOT_TEST scenario={names[scenario]} laps={lap-1} elapsed={steps*.01f:F2}s best={best:F2}s maxSpeed={maxSpeed*3.6f:F1}km/h maxDeviation={maxDeviation:F2}m distance={travelled:F1}m visited={visitedCount}/{track.Count} brakeSteps={brakeSteps} leftSteps={leftSteps} rightSteps={rightSteps} pass={passed}");
+            Debug.Log($"AUTOPILOT_TEST scenario={names[scenario]} laps={lap-1} elapsed={steps*.01f:F2}s best={best:F2}s maxSpeed={maxSpeed*3.6f:F1}km/h maxDeviation={maxDeviation:F2}m minRoadMargin={minRoadMargin:F2}m distance={travelled:F1}m visited={visitedCount}/{track.Count} brakeSteps={brakeSteps} leftSteps={leftSteps} rightSteps={rightSteps} pass={passed}");
             if (!passed) { Application.Quit(1); yield break; }
         }
         dynamics = original;

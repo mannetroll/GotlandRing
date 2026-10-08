@@ -9,7 +9,7 @@ public partial class RingDrive : MonoBehaviour
  Transform car, head; Camera cam; BoxerAudio motor; ImprezaModel carModel;
  Material black, silver, asphalt, grass, white, kerbBlue;
  Vector3 velocity; float yaw, steer, lookYaw, lookPitch, throttle, rpm=900, boost, lapStart, best;
- int nearest, lastIndex, checkpoints, lap=1, gear=1, view=2; bool paused, muted, automatic, smokeBrake, modelPreview, signTest;
+ int nearest, lastIndex, checkpoints, lap=1, gear=1, view=2; bool paused, muted, automatic, smokeBrake, modelPreview, signTest, surfaceTest;
  DrivingSettings dynamics, draft; bool settingsOpen, wasPaused; float pauseStarted;
  float fpsElapsed; int fpsFrames; string fpsText="FPS --";
  float length, smokeTime; GUIStyle label, big, small, keyLabel; Texture2D map;
@@ -19,7 +19,7 @@ public partial class RingDrive : MonoBehaviour
  bool autopilotEnabled, autopilotTest;
  readonly List<Transform> trackSignBoards=new List<Transform>();
  Font trackSignFont; Material trackSignTextMaterial;
- float Ground(float x,float z)=>centerline.Height(x,z);
+ float Ground(float x,float z)=>centerline.Sample(x,z).Height;
  Material Mat(string name,Color c,float shine=0){var m=new Material(Resources.Load<Material>("DrivingMaterial"));m.name=name;m.color=c;m.SetFloat("_Glossiness",shine);return m;}
  GameObject Box(string n,Vector3 p,Vector3 s,Material m,Transform parent=null){var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name=n;o.transform.SetParent(parent,false);o.transform.localPosition=p;o.transform.localScale=s;o.GetComponent<Renderer>().sharedMaterial=m;Destroy(o.GetComponent<Collider>());return o;}
  void Awake(){
@@ -35,7 +35,7 @@ public partial class RingDrive : MonoBehaviour
   lapStart=Time.time;Cursor.lockState=CursorLockMode.Locked;Cursor.visible=false;
   automatic=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--smoke-test");
   if(automatic) StartCoroutine(SmokeTest());
-  autopilot=new AutopilotController(track,dynamics);
+  autopilot=new AutopilotController(centerline,dynamics);
   if(Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--autopilot"))SetAutopilot(true);
   autopilotTest=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--autopilot-test");
   if(autopilotTest)StartCoroutine(AutopilotTest());
@@ -43,22 +43,7 @@ public partial class RingDrive : MonoBehaviour
   if(Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--settings-test"))StartCoroutine(SettingsTest());
   modelPreview=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--model-preview");if(modelPreview){muted=true;StartCoroutine(ModelPreview());}
   signTest=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--sign-test");if(signTest){muted=true;StartCoroutine(SignTest());}
- }
- void MakeTrack(){
-  var asset=Resources.Load<TextAsset>("Track/Centerline");if(!asset)throw new InvalidOperationException("Missing bundled track CSV");
-  centerline=TrackData.Load(asset.text);track.AddRange(centerline.Points);length=centerline.HorizontalLength;
-  var gravel=Mat("Limestone gravel",Color.white);VisualUpgrade.Surface(gravel,"Gravel",.06f);Ribbon("Gravel runoff",11.5f,gravel,0);Ribbon("Racing surface",7,asphalt,.025f);MakeShoulders();
-  for(int i=0;i<track.Count;i++){
-   var a=track[i];var b=track[(i+1)%track.Count];var dir=(b-a).normalized;var right=Vector3.Cross(Vector3.up,dir);
-   foreach(int side in new[]{-1,1}){var line=Box("Edge line",(a+b)*.5f+right*6.65f*side+Vector3.up*.05f,new Vector3(.13f,.02f,Vector3.Distance(a,b)+.1f),white);line.transform.rotation=Quaternion.LookRotation(dir);}
-   if(i%2==0){var next=(track[(i+4)%track.Count]-b).normalized;if(Vector3.Angle(dir,next)>4){foreach(int side in new[]{-1,1}){var curb=Box("Kerb",a+right*7.2f*side+Vector3.up*.08f,new Vector3(.65f,.12f,Vector3.Distance(a,b)*1.8f),i%4==0?kerbBlue:white);curb.transform.rotation=Quaternion.LookRotation(dir);}}}
-  }
-  var start=track[0];var forward=(track[1]-start).normalized;var rt=Vector3.Cross(Vector3.up,forward);
-  for(int x=0;x<14;x++)for(int z=0;z<2;z++){var tile=Box("Start finish",start+rt*(x-6.5f)+forward*(z-.5f)+Vector3.up*.06f,new Vector3(1,.025f,1),(x+z)%2==0?white:black);tile.transform.rotation=Quaternion.LookRotation(forward);}
-  for(int side=-1;side<=1;side+=2)Box("Gantry support",start+rt*side*9+Vector3.up*4,new Vector3(.4f,8,.4f),silver);
-  var banner=Box("Start gantry",start+Vector3.up*8,new Vector3(19,1.7f,.4f),black);banner.transform.rotation=Quaternion.LookRotation(forward);
-  Sign("GOTLAND RING",start+Vector3.up*8-forward*.3f,-forward,1.2f);
-  MakeTrackSigns();
+  surfaceTest=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--surface-test");if(surfaceTest)StartCoroutine(SurfaceTest());
  }
  void MakeTrackSigns(){
   var boardMaterial=Mat("Track sign navy",new Color(.025f,.075f,.11f),.12f);
@@ -67,8 +52,8 @@ public partial class RingDrive : MonoBehaviour
   for(int number=0;number<TrackLandmarks.All.Length;number++){
    var landmark=TrackLandmarks.All[number];int i=landmark.Point;
    var forward=track[(i+4)%track.Count]-track[(i+track.Count-4)%track.Count];forward.y=0;forward.Normalize();
-   var position=track[i]+Vector3.Cross(Vector3.up,forward)*17;
-   position.y=Ground(position.x,position.z)-3*Mathf.Clamp01((DistanceToTrack(position,out _)-11.4f)/30.6f)+2.9f;
+   var position=track[i]+Vector3.Cross(Vector3.up,forward)*Mathf.Max(17,centerline.Sections[i].RightWidth+9);
+   position.y=Ground(position.x,position.z)+2.9f;
    var sign=new GameObject($"Track sign {number+1:00} - {landmark.Name.Replace("\n"," / ")}").transform;
    sign.position=position;sign.rotation=Quaternion.LookRotation(forward);trackSignBoards.Add(sign);
    Box("Sign border",Vector3.zero,new Vector3(8.8f,2.6f,.18f),white,sign);
@@ -77,7 +62,7 @@ public partial class RingDrive : MonoBehaviour
    TrackSignText("Number",(number+1).ToString("00"),sign,new Vector3(-3.45f,0,-.2f),1.18f,1.2f);
    TrackSignText("Name",landmark.Name,sign,new Vector3(.75f,0,-.2f),6.3f,landmark.Name.Contains("\n")?1.7f:.85f);
    foreach(int side in new[]{-1,1}){
-    var foot=sign.TransformPoint(new Vector3(side*3.2f,0,0));float ground=Ground(foot.x,foot.z)-3*Mathf.Clamp01((DistanceToTrack(foot,out _)-11.4f)/30.6f);
+    var foot=sign.TransformPoint(new Vector3(side*3.2f,0,0));float ground=Ground(foot.x,foot.z);
     float height=position.y+.9f-ground;Box("Sign post",new Vector3(side*3.2f,ground+height*.5f-position.y,.04f),new Vector3(.14f,height,.14f),silver,sign);
    }
   }
@@ -91,20 +76,15 @@ public partial class RingDrive : MonoBehaviour
   label.font=trackSignFont;label.text=text;label.fontSize=96;label.characterSize=1;label.fontStyle=FontStyle.Bold;label.anchor=TextAnchor.MiddleCenter;label.alignment=TextAlignment.Center;label.color=Color.white;label.GetComponent<MeshRenderer>().sharedMaterial=trackSignTextMaterial;
   var bounds=label.GetComponent<MeshRenderer>().localBounds;label.transform.localScale=Vector3.one*Mathf.Min(width/bounds.size.x,height/bounds.size.y);
  }
- void MakeShoulders(){
-  foreach(int side in new[]{-1,1}){var v=new Vector3[track.Count*2];var uv=new Vector2[v.Length];var t=new int[track.Count*6];for(int i=0;i<track.Count;i++){var d=track[(i+1)%track.Count]-track[(i+track.Count-1)%track.Count];d.y=0;var r=Vector3.Cross(Vector3.up,d.normalized)*side;v[i*2]=track[i]+r*11.4f-Vector3.up*.02f;v[i*2+1]=track[i]+r*42-Vector3.up*3;for(int j=0;j<2;j++)uv[i*2+j]=new Vector2(v[i*2+j].x/12,v[i*2+j].z/12);int a=i*2,b=((i+1)%track.Count)*2,k=i*6;t[k]=a;t[k+1]=b;t[k+2]=a+1;t[k+3]=a+1;t[k+4]=b;t[k+5]=b+1;if(side<0){int swap=t[k+1];t[k+1]=t[k+2];t[k+2]=swap;swap=t[k+4];t[k+4]=t[k+5];t[k+5]=swap;}}
-  var mesh=new Mesh();mesh.vertices=v;mesh.uv=uv;mesh.triangles=t;mesh.RecalculateNormals();var o=new GameObject("Approximate terrain shoulder");o.AddComponent<MeshFilter>().sharedMesh=mesh;o.AddComponent<MeshRenderer>().sharedMaterial=grass;}
- }
- void Ribbon(string n,float width,Material mat,float lift){var verts=new Vector3[track.Count*2];var uv=new Vector2[verts.Length];var tri=new int[track.Count*6];for(int i=0;i<track.Count;i++){var d=(track[(i+1)%track.Count]-track[(i+track.Count-1)%track.Count]).normalized;var r=Vector3.Cross(Vector3.up,d);for(int j=0;j<2;j++){verts[2*i+j]=track[i]+r*width*(j==0?-1:1)+Vector3.up*lift;uv[2*i+j]=new Vector2(j*width*.5f,i*1.1f);}int a=2*i,b=2*((i+1)%track.Count);int t=i*6;tri[t]=a;tri[t+1]=b;tri[t+2]=a+1;tri[t+3]=a+1;tri[t+4]=b;tri[t+5]=b+1;}var mesh=new Mesh();mesh.vertices=verts;mesh.triangles=tri;mesh.uv=uv;mesh.RecalculateNormals();var o=new GameObject(n);o.AddComponent<MeshFilter>().sharedMesh=mesh;o.AddComponent<MeshRenderer>().sharedMaterial=mat;}
  void Sign(string text,Vector3 p,Vector3 direction,float size){var o=new GameObject(text);o.transform.position=p;o.transform.rotation=Quaternion.LookRotation(-direction);var t=o.AddComponent<TextMesh>();t.text=text;t.fontSize=64;t.characterSize=size*.1f;t.anchor=TextAnchor.MiddleCenter;t.color=Color.white;}
  void MakeLandscape(){
-  const int n=220;var vs=new Vector3[(n+1)*(n+1)];var terrainUv=new Vector2[vs.Length];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*18,pz=(z-n/2)*18;vs[z*(n+1)+x]=new Vector3(px,Ground(px,pz)-3,pz);terrainUv[z*(n+1)+x]=new Vector2(px/12,pz/12);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.uv=terrainUv;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;
+  const int n=220;var vs=new Vector3[(n+1)*(n+1)];var terrainUv=new Vector2[vs.Length];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*18,pz=(z-n/2)*18;vs[z*(n+1)+x]=new Vector3(px,centerline.Height(px,pz)-3,pz);terrainUv[z*(n+1)+x]=new Vector2(px/12,pz/12);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.uv=terrainUv;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;
   TrackForest.Create();
   var stone=Mat("Limestone",new Color(.61f,.60f,.52f));UnityEngine.Random.InitState(2000);
-  for(int i=0;i<160;i++){var p=new Vector3(UnityEngine.Random.Range(-1400,1400),0,UnityEngine.Random.Range(-1400,1400));if(DistanceToTrack(p,out _)<25)continue;p.y=Ground(p.x,p.z)-3;var b=Box("Quarry stone",p,new Vector3(4,2,3)*UnityEngine.Random.Range(.6f,2),stone);b.transform.rotation=Quaternion.Euler(0,UnityEngine.Random.Range(0,180),0);}
-  for(int i=0;i<7;i++){var p=new Vector3(-1150+i*360,0,1200);p.y=Ground(p.x,p.z)-3;Box("Wind turbine tower",p+Vector3.up*37,new Vector3(2.5f,74,2.5f),white);var hub=p+Vector3.up*75;for(int j=0;j<3;j++){float a=j*120*Mathf.Deg2Rad;var blade=Box("Wind turbine blade",hub+new Vector3(Mathf.Sin(a),Mathf.Cos(a),0)*17,new Vector3(2,34,.7f),white);blade.transform.rotation=Quaternion.Euler(0,0,-j*120);}}
+  for(int i=0;i<160;i++){var p=new Vector3(UnityEngine.Random.Range(-1400,1400),0,UnityEngine.Random.Range(-1400,1400));if(DistanceToTrack(p,out _)<25)continue;p.y=Ground(p.x,p.z);var b=Box("Quarry stone",p,new Vector3(4,2,3)*UnityEngine.Random.Range(.6f,2),stone);b.transform.rotation=Quaternion.Euler(0,UnityEngine.Random.Range(0,180),0);}
+  for(int i=0;i<7;i++){var p=new Vector3(-1150+i*360,0,1200);p.y=Ground(p.x,p.z);Box("Wind turbine tower",p+Vector3.up*37,new Vector3(2.5f,74,2.5f),white);var hub=p+Vector3.up*75;for(int j=0;j<3;j++){float a=j*120*Mathf.Deg2Rad;var blade=Box("Wind turbine blade",hub+new Vector3(Mathf.Sin(a),Mathf.Cos(a),0)*17,new Vector3(2,34,.7f),white);blade.transform.rotation=Quaternion.Euler(0,0,-j*120);}}
 
-  for(int i=0;i<45;i++){var p=track[i];var d=(track[i+1]-p).normalized;var r=Vector3.Cross(Vector3.up,d);var wall=Box("Pit wall",p-r*12+Vector3.up*.6f,new Vector3(.35f,1.2f,Vector3.Distance(p,track[i+1])+.2f),white);wall.transform.rotation=Quaternion.LookRotation(d);Box("Fence post",p-r*12+Vector3.up*2,new Vector3(.07f,2.8f,.07f),silver);}
+  for(int i=0;i<45;i++){var p=track[i];var d=(track[i+1]-p).normalized;var foot=centerline.Sections[i].Ground(-centerline.Sections[i].LeftWidth-3.5f);var wall=Box("Pit wall",foot+Vector3.up*.6f,new Vector3(.35f,1.2f,Vector3.Distance(p,track[i+1])+.2f),white);wall.transform.rotation=Quaternion.LookRotation(d);Box("Fence post",foot+Vector3.up*2,new Vector3(.07f,2.8f,.07f),silver);}
   var st=track[0];var tangent=(track[1]-st).normalized;var right=Vector3.Cross(Vector3.up,tangent);for(int i=0;i<6;i++){var p=st+right*42+tangent*(i*15-35);p.y=Ground(p.x,p.z);var garage=Box("Pit garage",p,new Vector3(15,6,12),stone);garage.transform.rotation=Quaternion.LookRotation(tangent);var roof=Box("Pit roof",p+Vector3.up*3.3f,new Vector3(16,.6f,13),black);roof.transform.rotation=garage.transform.rotation;}
  }
  void BatchScenery(){var root=new GameObject("Static circuit geometry");foreach(var r in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){if(r.GetComponent<TextMesh>()||r.GetComponentInParent<TrackForest>())continue;r.transform.SetParent(root.transform,true);}StaticBatchingUtility.Combine(root);}
@@ -116,7 +96,7 @@ public partial class RingDrive : MonoBehaviour
   motor=car.gameObject.AddComponent<BoxerAudio>();
  }
  public float DistanceToTrack(Vector3 p,out int index)=>centerline.Nearest(p.x,p.z,out index,out _);
- void RecoverCar(int i){nearest=i;car.position=track[i]+Vector3.up*.04f;yaw=Quaternion.LookRotation(track[(i+1)%track.Count]-track[i]).eulerAngles.y;car.rotation=Quaternion.Euler(0,yaw,0);velocity=Vector3.zero;reversing=false;steer=0;lookYaw=lookPitch=0;lastIndex=i;}
+ void RecoverCar(int i){nearest=i;car.position=track[i]+Vector3.up*.04f;yaw=Quaternion.LookRotation(track[(i+1)%track.Count]-track[i]).eulerAngles.y;PlaceCarOnSurface(car.position,0);velocity=Vector3.zero;reversing=false;steer=0;lookYaw=lookPitch=0;lastIndex=i;}
  void RestartLap(){RecoverCar(0);checkpoints=0;lapStart=Time.time;if(paused)pauseStarted=Time.time;}
  void Update(){
   fpsElapsed+=Time.unscaledDeltaTime;fpsFrames++;
@@ -129,7 +109,7 @@ public partial class RingDrive : MonoBehaviour
   if(autopilotEnabled && !paused && !autopilotTest && ManualDrivingInput())SetAutopilot(false);
   if(!settingsOpen && Input.GetKeyDown(KeyCode.T))carModel.CyclePaint();
   if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C)){view=(view+1)%3;lookYaw=lookPitch=0;}if(!settingsOpen && Input.GetKeyDown(KeyCode.R))RecoverCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))RestartLap();if(Input.GetKeyDown(KeyCode.F2))CaptureScreenshot("GotlandRing-screenshot.png");
-  if(!paused && !modelPreview && !signTest){
+  if(!paused && !modelPreview && !signTest && !surfaceTest){
    float nextYaw=lookYaw+Input.GetAxis("Mouse X")*2;
    lookYaw=view==2?Mathf.Repeat(nextYaw+180,360)-180:Mathf.Clamp(nextYaw,-115,115);
    lookPitch=Mathf.Clamp(lookPitch-Input.GetAxis("Mouse Y")*1.5f,view==2?-13:-45,view==2?57:40);
@@ -154,8 +134,8 @@ public partial class RingDrive : MonoBehaviour
  bool reversing;
  float slip;
  void FixedUpdate(){if(!autopilotTest)StepDriving(Time.fixedDeltaTime,Time.time);}
- void StepDriving(float dt,float now){if(paused||modelPreview||signTest)return;float speed=velocity.magnitude;float dist=DistanceToTrack(car.position,out nearest);bool road=dist<7.5f;float input=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);throttle=(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0;float brake=(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0;
-  if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,nearest,dist);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
+ void StepDriving(float dt,float now){if(paused||modelPreview||signTest||surfaceTest)return;float speed=velocity.magnitude;var surface=centerline.Sample(car.position.x,car.position.z);nearest=surface.Segment;bool road=surface.OnRoad;float input=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);throttle=(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0;float brake=(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0;
+  if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,surface);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
   if(automatic){var aim=track[(nearest+20)%track.Count]-car.position;float angle=Vector3.SignedAngle(car.forward,aim,Vector3.up);input=Mathf.Clamp(angle/18,-1,1);throttle=speed<24?1:0;brake=speed>27?1:0;if(smokeBrake){throttle=0;brake=1;}}
   steer=Mathf.MoveTowards(steer,input,dt*dynamics.response);Vector3 f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));Vector3 right=Vector3.Cross(Vector3.up,f);float longitudinal=Vector3.Dot(velocity,f),lateral=Vector3.Dot(velocity,right);
   float wheelRpm=Mathf.Abs(longitudinal)/(.32f*2*Mathf.PI)*60;float target=Mathf.Max(900,wheelRpm*ratios[gear-1]*4.11f);if(target>6400&&gear<5){gear++;target*=.72f;}else if(target<2200&&gear>1){gear--;target*=1.3f;}rpm=Mathf.Lerp(rpm,target+throttle*350,dt*8);boost=Mathf.MoveTowards(boost,throttle*Mathf.InverseLerp(2100,4000,rpm),dt*.7f);
@@ -164,8 +144,8 @@ public partial class RingDrive : MonoBehaviour
   else if(throttle>0 && longitudinal<-.3f){brake=1;throttle=0;}
   else if(longitudinal>=-.3f)reversing=false;
   float drive=throttle*dynamics.acceleration*(reversing?-3f:2.6f+boost*3.3f)*Mathf.Clamp01(((reversing?8:72)-speed)/(reversing?2:15));float drag=.10f+speed*speed*.0012f+(road?0:2.5f);longitudinal=Mathf.MoveTowards(longitudinal,0,(drag+brake*dynamics.braking)*dt);longitudinal+=drive*dt;
-  float steeringAngle=steer*Mathf.Lerp(dynamics.steering,dynamics.highSpeedSteering,Mathf.Clamp01(speed/65))*Mathf.Deg2Rad;float yawRate=longitudinal/2.52f*Mathf.Tan(steeringAngle);float maxRate=(road?dynamics.grip:dynamics.offRoadGrip)/Mathf.Max(speed,3);yawRate=Mathf.Clamp(yawRate,-maxRate,maxRate);yaw+=yawRate*Mathf.Rad2Deg*dt;
-  lateral=Mathf.MoveTowards(lateral,0,(road?dynamics.lateralGrip:dynamics.offRoadGrip)*dt);slip=Mathf.Clamp01(Mathf.Abs(yawRate*speed)/(road?dynamics.grip:dynamics.offRoadGrip))*.6f+(road?0:.3f);f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));right=Vector3.Cross(Vector3.up,f);velocity=f*longitudinal+right*lateral;var pos=car.position+velocity*dt;pos.y=Ground(pos.x,pos.z)-3*Mathf.Clamp01((dist-11.4f)/30.6f)+.04f;car.position=pos;float slope=(Ground(pos.x+f.x*2,pos.z+f.z*2)-Ground(pos.x-f.x*2,pos.z-f.z*2))/4;car.rotation=Quaternion.Euler(-Mathf.Atan(slope)*Mathf.Rad2Deg,yaw,-steer*speed*.035f);
+  float steeringAngle=steer*Mathf.Lerp(dynamics.steering,dynamics.highSpeedSteering,Mathf.Clamp01(speed/65))*Mathf.Deg2Rad;float yawRate=longitudinal/2.52f*Mathf.Tan(steeringAngle);float grip=road?dynamics.grip:dynamics.offRoadGrip,bank=TrackData.BankAcceleration(surface.Normal,right);float limitSpeed=Mathf.Max(speed,3),travelBank=longitudinal<0?-bank:bank;yawRate=Mathf.Clamp(yawRate,(travelBank-grip)/limitSpeed,(travelBank+grip)/limitSpeed);yaw+=yawRate*Mathf.Rad2Deg*dt;
+  lateral=Mathf.MoveTowards(lateral,0,(road?dynamics.lateralGrip:dynamics.offRoadGrip)*dt);slip=Mathf.Clamp01(Mathf.Abs(yawRate*longitudinal-bank)/grip)*.6f+(road?0:.3f);f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));right=Vector3.Cross(Vector3.up,f);velocity=f*longitudinal+right*lateral;PlaceCarOnSurface(car.position+velocity*dt,-steer*speed*.035f);
   int quarter=track.Count/4;int nextCheckpoint=(checkpoints+1)*quarter;
   if(checkpoints<3 && lastIndex<nextCheckpoint && nearest>=nextCheckpoint && nearest-lastIndex<track.Count/8)checkpoints++;
   if(lastIndex>track.Count*.9f&&nearest<track.Count*.1f&&checkpoints==3){float lapTime=now-lapStart;if(best==0||lapTime<best)best=lapTime;lap++;lapStart=now;checkpoints=0;}lastIndex=nearest;

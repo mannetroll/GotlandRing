@@ -1,22 +1,17 @@
-# Gotland Ring - Impreza v0.1.4
+# Gotland Ring - Impreza v0.2.0
 
-A detailed Impreza rally car and mapped woodland around the full circuit.
+Banking, variable asphalt widths and crown/hollow profiles now follow the supplied 3 m surface reconstruction around the full circuit.
 
-- **High-resolution car:** textured bodywork, cockpit, roll cage, steering wheel and animated road wheels.
-- **Single-driver cockpit:** arms, body and belts stay visible; only the driver’s head and helmet are hidden in cockpit view. The co-driver and pace-note book are removed.
-- **Paint:** starts in Splash red; **T** cycles red, rally blue and white. **M** remains mute.
-- **Camera:** starts behind the car; **C** cycles views. Chase-view mouse movement orbits the car at a fixed radius, including during Auto Pilot. Right mouse returns behind the car.
-- **Driving defaults:** steering response is 5. Existing saved settings are retained; use F3 to restore defaults.
-- **Lap timing:** **R** recovers the car while preserving lap time and checkpoint progress. **Home** starts a new lap.
-- **Mapped forest:** 10,710 pine trees follow the woodland visible in the supplied aerial images. Quarry, paddock and runoff areas remain open, with space around signs and pit garages.
-- Includes Auto Pilot, live driving inputs, fullscreen, 16:9 window resizing, the Impreza startup splash and 42 named track boards.
+- **Track surface:** preserves the original centerline and builds the road from the supplied cross-sections, with estimated banking from −4.835° to +5.778°.
+- **Driving:** car contact, orientation and recovery follow the rendered surface. Banking contributes to cornering limits and downhill slip, including when reversing.
+- **Auto Pilot:** plans corner speeds with banking and follows the variable asphalt boundaries.
+- **Scenery:** edge paint follows the supplied boundary confidence; aprons, start markings, signs and forest heights fit the new surface.
+- **Both platforms:** retains Windows x64 / Direct3D 11 and native macOS Apple Silicon / Metal builds. Both packaging scripts include the surface data and documentation.
 
-**Windows x64:** download **GotlandRing-Portable.exe** and run it. Unity and .NET are included. The launcher extracts the game into a separate cache for this build.
+**Verification:** both platform builds succeed. On Apple M1 Max, surface contact/recovery, driving/braking, all 42 signs and five autopilot laps pass. The best default lap was 2:59.89, with 1.34 m maximum centreline deviation. The banking update has not been runtime-tested on Windows. See [verification details](https://github.com/mannetroll/GotlandRing/blob/v0.2.0/VERIFICATION.md).
 
-**macOS Apple Silicon:** download **GotlandRing-macOS-arm64.zip**, extract it, and open **GotlandRing.app**. Requires macOS 12 or later and an M1 or newer Mac. Keep the included data and notices with the app. The app uses a local ad-hoc signature and is not notarized.
+This tag contains source; v0.2.0 download packages have not been published. Build instructions are in the README.
 
-The track, tree heights and handling are approximate. Pines use camera-facing cutouts. Scenery collisions and damage are not implemented.
+The surface is an estimated reconstruction, not a surveyed circuit. Handling remains a simplified ground-following bicycle model without wheel-by-wheel suspension, scenery collisions or damage. See `track/SURFACE_README.md` for the source assumptions.
 
 **Car credit:** [Rally Car](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02) by SpatialNeglect (@jeandiz), [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Builds containing this model are for noncommercial use. See the included asset credits and data licenses.
-
-**Verified on both platforms:** all five standalone suites passed, including car rendering/animation, driving/braking, settings, all 42 signs and five autopilot laps. The default setup completed its best lap in 3:00.30 with 1.34 m maximum centreline deviation. The Windows game was cross-built on macOS, run on Windows 11, and packaged on Windows. See [verification details](https://github.com/mannetroll/GotlandRing/blob/v0.1.4/VERIFICATION.md).

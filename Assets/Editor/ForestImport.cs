@@ -46,7 +46,7 @@ public static class ForestImport
  [MenuItem("Gotland Ring/Prepare mapped forest")]
  public static void Prepare()
  {
-  var track=TrackData.Load(Resources.Load<TextAsset>("Track/Centerline").text);
+  var track=TrackData.Load(Resources.Load<TextAsset>("Track/Surface").text);
   var images=new[]{new Canopy("check_north",570,45),new Canopy("check_southwest",10,540),
    new Canopy("check_southeast",680,480),new Canopy("south_grid",0,550)};
   var random=new System.Random(73029);var trees=new List<TrackForest.Tree>();
@@ -54,7 +54,7 @@ public static class ForestImport
   var signs=new List<Vector3>();
   foreach(var landmark in TrackLandmarks.All){
    int i=landmark.Point;var forward=track.Points[(i+4)%track.Points.Count]-track.Points[(i+track.Points.Count-4)%track.Points.Count];forward.y=0;
-   signs.Add(track.Points[i]+Vector3.Cross(Vector3.up,forward.normalized)*17);
+   signs.Add(track.Points[i]+Vector3.Cross(Vector3.up,forward.normalized)*Mathf.Max(17,track.Sections[i].RightWidth+9));
   }
   var pitForward=(track.Points[1]-track.Points[0]).normalized;pitForward.y=0;pitForward.Normalize();
   var pitRight=Vector3.Cross(Vector3.up,pitForward);
@@ -67,7 +67,7 @@ public static class ForestImport
    foreach(var image in images)if(image.Covers((int)pu,(int)pv)){density=image.Density((int)pu,(int)pv);break;}
    if(random.NextDouble()>=density*.93f)continue;
    float e=pu-OriginU,n=OriginV-pv;var p=new Vector3(e*cos+n*sin,0,-e*sin+n*cos);
-   float distance=track.Nearest(p.x,p.z,out _,out float roadY);
+   float distance=track.Nearest(p.x,p.z,out _,out _);
    float height=Mathf.Lerp(4.5f,13.5f,(float)random.NextDouble())*Mathf.Lerp(.7f,1,density);
    float width=height*Mathf.Lerp(.52f,.82f,(float)random.NextDouble());
    if(distance-width*.5f<19)continue;
@@ -77,7 +77,7 @@ public static class ForestImport
    var fromStart=p-track.Points[0];float along=Vector3.Dot(fromStart,pitForward),across=Vector3.Dot(fromStart,pitRight);
    if(Mathf.Abs(across-42)<width*.5f+10 && along>-45-width*.5f && along<50+width*.5f)continue;
    p.y=SurfaceHeight(track,ground,p.x,p.z);
-   if(distance<42)p.y=Mathf.Max(p.y,roadY-3*Mathf.Clamp01((distance-11.4f)/30.6f));
+   if(distance<42)p.y=Mathf.Max(p.y,track.Sample(p.x,p.z).Height);
    minimum=Mathf.Min(minimum,distance-width*.5f);
    trees.Add(new TrackForest.Tree{Position=p,Height=height,Width=width,Shade=Mathf.Lerp(.73f,1,(float)random.NextDouble()),Mirror=random.Next(2)==0});
   }
