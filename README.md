@@ -2,8 +2,8 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.2](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.2)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.2/GotlandRing-AWD-Portable.exe).
+**AWD Windows preview ([v0.3.0-awd.3](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.3)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.3/GotlandRing-AWD-Portable.exe).
 The AWD tyres allow modest cornering slip, and the autopilot steers into a slide
 and eases the pedals to recover. The chase camera follows the direction of travel
 to show the rear stepping out; the HUD displays the actual body sideslip angle.
@@ -229,11 +229,12 @@ The count covers game source, verification code and build/asset tools. It exclud
 ## Verification
 
 The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
-covers all **2,405** track segments in **4:22.16**, with maximum speed **181.8 km/h**.
-At more than 43 km/h, peak body sideslip is **6.29°**, with about **44.75 seconds**
-above 3° in corners. All four corners of the car remain on the asphalt; minimum
-measured body clearance is **0.29 m**. Main-straight 0–100 km/h takes **7.21 s**,
-followed by a **35.84 m** stop. These are prototype measurements.
+covers all **2,405** track segments in **4:19.68**, with maximum speed **181.8 km/h**
+and **20 downshifts under power**. At more than 43 km/h, peak body sideslip is
+**6.75°**, with about **47.05 seconds** above 3° in corners. All four corners of
+the car remain on the asphalt; minimum measured body clearance is **0.23 m**.
+Main-straight 0–100 km/h takes **7.21 s**, followed by a **35.84 m** stop.
+These are prototype measurements.
 
 The AWD checks also cover mesh contact, banking, the lap seam, reverse, brake
 torque cut, pause/resume and model/mode switching. The arcade regression covers
@@ -254,7 +255,7 @@ Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward 
 
 ### Auto(P)ilot
 
-Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again, or any driving key (WASD, arrows or X), to take over. Mouse look and camera selection remain available. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
+Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again to return to manual driving. WASD, arrows and X are ignored while autopilot is on. Mouse look and camera selection remain available. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
 
 The controller computes a smooth racing line around the complete circuit, using wider entries and exits and moving toward the apex through bends. It minimizes changes in direction within the supplied asymmetric asphalt boundaries, reserving 2.6 m from the planned car centre to each edge for body width and steering corrections. The line closes smoothly across the start/finish. This is a practical curvature optimization; it does not establish a global minimum lap time.
 

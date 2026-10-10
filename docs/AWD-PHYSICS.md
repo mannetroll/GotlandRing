@@ -64,7 +64,12 @@ weight distribution, centre-of-mass height, spring/damper rates, anti-roll rates
 brake torque, tyre curves, drag and rolling resistance are prototype tuning.
 There is no detailed centre/rear differential or tyre-temperature model. The
 five-speed transmission shifts automatically; the game does not simulate a
-manual clutch pedal. These values are editable in `SubaruVehicleSetup.cs`.
+manual clutch pedal. Throttle demand raises its downshift threshold from 2400 to
+4200 RPM, allowing it to skip directly to a suitable lower gear on corner exit.
+Downshifts leave 400 RPM below the upshift point to avoid hunting, and each shift
+cuts drive for 0.22 seconds. The engine output and gear ratios stay at the stock
+baseline. Vehicle parameters live in `SubaruVehicleSetup.cs`; automatic gear
+selection lives in `SubaruAwdController.cs`.
 
 The factory brochure lists a 6.3-second 0–100 km/h time for the sedan. That is a
 reference, not a claimed measurement of the simulation. No GRID BMW parameters
@@ -74,19 +79,20 @@ both selectable models share the stock GT physics.
 ## Autopilot and validation
 
 AWD autopilot uses the same racing line and ordinary throttle, brake and steering
-inputs. Its speed plan uses an AWD lateral acceleration budget and braking
+inputs. Only Ctrl+P (Windows) or Cmd+P (macOS) toggles driving control; WASD,
+arrows and X do not override the pilot. Its speed plan uses an AWD lateral acceleration budget and braking
 estimate for the physical vehicle. Speed corrections are gradual near the racing line.
 It does not teleport, align or push the car along the racing line.
 
 Run the macOS executable with `--awd-test -batchmode -nographics` to check road
 contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
 cut, pause/resume, model/mode switching, 0–100 km/h and braking on the main
-straight, and a full physical autopilot lap with modest cornering slip and
+straight, and a full physical autopilot lap with power downshifts, modest cornering slip and
 clearance checks for the four corners of the car.
 `GOTLAND_TEST_OUTPUT` optionally sets the results directory; otherwise it uses
 `Application.persistentDataPath`. `awd-lap.csv` records speed, target, line error,
 road margin, axle torque, contact count, steering, position, body sideslip,
-front/rear tyre slip and pedal inputs. `awd-results.txt`
+front/rear tyre slip, pedal inputs, gear and RPM. `awd-results.txt`
 reports the full-lap result. Non-batch runs with graphics enabled request
 `awd-cornering.png` during a corner and `awd-driving.png` at the end.
 `--autopilot-test` validates the separate arcade comparison mode.

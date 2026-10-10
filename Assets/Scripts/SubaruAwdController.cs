@@ -110,21 +110,35 @@ public sealed class SubaruAwdController : MonoBehaviour
         SteeringDegrees = Mathf.MoveTowards(SteeringDegrees, Mathf.Clamp(steering, -1, 1) * setup.SteeringLimit(speed), settings.awdSteeringRate * dt);
         appliedThrottle = Mathf.MoveTowards(appliedThrottle, Mathf.Clamp(throttle, -1, 1), dt * 3f);
         bool reverse = appliedThrottle < 0;
+        float roadWheelRpm = speed / setup.wheelRadius * 60f / (2 * Mathf.PI);
+        shiftDelay = Mathf.Max(0, shiftDelay - dt);
+        if (!reverse && shiftDelay == 0)
+        {
+            int selected = Gear;
+            float roadRpm = roadWheelRpm * setup.finalDrive * setup.gears[selected - 1];
+            if (roadRpm > setup.shiftRpm && selected < setup.gears.Length) selected++;
+            else
+            {
+                // Ask for the power band under load, including a multi-gear downshift on corner exit.
+                float downshiftRpm = Mathf.Lerp(2400, 4200, brake > 0 ? 0 : Mathf.InverseLerp(.25f, .85f, throttle));
+                while (selected > 1 && roadRpm < downshiftRpm)
+                {
+                    float lowerRpm = roadWheelRpm * setup.finalDrive * setup.gears[selected - 2];
+                    // Leave room below the upshift point so the gearbox does not hunt between ratios.
+                    if (lowerRpm > setup.shiftRpm - 400) break;
+                    selected--; roadRpm = lowerRpm;
+                }
+            }
+            if (selected != Gear) { Gear = selected; shiftDelay = .22f; }
+        }
         float ratio = (reverse ? setup.reverseRatio : setup.gears[Gear - 1]) * setup.finalDrive;
         float front = Mathf.Clamp01(settings.awdFrontTorque);
         float frontRpm = (Mathf.Abs(Wheels[0].rpm) + Mathf.Abs(Wheels[1].rpm)) * .5f;
         float rearRpm = (Mathf.Abs(Wheels[2].rpm) + Mathf.Abs(Wheels[3].rpm)) * .5f;
-        float roadRpm = speed / setup.wheelRadius * 60f / (2 * Mathf.PI) * ratio;
         float wheelRpm = Mathf.Lerp(rearRpm, frontRpm, front) * ratio;
         // Approximate launch clutch; the gearbox uses automatic shifts of five manual ratios.
         float launchRpm = Mathf.Lerp(setup.idleRpm, 2400, Mathf.Abs(appliedThrottle));
         EngineRpm = Mathf.Max(wheelRpm, Mathf.Lerp(launchRpm, setup.idleRpm, Mathf.Clamp01(speed / 8)));
-        shiftDelay = Mathf.Max(0, shiftDelay - dt);
-        if (!reverse && appliedThrottle > 0 && shiftDelay == 0)
-        {
-            if (roadRpm > setup.shiftRpm && Gear < setup.gears.Length) { Gear++; shiftDelay = .22f; }
-            else if (roadRpm < 2400 && Gear > 1) { Gear--; shiftDelay = .22f; }
-        }
         Boost = Mathf.MoveTowards(Boost, Mathf.Abs(appliedThrottle) * Mathf.InverseLerp(1800, 3600, EngineRpm), dt * 1.5f);
         float torque = brake > 0 || shiftDelay > 0 || EngineRpm >= setup.revLimitRpm || (reverse && speed > 8)
             ? 0 : Mathf.Max(0, setup.torque.Evaluate(EngineRpm)) * ratio * setup.efficiency * appliedThrottle;
