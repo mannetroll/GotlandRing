@@ -15,8 +15,14 @@ switching and Cmd+P autopilot work in both modes. **U** toggles horizontal mouse
 steering; the keyboard retains the accelerator, brake and reverse controls.
 Keyboard and mouse steering demand reduce with speed for usable manual control
 at circuit speeds; the tyre model still determines the resulting turn.
+**Steering angle at speed** scales this manual range from **0.5× to 3×**,
+defaulting to **2×**. The requested angle is capped by the steering range of the
+vehicle, including **32°** at rest. At 2×, full input gives approximately **17.7° at
+50 km/h**, **4.5° at 100 km/h** and **2.0° at 150 km/h**. Both manual inputs and
+the visible front wheels use the configured range. Autopilot calculates its own
+steering demand independently of this manual setting.
 
-The AWD settings expose tyre grip, front torque share, steering speed and
+The AWD settings expose tyre grip, front torque share, steering speed, angle at speed and
 traction-control assistance. The default split sends 50% of one engine-torque
 budget to each axle, then divides that equally between the axle's wheels.
 Reverse uses the same distribution. Each wheel has its own slip-based traction

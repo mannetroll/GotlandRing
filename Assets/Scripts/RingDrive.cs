@@ -241,8 +241,10 @@ public partial class RingDrive : MonoBehaviour
    draft.awdGrip=Setting("Tyre grip multiplier",draft.awdGrip,.7f,1.3f,300,"0.00");
    draft.awdFrontTorque=Setting("Front torque share",draft.awdFrontTorque,.1f,.9f,352,"0.00");
    draft.awdSteeringRate=Setting("Steering speed (degrees/s)",draft.awdSteeringRate,40,150,404,"0");
-   draft.awdTractionControl=GUI.Toggle(new Rect(470,463,600,30),draft.awdTractionControl," Traction control assistance");
-   GUI.Label(new Rect(470,516,650,75),"Stock GT baseline: 160 kW / 290 Nm / five-speed AWD.\nABS is enabled. Tyres, suspension and clutch are approximate.",small);
+   draft.awdSpeedSteering=Setting("Steering angle at speed",draft.awdSpeedSteering,.5f,3,456,"0.00'x'");
+   GUI.Label(new Rect(470,488,650,24),$"Keyboard / mouse: ±{ManualAwdSteeringLimit(100/3.6f,draft):0.0}° at 100 km/h; 32° when stopped.",small);
+   draft.awdTractionControl=GUI.Toggle(new Rect(470,520,600,30),draft.awdTractionControl," Traction control assistance");
+   GUI.Label(new Rect(470,558,650,48),"Stock GT baseline: 160 kW / 290 Nm / five-speed AWD.\nABS is enabled. Tyres, suspension and clutch are approximate.",small);
   }else{
   draft.grip=Setting("Cornering grip (m/s²)",draft.grip,10,40,288);
   draft.lateralGrip=Setting("Side-slip recovery (m/s²)",draft.lateralGrip,10,60,330);
@@ -260,9 +262,9 @@ public partial class RingDrive : MonoBehaviour
   if(GUI.Button(new Rect(935,685,190,40),"Apply & close"))CloseSettings(true);
  }
  IEnumerator SettingsTest(){
-  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;draft.tyreSquealEnabled=!original.tyreSquealEnabled;CloseSettings(false);
-  Debug.Assert(dynamics.grip==original.grip && dynamics.tyreSquealEnabled==original.tyreSquealEnabled && !paused,"Cancel must preserve dynamics and sound settings and resume");
-  OpenSettings();draft.grip=31;draft.tyreSquealEnabled=true;CloseSettings(true);var saved=DrivingSettings.Load();Debug.Assert(saved.grip==31 && saved.tyreSquealEnabled,"Apply must persist dynamics and enabled tyre squeal");
+  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;draft.awdSpeedSteering=1.25f;draft.tyreSquealEnabled=!original.tyreSquealEnabled;CloseSettings(false);
+  Debug.Assert(dynamics.grip==original.grip && dynamics.awdSpeedSteering==original.awdSpeedSteering && dynamics.tyreSquealEnabled==original.tyreSquealEnabled && !paused,"Cancel must preserve dynamics and sound settings and resume");
+  OpenSettings();draft.grip=31;draft.awdSpeedSteering=2.5f;draft.tyreSquealEnabled=true;CloseSettings(true);var saved=DrivingSettings.Load();Debug.Assert(saved.grip==31 && saved.awdSpeedSteering==2.5f && saved.tyreSquealEnabled,"Apply must persist dynamics, speed steering and enabled tyre squeal");
   OpenSettings();draft.tyreSquealEnabled=false;CloseSettings(true);Debug.Assert(!DrivingSettings.Load().tyreSquealEnabled,"Apply must persist disabled tyre squeal");
   dynamics=original;dynamics.Save();SetPaused(true);OpenSettings();CloseSettings(false);Debug.Assert(paused,"Dialog must preserve existing pause");
   SetPaused(false);OpenSettings();yield return new WaitForSeconds(2);CaptureScreenshot("dynamics-dialog.png");

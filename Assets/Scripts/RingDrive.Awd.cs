@@ -22,14 +22,17 @@ public partial class RingDrive
         steer = awd.SteeringDegrees / awd.setup.SteeringLimit(velocity.magnitude);
     }
 
+    float ManualAwdSteeringLimit(float speed, DrivingSettings settings)
+        => Mathf.Min(awd.setup.SteeringLimit(speed), settings.awdSpeedSteering
+            * Mathf.Atan(awd.setup.wheelbase * 12f / (speed * speed + 1f)) * Mathf.Rad2Deg);
+
     void StepAwdDriving(float dt, float steeringInput, float brake, bool reverseRequested)
     {
         float forward = awd.ForwardSpeed;
         if (!autopilotEnabled && !automatic)
         {
             // Both manual steering inputs share the speed-dependent range.
-            float manualLock = Mathf.Atan(awd.setup.wheelbase * 12f / (forward * forward + 1f)) * Mathf.Rad2Deg;
-            steeringInput *= Mathf.Clamp01(manualLock / awd.setup.SteeringLimit(forward));
+            steeringInput *= ManualAwdSteeringLimit(forward, dynamics) / awd.setup.SteeringLimit(forward);
         }
         float drive = throttle;
         if (reverseRequested)

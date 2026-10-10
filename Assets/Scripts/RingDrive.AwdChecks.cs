@@ -19,6 +19,7 @@ public partial class RingDrive
         try
         {
             CheckMouseSteering();
+            CheckAwdSteeringRange();
             CheckAwdRoadContact();
             CheckAwdBanks();
             CheckAwdControls();
@@ -156,6 +157,36 @@ public partial class RingDrive
                 throw new Exception($"AWD did not settle on banking: section={index} wheels={awd.GroundedWheels} alignment={Vector3.Dot(car.up,normal)}");
         }
         Debug.Log("AWD_BANK_CONTACT pass=True four contacts at start, both banking extremes and lap seam");
+    }
+
+    void CheckAwdSteeringRange()
+    {
+        var original = dynamics.Copy();
+        SetAutopilot(false);
+        foreach (bool mouse in new[] {false, true})
+        foreach (float multiplier in new[] {.5f, 1f, 2f, 3f})
+        foreach (int kph in new[] {0, 50, 100})
+        foreach (float direction in new[] {-1f, 1f})
+        {
+            RecoverCar(0); mouseSteering = mouse;
+            dynamics.awdSpeedSteering = multiplier;
+            UpdatePointer(Vector2.zero, false);
+            UpdatePointer(new Vector2(direction * 100, 0), false);
+            awd.Body.linearVelocity = car.forward * (kph / 3.6f);
+            StepDriving(1, Time.time, mouse ? -direction : direction, 0, 0, false);
+            SyncAwdMotion(); AnimateCar(0);
+            float expected = direction * (kph == 0 ? 32 : multiplier * (kph == 50 ? 8.864197f : 2.241431f));
+            if (Mathf.Abs(awd.SteeringDegrees - expected) > .02f)
+                throw new Exception($"AWD steering range: mouse={mouse} factor={multiplier} speed={kph} expected={expected} actual={awd.SteeringDegrees}");
+            foreach (var wheel in awd.Wheels)
+                if (wheel.transform.localPosition.z > 0 && Mathf.Abs(wheel.steerAngle - expected) > .02f)
+                    throw new Exception("Physical front wheel did not receive the configured steering angle");
+            foreach (var pivot in carModel.frontSteering)
+                if (Mathf.Abs(Mathf.DeltaAngle(pivot.localEulerAngles.y, expected)) > .02f)
+                    throw new Exception("Visible front wheel did not follow the configured steering angle");
+        }
+        dynamics = original; mouseSteering = false; RecoverCar(0);
+        Debug.Log("AWD_STEERING_RANGE pass=True keyboard/mouse, 0.5x/1x/2x/3x, stationary/50/100 km/h, both directions, physics and visible wheels");
     }
 
     void CheckAwdControls()

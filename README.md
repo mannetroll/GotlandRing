@@ -2,8 +2,8 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.5](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.5)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.5/GotlandRing-AWD-Portable.exe).
+**AWD Windows preview ([v0.3.0-awd.6](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.6)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.6/GotlandRing-AWD-Portable.exe).
 The AWD tyres allow modest cornering slip, and the autopilot steers into a slide
 and eases the pedals to recover. The chase camera follows the direction of travel
 to show the rear stepping out; the HUD displays the actual body sideslip angle.
@@ -246,7 +246,11 @@ five laps and recovery. See [physics assumptions and reproduction commands](docs
 ### Driving dynamics
 
 Press **F3**, or click **Dynamics**, to pause and choose a handling mode.
-AWD exposes tyre grip, front torque share, steering speed and traction control.
+AWD exposes tyre grip, front torque share, steering speed, steering angle at speed
+and traction control. **Steering angle at speed** adjusts the manual keyboard/mouse
+range from **0.5× to 3×**, with a **2×** default. Full steering at 2× gives about
+**17.7° at 50 km/h** and **4.5° at 100 km/h**. The standstill limit is **32°**.
+The dialog previews the angle at 100 km/h as you adjust the slider.
 Arcade exposes cornering grip, side-slip recovery, steering, acceleration,
 braking and off-road grip. Both modes have a **Tyre squeal** checkbox, off by default;
 engine and road sound remain on. **Apply & close** saves locally; **Cancel** discards
