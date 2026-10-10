@@ -1,10 +1,10 @@
 # Gotland Ring / Impreza
 
-![v0.3.2 cockpit with live speed, RPM and gear instruments](docs/cockpit.png)
+![Impreza Rally in Splash red](docs/front.png)
 
-| Impreza Rally — rally blue | Subaru Impreza — blue-and-gold livery |
+| Live cockpit instruments — v0.3.2 | Subaru Impreza — blue-and-gold livery |
 |---|---|
-| ![Impreza Rally in v0.3.2](docs/front.png) | ![Subaru Impreza in v0.3.2](docs/subaru-impreza.png) |
+| ![v0.3.2 cockpit with live speed, RPM and gear instruments](docs/cockpit.png) | ![Subaru Impreza in v0.3.2](docs/subaru-impreza.png) |
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
