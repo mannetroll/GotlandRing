@@ -28,6 +28,11 @@ budget to each axle, then divides that equally between the axle's wheels.
 Reverse uses the same distribution. Each wheel has its own slip-based traction
 control and ABS; braking cuts engine drive. Traction control is a gameplay
 assist, not a claim about factory equipment on the 1999/2000 car.
+In manual driving, W/Up always requests forward throttle without applying brakes,
+including while sliding backwards or returning from reverse. It takes priority
+over X when both are held; the drive-torque direction changes immediately while
+throttle strength ramps up. S/Down applies the brakes. X brakes forward motion
+before engaging reverse.
 
 ## Cornering slip
 

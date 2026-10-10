@@ -93,6 +93,7 @@ public sealed class ReferenceLapPlayer : MonoBehaviour
         float curvature = Vector3.SignedAngle(before, after, Vector3.up) * Mathf.Deg2Rad / 6;
         float angle = Mathf.Atan(2.52f * curvature) * Mathf.Rad2Deg;
         Model.Animate(angle, sample.speed, dt, true);
+        Model.instruments.Set(sample.rpm, sample.speed, sample.gear);
         if(dt>0){
             var contacts=Vector3.zero;
             for(int wheel=0;wheel<4;wheel++)

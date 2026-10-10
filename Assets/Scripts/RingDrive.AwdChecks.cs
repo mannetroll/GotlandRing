@@ -24,6 +24,7 @@ public partial class RingDrive
             CheckMouseSteering();
             CheckAwdSteeringRange();
             CheckTrainingArea();
+            CheckSlideThrottle();
             CheckAwdManualStability(output);
             CheckAwdRoadContact();
             CheckAwdBanks();

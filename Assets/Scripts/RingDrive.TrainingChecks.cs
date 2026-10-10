@@ -56,4 +56,62 @@ public partial class RingDrive
         }
         Debug.Log("TRAINING_AREA_TEST ALL PASSED: AWD/arcade, manual/pilot, pause, reset, return, lap isolation, flat contact");
     }
+    void CheckSlideThrottle()
+    {
+        var original=dynamics.Copy();
+        int cases=0;
+        foreach(bool physical in new[]{true,false}) foreach(bool training in new[]{true,false})
+        {
+            var settings=original.Copy();settings.awdMode=physical;ApplyDrivingSettings(settings);
+            drivingSurface.Training=training;
+            void Reset(){
+                RecoverCar(TrackLandmarks.StartFinishPoint);
+                if(physical) for(int step=0;step<300;step++){awd.Step(.01f,0,1,0,dynamics);Physics.Simulate(.01f);}
+            }
+            foreach(float angle in new[]{-135f,-100f,100f,135f,180f})
+            {
+                Reset();
+                // Seed a slide beyond sideways while the driver still has a forward gear selected.
+                var motion=(car.forward*Mathf.Cos(angle*Mathf.Deg2Rad)+car.right*Mathf.Sin(angle*Mathf.Deg2Rad))*25;
+                if(physical)awd.Body.linearVelocity=motion;else velocity=motion;
+                for(int step=0;step<30;step++)
+                {
+                    StepDriving(.01f,Time.time,0,1,0,false);
+                    if(throttle!=1||reversing)throw new Exception($"Slide changed the accelerator/direction: AWD={physical} training={training} angle={angle}");
+                    if(physical){
+                        foreach(var wheel in awd.Wheels)if(wheel.brakeTorque!=0)throw new Exception("Slide applied unrequested wheel brakes");
+                        Physics.Simulate(.01f);
+                    }
+                }
+                StepDriving(.01f,Time.time,0,1,1,false);
+                if(physical)foreach(var wheel in awd.Wheels)
+                    if(wheel.brakeTorque<=0||wheel.motorTorque!=0)throw new Exception("Explicit braking failed during a slide");
+                cases++;
+            }
+            Reset();
+            for(int step=0;step<150;step++){
+                StepDriving(.01f,Time.time,0,0,0,true);
+                if(physical){Physics.Simulate(.01f);SyncAwdMotion();}
+            }
+            if(!reversing||Vector3.Dot(velocity,car.forward)>-1)throw new Exception("Deliberate reverse did not engage");
+            int forwardSteps=0;bool powered=false;
+            while(Vector3.Dot(velocity,car.forward)<2&&forwardSteps++<500){
+                // Forward throttle also wins if W and X are briefly held together.
+                StepDriving(.01f,Time.time,0,1,0,forwardSteps<10);
+                if(throttle!=1||reversing)throw new Exception("W did not immediately select forward throttle");
+                if(physical){
+                    foreach(var wheel in awd.Wheels){
+                        if(wheel.brakeTorque!=0||wheel.motorTorque<0)throw new Exception("W applied brakes or reverse drive");
+                        powered|=wheel.motorTorque>0;
+                    }
+                    Physics.Simulate(.01f);SyncAwdMotion();
+                }
+            }
+            if(forwardSteps>=500||physical&&!powered)throw new Exception("Forward throttle did not drive the reversing car forwards");
+            StepDriving(.01f,Time.time,0,0,0,true);
+            if(reversing||throttle!=0)throw new Exception("X did not brake before changing from forward to reverse");
+        }
+        drivingSurface.Training=false;ApplyDrivingSettings(original);RestartLap();
+        Debug.Log($"SLIDE_THROTTLE_TEST passed: {cases} spins beyond 90 degrees, held accelerator, explicit brakes, powered reverse-to-forward, W/X priority, AWD/arcade and circuit/training");
+    }
 }

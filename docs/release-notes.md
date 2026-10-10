@@ -2,6 +2,8 @@
 
 Download **GotlandRing-Portable.exe** for Windows 11 x64 or **GotlandRing-macOS-arm64.zip** for Apple Silicon Macs. Both include the game runtime. The Windows launcher includes .NET; neither package requires Unity to be installed.
 
+- **Live cockpit instruments:** speed in km/h, numerical RPM, a moving rev bar and the current gear update in both cars. Reference replay uses its estimated speed/RPM/gear and updates immediately on pause or seek.
+- **Forward throttle:** in manual driving, W/Up always requests forward power, including during spins and from reverse. It never applies brakes and takes priority over X if both are held. S/Down remains the brake.
 - **Cockpit movement:** gentle head movement under acceleration, braking and cornering, plus subtle road vibration. The bonnet view gets a smaller amount of surface movement.
 - **Surface sound:** asphalt hum, kerb rumble and loose-ground sound follow the grounded wheels. The earlier tyre squeal is removed.
 - **View and sound settings:** press **F3** and choose **View & sound**. Adjust cockpit movement and surface sound independently; zero disables either effect. Settings persist between launches.

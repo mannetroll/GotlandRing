@@ -4,6 +4,8 @@ using UnityEngine;
 
 public partial class RingDrive
 {
+    void CheckReplayLcd(){var sample=referenceLap.Data.Sample(referenceLap.Elapsed);CheckLcd(referenceLap.Model,sample.rpm,sample.speed,sample.gear);}
+
     IEnumerator ReferenceLapTest()
     {
         Application.runInBackground = true;
@@ -27,16 +29,20 @@ public partial class RingDrive
                 if (!paused || car.gameObject.activeSelf || !awd.Body.isKinematic) throw new Exception("Replay did not suspend driving");
                 referenceLap.Model.Animate(0,0,0,true);var cockpitStraight=referenceLap.Model.steeringWheel.localRotation;
                 referenceLap.Seek(90);
+                CheckReplayLcd();
                 float roadAngle=Mathf.DeltaAngle(0,referenceLap.Model.frontSteering[0].localEulerAngles.y);
                 if(Quaternion.Angle(referenceLap.Model.steeringWheel.localRotation,cockpitStraight*Quaternion.AngleAxis(-roadAngle*ImprezaModel.SteeringRatio,Vector3.forward))>.02f)
                     throw new Exception("Replay cockpit wheel disagrees with its road wheels");
                 referenceLap.Paused = true; referenceLap.Tick(3, false);
                 if (referenceLap.Elapsed != 90 || !referenceLap.Motor.Muted) throw new Exception("Replay pause advanced time or left audio running");
+                CheckReplayLcd();
                 referenceLap.Paused = false; referenceLap.Tick(.5f, true);
+                CheckReplayLcd();
                 if (Mathf.Abs(referenceLap.Elapsed - 90.5f) > .001f || !referenceLap.Motor.Muted) throw new Exception("Replay mute changed timing");
                 referenceLap.Tick(0, false);
                 if (referenceLap.Motor.Muted || referenceLap.Motor.Rpm < 3800) throw new Exception("Replay did not restore racing sound");
                 referenceLap.Seek(referenceLap.Data.Duration); referenceLap.Tick(1, false);
+                CheckReplayLcd();
                 if (!referenceLap.Finished || !referenceLap.Motor.Muted || Mathf.Abs(referenceLap.LapTime - 175.88f) > .002f) throw new Exception("Replay completion clock or sound is incorrect");
                 ToggleReferenceLap();
                 if (paused != startPaused || !car.gameObject.activeSelf || autopilotEnabled != pilot || drivingSurface.Training != training

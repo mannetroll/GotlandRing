@@ -112,6 +112,8 @@ public sealed class SubaruAwdController : MonoBehaviour
     {
         float speed = Mathf.Abs(ForwardSpeed);
         SteeringDegrees = Mathf.MoveTowards(SteeringDegrees, Mathf.Clamp(steering, -1, 1) * settings.SteeringLimit(Body.linearVelocity.magnitude), settings.awdSteeringRate * dt);
+        // Changing pedal direction releases the previous drive torque immediately.
+        if (throttle * appliedThrottle < 0) appliedThrottle = 0;
         appliedThrottle = Mathf.MoveTowards(appliedThrottle, Mathf.Clamp(throttle, -1, 1), dt * 3f);
         bool reverse = appliedThrottle < 0;
         float roadWheelRpm = speed / setup.wheelRadius * 60f / (2 * Mathf.PI);

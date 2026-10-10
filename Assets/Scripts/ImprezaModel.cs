@@ -6,6 +6,7 @@ public sealed class ImprezaModel : MonoBehaviour
  public const float SteeringRatio=12;
  public Transform steeringWheel;
  public DriverSteering driverSteering;
+ public CockpitInstruments instruments;
  public Transform[] frontSteering;
  public Transform[] wheelSpin;
  public Renderer cockpitHead;

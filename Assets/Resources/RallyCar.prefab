@@ -54,6 +54,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ImprezaModel
   steeringWheel: {fileID: 8046575113198644304}
   driverSteering: {fileID: 7554127308164692923}
+  instruments: {fileID: 8950867044004762770}
   frontSteering:
   - {fileID: 5053346007492916851}
   - {fileID: 2981852061450905971}
@@ -3112,6 +3113,7 @@ GameObject:
   - component: {fileID: 2250420953368574970}
   - component: {fileID: 8547697645643510950}
   - component: {fileID: 6860585493417045215}
+  - component: {fileID: 8950867044004762770}
   m_Layer: 0
   m_Name: lcd display
   m_TagString: Untagged
@@ -3192,6 +3194,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8950867044004762770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2988688327373484181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16890f381079546a8ad9ee297390a448, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CockpitInstruments
+  screen: {fileID: 6860585493417045215}
+  materialSlot: 1
+  uvRect: {x: 0.029716741, y: 0.15996641, z: 0.96104324, w: 0.62593025}
 --- !u!1 &3183133184466634393
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,8 +31,7 @@ public partial class RingDrive
             if (forward > .3f) { brake = 1; drive = 0; }
             else { drive = -1; reversing = true; }
         }
-        else if (drive > 0 && forward < -.3f) { brake = 1; drive = 0; }
-        else if (forward >= -.3f) reversing = false;
+        else if (drive > 0 || forward >= -.3f) reversing = false;
         awd.Step(dt, drive, brake, steeringInput, dynamics);
         throttle = Mathf.Abs(drive);
     }
@@ -58,6 +57,7 @@ public partial class RingDrive
         float angle = dynamics.awdMode ? awd.SteeringDegrees
             : steer * dynamics.SteeringLimit(velocity.magnitude);
         carModel.Animate(angle, Vector3.Dot(velocity, car.forward), dt, view == 0);
+        carModel.instruments.Set(rpm, velocity.magnitude, reversing ? -1 : gear);
         if (dynamics.awdMode) carModel.AnimateSuspension(awd.Wheels, dt);
         else carModel.ResetSuspension();
     }

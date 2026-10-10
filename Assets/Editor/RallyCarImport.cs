@@ -73,6 +73,13 @@ public static class RallyCarImport
   var final=meshes[0].bounds;foreach(var r in meshes)final.Encapsulate(r.bounds);
   if(Mathf.Abs(final.size.z-4.32f)>.01f || Mathf.Abs(final.min.y)>.01f)
    throw new InvalidOperationException("Rally car scale or ground contact is invalid");
+  var lcd=meshes.Single(t=>t.name=="lcd display");
+  var instruments=lcd.gameObject.AddComponent<CockpitInstruments>();controller.instruments=instruments;
+  instruments.screen=lcd;instruments.materialSlot=Array.FindIndex(lcd.sharedMaterials,m=>m.name=="lcd_screen");
+  var lcdMesh=lcd.GetComponent<MeshFilter>().sharedMesh;var uv=lcdMesh.uv;
+  var face=lcdMesh.GetTriangles(instruments.materialSlot);var min=uv[face[0]];var max=min;
+  foreach(int vertex in face){min=Vector2.Min(min,uv[vertex]);max=Vector2.Max(max,uv[vertex]);}
+  instruments.uvRect=new Vector4(min.x,min.y,max.x-min.x,max.y-min.y);
   controller.driverSteering=DriverSteeringImport.Prepare(controller,meshes.Single(t=>t.name=="driver"));
   float radius=controller.wheelRadius;
   PrefabUtility.SaveAsPrefabAsset(root,Prefab);

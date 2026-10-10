@@ -4,7 +4,7 @@
 
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-macOS-arm64.zip) | [Release v0.3.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.2)
 
-**Version v0.3.2** adds subtle cockpit movement, asphalt/kerb/loose-ground sound, and a steering wheel with animated driver hands and elbows. **F3 → View & sound** adjusts the feedback; either slider at zero disables that effect. Both car models and the live reference-lap viewer use the animations. Subaru AWD handling, the Gotland Ring circuit and the **800 × 800 m asphalt training area** are included.
+**Version v0.3.2** includes live cockpit speed, RPM and gear instruments, a steering wheel with animated hands and elbows, subtle cockpit movement, and asphalt/kerb/loose-ground sound. In manual driving, **W/Up always requests forward throttle without applying brakes**, including during spins or when returning from reverse. **F3 → View & sound** adjusts movement and surface sound; zero disables either effect. Both car models and the live reference-lap viewer use the cockpit instruments and animations.
 
 Press **Z** to switch between Gotland Ring and the training pad. Both use the same vehicle physics and settings. **R/Home** resets the car on the pad. Repeated full-throttle steering reversals can break rear grip; lift and countersteer to recover. The chase camera and sideslip display make the car's rotation visible.
 
@@ -133,6 +133,7 @@ F2 screenshots and automated test images on macOS are saved under `~/Library/App
 Run the existing standalone checks with graphics enabled:
 
 ```bash
+open -n -W Build/macOS/GotlandRing.app --args --instruments-test -logFile "$PWD/Logs/instruments-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --feedback-test -logFile "$PWD/Logs/feedback-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --model-preview -logFile "$PWD/Logs/rally-model-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --car-switch-test -logFile "$PWD/Logs/car-switch-macOS.log"
@@ -187,6 +188,7 @@ Check that both uploaded packages match the local checksums, then publish with `
 | `Assets/Scripts/RingDrive.SurfaceChecks.cs` | Forward/reverse ground contact, bank direction, recovery and seam checks |
 | `windmills/` / `Assets/Resources/Track/WindTurbines.csv` | Supplied registry positions, model dimensions and RH2000 base heights; the bundled CSV is unchanged |
 | `Assets/Scripts/RingDrive.WindTurbines.cs` / `WindTurbineData.cs` | Registered turbine placement, scaled procedural geometry and rotor animation |
+| `Assets/Scripts/CockpitInstruments.cs` / `Assets/Resources/Visuals/CockpitInstruments.shader` | Live in-car speed, RPM bar, numeric RPM and gear |
 | `Assets/Scripts/ImprezaModel.cs` | Imported car steering, driver arms, wheel animation and cockpit visibility |
 | `Assets/Models/RallyCar` | FBX model, textures and materials by SpatialNeglect (CC BY-NC 4.0) |
 | `Assets/Editor/RallyCarImport.cs` | Prepare the scaled car prefab and camera/wheel pivots |
@@ -212,22 +214,24 @@ Check that both uploaded packages match the local checksums, then publish with `
 
 ## Lines of code
 
-Source snapshot for **10 October 2026**: **4,835 code lines across 67 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **5,201 physical lines** in total.
+Source snapshot for **10 October 2026**: **5,082 code lines across 70 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **5,456 physical lines** in total.
 
 | Source | Language | Files | Code LOC | Comment lines | Blank lines |
 |---|---|---:|---:|---:|---:|
-| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 46 | 3,738 | 103 | 160 |
-| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 10 | 711 | 19 | 23 |
+| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 48 | 3,904 | 106 | 164 |
+| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 10 | 719 | 19 | 23 |
 | Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 | 0 | 2 |
-| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 4 | 93 | 0 | 0 |
+| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 5 | 166 | 1 | 0 |
 | Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 | 23 | 26 |
 | macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 | 2 | 8 |
 | Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 | 0 | 0 |
-| **Total** | | **67** | **4,835** | **147** | **219** |
+| **Total** | | **70** | **5,082** | **151** | **223** |
 
 The count covers game source, verification code and build/asset tools. It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
 
 ## Verification
+
+`--instruments-test` checks live AWD/arcade data, both cockpit displays, sliding speed, reverse, pause and model isolation. It renders the LCD on the GPU to check changing speed/RPM digits and rev-bar fill, and saves cockpit screenshots. `--reference-lap-test` also checks the display after replay seeks, pause and completion.
 
 `--feedback-test` checks live AWD road/shoulder/airborne contacts, acceleration,
 view/sound controls, mouse look, chase view and recovery. Unity builds also check
@@ -253,7 +257,7 @@ about **37°/54°** peak body sideslip. Lifting and countersteering recovers a
 
 The AWD checks also cover progressive tyre force, **24 manual steering recovery
 cases at 60/100/140 km/h**, eight full-throttle reversal runs and four
-countersteering recoveries on the flat training pad, mesh contact, banking, reverse, braking, pause and
+countersteering recoveries on the flat training pad, 20 accelerator-held spins past 90° across both areas and handling modes, deliberate direction changes, mesh contact, banking, reverse, braking, pause and
 model/mode switching. Training checks exercise both handling modes with manual
 and automatic driving, paused switching, recovery, circuit return and lap
 isolation. The arcade regression covers five laps and recovery. See
@@ -286,7 +290,7 @@ seeking reset head movement; pause freezes it. These are approximate view and
 sound cues: they do not change grip, suspension forces or the racing line.
 
 
-Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
+In manual driving, **W/Up** always requests forward throttle, including during spins and while moving backwards in reverse. It never applies the brakes, and takes priority over X if both are held. **S/Down** is the brake. Hold **X** to reverse (maximum approximately 29 km/h); X brakes forward motion before engaging reverse. Movement alone does not select reverse or apply the brakes.
 
 ### Mouse steering
 
@@ -347,7 +351,7 @@ Turbines use `windmills/gotland_ring_wind_turbines.csv` directly in the track's 
 
 The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. The cockpit steering wheel follows the actual front-wheel angle with a fixed visual 12:1 ratio (504° at the default 42° low-speed lock). The speed-dependent steering limits therefore reduce cockpit rotation too. Both car models, manual driving, autopilot and reference replay share this animation; the ratio is a visual approximation, not a measured steering-rack specification. The driver’s hands follow the rim with bending elbows and alternating regrips at large steering angles. The seated torso stays fixed; pause and replay seeks preserve the steering pose. Road wheels follow steering and vehicle speed.
 
-The cabin includes a dashboard, racing seats, roll cage and a single driver. Cockpit view hides only the driver’s head and helmet; the arms, body and seatbelts remain visible. Exterior views show the complete driver. The dashboard screen is part of the supplied artwork; current speed, RPM and gear are shown by the game HUD.
+The cabin includes a dashboard, racing seats, roll cage and a single driver. Cockpit view hides only the driver’s head and helmet; the arms, body and seatbelts remain visible. Exterior views show the complete driver. The cockpit LCD shows live speed in km/h, numeric RPM, a segmented rev bar and the current gear (R in reverse), using the same values as the HUD. Both models update immediately when switching cars or pausing. The reference viewer uses its estimated speed, RPM and gear, including when seeking.
 
 ## Licensing
 

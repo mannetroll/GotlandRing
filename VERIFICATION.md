@@ -4,9 +4,9 @@ Verified on 10 October 2026 with Unity 6000.3.25f1. The macOS ARM64 and Windows 
 
 ## Standalone checks
 
-All **12 macOS suites** pass: feedback, AWD, arcade autopilot, settings, reference lap, scenery, surface contact, model animation, car switching, wind turbines, track signs and driving/braking smoke checks.
+All **13 macOS suites** pass: cockpit instruments, feedback, AWD, arcade autopilot, settings, reference lap, scenery, surface contact, model animation, car switching, wind turbines, track signs and driving/braking smoke checks.
 
-On Windows 11 (Fractal), all **six functional suites** pass: feedback, car switching and driver animation, AWD, arcade autopilot, settings and reference lap. Windows runs use `-batchmode -nographics`, validating simulation, skinned-mesh deformation, replay state, clock and controls without testing rendered appearance or sound output.
+On Windows 11 (Fractal), all **seven functional suites** pass: cockpit instruments, feedback, car switching and driver animation, AWD, arcade autopilot, settings and reference lap. Windows runs use `-batchmode -nographics`, validating simulation, skinned-mesh deformation, replay state, clock and controls without testing rendered appearance or sound output. The instrument suite explicitly skips GPU checks in that mode.
 
 | Measurement | macOS | Windows 11 |
 |---|---:|---:|
@@ -24,6 +24,10 @@ The 24 manual steering recovery cases finish with at most 0.50° residual sidesl
 
 ## Cockpit and surface feedback
 
+The live LCD passes driving-state checks for AWD and arcade, both models, sideways speed, reverse, pause and model isolation on both platforms. Mac GPU readback verifies rev-bar fill and changing speed/RPM digits. Cockpit screenshots show 108 km/h, 4500 RPM and third gear matching the HUD, with the stable v0.3.2 label. Replay checks verify the instrument readings after seeking, pausing and finishing.
+
+Accelerator checks cover 20 spins beyond 90° across both surfaces and both handling modes. W/Up retains forward throttle with no automatic wheel braking. Returning from reverse releases reverse torque immediately, applies forward drive without brakes and takes priority over an overlapping X input. S/Down still applies wheel brakes and cuts drive.
+
 The steering checks cover the visible wheel, its centred column axis, road-wheel agreement, both directions, full locks, pause and return to centre. Both car models pass the driver checks: visible gloves follow their bones, elbows remain connected, the torso stays fixed, grip changes alternate, and pause/seek/centre poses are stable. Sweeping the wheel from −720° to +720° in 0.5° steps gives a maximum hand displacement of 0.0095 m per step and at least 0.070 m of arm reach remaining. Mac cockpit screenshots were reviewed at left/right turns and the reference-lap view shows the v0.3.2 label.
 
 Feedback checks cover grounded, split-surface and airborne wheel contacts, stationary settling, acceleration, disabled sliders, mouse look, chase-camera isolation and recovery. Editor checks validate 711 kerb sample locations, asphalt/loose-ground boundaries, training-pad boundaries, braking/cornering direction, 30/60/120 Hz behaviour and motion limits.
@@ -40,7 +44,7 @@ Scenery checks validate all **26 kerb runs / 13,812 vertices**, road sides, upwa
 
 Both builds pass track/surface, turbine, forest, car-import, ride-feedback and engine/surface-audio checks.
 
-The macOS ZIP passes archive-integrity checking. All **147 app files** and **18 accompanying documentation/data files** match their sources. The extracted app reports v0.3.2, passes `codesign --verify --deep --strict`, and passes the feedback startup check.
+The macOS ZIP passes archive-integrity checking. All **147 app files** and **18 accompanying documentation/data files** match their sources. The extracted app reports v0.3.2, passes `codesign --verify --deep --strict`, and passes the headless instrument startup check.
 
 The Windows portable EXE is built with .NET 10. Both launcher and game report v0.3.2. All **161 transferred runtime files** and **161 extracted payload files** match by SHA-256. The final portable EXE starts the game and reaches the settings-test success marker. Its retrieved checksum matches the Windows packaging result.
 
