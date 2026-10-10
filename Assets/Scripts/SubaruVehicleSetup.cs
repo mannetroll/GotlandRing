@@ -14,8 +14,8 @@ public sealed class SubaruVehicleSetup
     public float[] gears = {3.454f, 1.947f, 1.366f, .972f, .738f};
     public float finalDrive = 4.111f, reverseRatio = 3.333f, efficiency = .88f;
     public float idleRpm = 900f, revLimitRpm = 6800f, shiftRpm = 6300f;
-    public float frontLateralPeakSlip = .16f, rearLateralPeakSlip = .14f;
-    public float slidingGripFraction = .90f;
+    public float lateralPeakSlip = .20f;
+    public float slidingGripFraction = .98f;
     public float dragCoefficient = .42f, rollingResistance = .012f;
     // Intermediate samples estimated; anchors: 290 Nm/4000 RPM and 160 kW/5600 RPM.
     public AnimationCurve torque = new AnimationCurve(

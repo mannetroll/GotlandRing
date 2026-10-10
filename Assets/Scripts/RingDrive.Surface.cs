@@ -5,6 +5,7 @@ public partial class RingDrive
 {
  void MakeTrack(){
   centerline=TrackData.Load(Resources.Load<TextAsset>("Track/Surface").text);
+  drivingSurface=new DrivingSurface(centerline);
   track.AddRange(centerline.Points);length=centerline.HorizontalLength;
   var gravel=Mat("Limestone ground apron",Color.white);VisualUpgrade.Surface(gravel,"Gravel",.06f);
   var road=new GameObject("Estimated banked track surface");
@@ -51,7 +52,7 @@ public partial class RingDrive
  }
 
  void PlaceCarOnSurface(Vector3 position,float bodyRoll){
-  var surface=centerline.Sample(position.x,position.z);position.y=surface.Height+.04f;car.position=position;
+  var surface=drivingSurface.Sample(position.x,position.z);position.y=surface.Height+.04f;car.position=position;
   var heading=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));
   car.rotation=Quaternion.LookRotation(Vector3.ProjectOnPlane(heading,surface.Normal),surface.Normal)*Quaternion.Euler(0,0,bodyRoll);
  }

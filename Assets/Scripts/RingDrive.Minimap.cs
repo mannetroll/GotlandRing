@@ -61,6 +61,7 @@ public partial class RingDrive
  }
 
  void DrawMap(){
+  if(drivingSurface.Training){DrawTrainingMap();return;}
   GUI.DrawTexture(new Rect(1340,25,235,235),map);
   GUI.Label(new Rect(1352,30,215,22),"BANKING  /  + right edge higher",small);
   GUI.Label(new Rect(1352,227,60,20),negativeBankLabel,small);

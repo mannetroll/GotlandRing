@@ -2,10 +2,15 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.6](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.6)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.6/GotlandRing-AWD-Portable.exe).
-The AWD tyres allow modest cornering slip, and the autopilot steers into a slide
-and eases the pedals to recover. The chase camera follows the direction of travel
+**AWD Windows preview ([v0.3.0-awd.7](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.7)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.7/GotlandRing-AWD-Portable.exe).
+Press **Z** to switch between Gotland Ring and an **800 × 800 m asphalt training
+area**, with marked 25, 50 and 100 m practice circles. **R/Home** resets the car on
+the pad. Switching areas stops the car; returning to the circuit starts a fresh
+lap and preserves the best time. Autopilot keeps its state and follows the large
+circle on the pad.
+The AWD tyres build cornering force progressively, with a broad grip plateau
+and rear grip reserve for smoother steering recovery. The chase camera follows the direction of travel
 to show the rear stepping out; the HUD displays the actual body sideslip angle.
 Tyre squeal is off by default. Enable it with the **Tyre squeal** checkbox in **F3** settings.
 The stock GT physics mode includes four-wheel drive,
@@ -47,6 +52,7 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | S / Down arrow | Brake |
 | A / D or Left / Right arrows | Steer in keyboard mode |
 | U | Toggle mouse / keyboard steering |
+| Z | Switch Gotland Ring / asphalt training area, stopping at the start |
 | X | Reverse (brakes before changing direction) |
 | Ctrl+P (Windows) / Cmd+P (macOS) | Toggle Auto(P)ilot |
 | Ctrl+F (Windows) / Cmd+F (macOS) | Toggle fullscreen / restore window size |
@@ -56,8 +62,8 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | Right mouse | Centre steering in mouse mode; centre the view in keyboard mode |
 | C | Cycle cockpit / bonnet / chase camera (starts behind the car) |
 | Y | Switch between Impreza Rally and the blue-and-gold Subaru Impreza, preserving the current drive |
-| R | Recover to the nearest track point, preserving lap time and checkpoint progress |
-| Home | Restart the current lap at the start line |
+| R | Recover to the nearest circuit point; reset to the start on the training pad |
+| Home | Restart the lap, or reset to the training start line |
 | Escape | Pause / resume and release the mouse |
 | T | Cycle Impreza Rally paint: Splash red → rally blue → white → Splash red |
 | M | Mute / unmute |
@@ -218,31 +224,33 @@ Source snapshot for **v0.2.0, 8 October 2026**. LOC counts physical lines contai
 
 | Source | Language | Files | LOC |
 |---|---|---:|---:|
-| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 24 | 1,877 |
-| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 537 |
-| Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 |
+| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 34 | 3,115 |
+| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 606 |
+| Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 47 |
 | Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 3 | 71 |
-| Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 |
-| macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 |
+| Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 237 |
+| macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 55 |
 | Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 |
-| **Total** | | **41** | **2,778** |
+| **Total** | | **51** | **4,146** |
 
 The count covers game source, verification code and build/asset tools. It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
 
 ## Verification
 
 The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
-covers all **2,405** track segments in **4:15.28**, with maximum speed **181.7 km/h**
-and **20 downshifts under power**. At more than 43 km/h, peak body sideslip is
-**8.54°**, with about **55.57 seconds** above 3° in corners. All four corners of
-the car remain on the asphalt; minimum measured body clearance is **0.21 m**.
-Main-straight 0–100 km/h takes **7.24 s**, followed by a **35.95 m** stop.
-The rear tyres exceed their peak-grip slip for **1.72 seconds**.
+covers all **2,405** track segments in **4:18.09**, with maximum speed **181.8 km/h**
+and **21 downshifts under power**. At more than 43 km/h, peak body sideslip is
+**7.41°**, with about **82.08 seconds** above 3° in corners. All four corners of
+the car remain on the asphalt; minimum measured body clearance is **0.44 m**.
+Main-straight 0–100 km/h takes **7.23 s**, followed by a **35.83 m** stop.
 These are prototype measurements.
 
-The AWD checks also cover mesh contact, banking, the lap seam, reverse, brake
-torque cut, pause/resume and model/mode switching. The arcade regression covers
-five laps and recovery. See [physics assumptions and reproduction commands](docs/AWD-PHYSICS.md).
+The AWD checks also cover progressive tyre force, **24 manual steering recovery
+cases at 60/100/140 km/h**, mesh contact, banking, reverse, braking, pause and
+model/mode switching. Training checks exercise both handling modes with manual
+and automatic driving, paused switching, recovery, circuit return and lap
+isolation. The arcade regression covers five laps and recovery. See
+[physics assumptions and reproduction commands](docs/AWD-PHYSICS.md).
 
 ### Driving dynamics
 

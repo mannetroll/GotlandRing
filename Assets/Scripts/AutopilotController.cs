@@ -169,7 +169,7 @@ public sealed class AutopilotController
         if (settings.awdMode && Vector3.Dot(velocity, forward) > 8) forward = Flat(velocity).normalized;
         // Continuous target interpolation avoids steering jumps between CSV vertices.
         float lookAhead = Mathf.Clamp(4 + speed * .28f + speed * .06f / settings.response, 6, 26);
-        if (settings.awdMode) lookAhead = Mathf.Clamp(8 + speed * .5f, 10, 34);
+        if (settings.awdMode) lookAhead = Mathf.Clamp(6 + speed * .45f, 10, 32);
         var aim = Flat(PointAhead(nearest, fraction, lookAhead) - position);
         float angle = Vector3.SignedAngle(forward, aim, Vector3.up) * Mathf.Deg2Rad;
         float curvature = 2 * Mathf.Sin(angle) / Mathf.Max(aim.magnitude, 1);

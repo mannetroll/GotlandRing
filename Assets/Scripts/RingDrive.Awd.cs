@@ -8,7 +8,7 @@ public partial class RingDrive
     void MakeAwdCar()
     {
         awd = car.gameObject.AddComponent<SubaruAwdController>();
-        awd.Initialize(centerline);
+        awd.Initialize(drivingSurface);
         awd.SetSimulationActive(dynamics.awdMode);
     }
 

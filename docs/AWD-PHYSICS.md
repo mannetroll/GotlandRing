@@ -31,8 +31,12 @@ assist, not a claim about factory equipment on the 1999/2000 car.
 
 ## Cornering slip
 
-The front and rear tyre curves build lateral force gradually and retain 90% of
-their peak coefficient at large slip. Acceleration and braking demand reduce
+The front and rear tyre curves build lateral force progressively to a shared
+WheelCollider slip value of 0.20, then retain 98% of their peak coefficient at
+large slip (0.60). Rear lateral stiffness is 1.25 versus 1.05 at the front,
+providing grip reserve when the driver centres or reverses the steering. These
+are tuning coefficients, not slip angles in degrees. The [Unity tyre curve](https://docs.unity3d.com/6000.0/Documentation/Manual/wheel-colliders-friction.html)
+rises to a peak; grip is bounded even when slip continues to increase. Acceleration and braking demand reduce
 the lateral coefficient by up to about 13%, using each wheel's load and torque.
 This is a bounded combined-grip approximation, not a calibrated friction-circle
 or differential model. The same tyre response applies to manual driving.
@@ -42,12 +46,26 @@ AWD autopilot follows its direction of travel and allows rotation through bends
 with ordinary front-wheel steering. Countersteering strengthens as the slide
 grows, with extra recovery above 8°. It retains corner-entry braking up to 6°
 of body sideslip and starts reducing throttle at 7°. Its corner-speed plan uses
-a 9.2 m/s² grip budget, scaled by the grip setting, while braking and steering
+an 8.8 m/s² grip budget, scaled by the grip setting, while braking and steering
 recovery control the slide. The car's rotation and lateral motion
 come from tyre forces. The chase camera smoothly follows the direction of travel
 so small angles remain visible, and the HUD shows the measured body sideslip.
 A nonzero body sideslip angle does not by itself mean a tyre is beyond peak grip;
 the telemetry records front/rear tyre slip separately.
+
+## Training area
+
+Press **Z**, or use the area button beneath the mini-map, to switch between
+Gotland Ring and an **800 × 800 metre flat asphalt skidpad**. The pad has circles
+of 25, 50 and 100 metre radius, a start line and grass beyond the painted edge.
+It uses the same tyres, AWD split and steering settings as the circuit. **R** or
+**Home** returns to the pad's start; **U** continues to choose mouse or keyboard
+steering. `--training` starts a local launch on the pad.
+
+Area switching stops and centres the car, preserves pause, handling/input mode,
+autopilot and the circuit best lap, and begins a fresh timed lap at the circuit
+start when returning. Training does not record circuit laps. Ctrl/Cmd+P remains
+the sole autopilot toggle; on the pad the pilot follows the 100 metre circle.
 
 ## Stock/manual baseline
 
@@ -94,8 +112,10 @@ arrows and X do not override the pilot. Its speed plan uses an AWD lateral accel
 estimate for the physical vehicle. Speed corrections are gradual near the racing line.
 It does not teleport, align or push the car along the racing line.
 
-Run the macOS executable with `--awd-test -batchmode -nographics` to check road
-contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
+Run the macOS executable with `--awd-test -batchmode -nographics` to check training
+area switching, pause/reset, both handling modes and manual/autopilot driving;
+progressive lateral-force build-up and 24 manual steering recoveries at 60, 100
+and 140 km/h; road contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
 cut, pause/resume, model/mode switching, 0–100 km/h and braking on the main
 straight, and a full physical autopilot lap with power downshifts, modest cornering slip and
 clearance checks for the four corners of the car. Tyre-audio checks require quiet
@@ -104,7 +124,11 @@ resting, airborne and off-asphalt contacts, plus audible demand in corners.
 `Application.persistentDataPath`. `awd-lap.csv` records speed, target, line error,
 road margin, axle torque, contact count, steering, position, body sideslip,
 front/rear tyre slip, pedal inputs, gear, RPM and normalized tyre-squeal demand. `awd-results.txt`
-reports the full-lap result. Non-batch runs with graphics enabled request
+reports the full-lap result. `awd-grip-curve.csv` measures lateral acceleration
+under imposed slip, and `awd-steering-recovery.csv` records full-lock pulses and
+35%-lock steering reversals with coasting/full throttle in both directions.
+Recovery must remain below 2° residual sideslip and 8°/s yaw rate from 3 seconds
+after the manoeuvre begins. Harder or sustained steering can still cause a spin. Non-batch runs with graphics enabled request
 `awd-cornering.png` during a corner and `awd-driving.png` at the end.
 `--autopilot-test` validates the separate arcade comparison mode.
 

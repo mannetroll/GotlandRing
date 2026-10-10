@@ -20,13 +20,13 @@ public sealed class SubaruAwdController : MonoBehaviour
     public float RearTorque => Wheels[2].motorTorque + Wheels[3].motorTorque;
     public float Boost { get; private set; }
     BoxCollider chassis;
-    TrackData track;
+    DrivingSurface surface;
     float appliedThrottle, shiftDelay;
     Vector3 heldVelocity, heldAngularVelocity;
 
-    public void Initialize(TrackData road)
+    public void Initialize(DrivingSurface road)
     {
-        track = road;
+        surface = road;
         Body = gameObject.AddComponent<Rigidbody>();
         Body.mass = setup.Mass;
         Body.centerOfMass = new Vector3(0, setup.centreOfMassHeight, (setup.frontWeightFraction - .5f) * setup.wheelbase);
@@ -71,6 +71,8 @@ public sealed class SubaruAwdController : MonoBehaviour
 
     public void ResetCar(Vector3 position, Quaternion rotation)
     {
+        // Update the visible pose immediately, including a teleport while physics is paused.
+        transform.SetPositionAndRotation(position, rotation);
         Body.position = position; Body.rotation = rotation;
         heldVelocity = heldAngularVelocity = Vector3.zero;
         if (!Body.isKinematic) { Body.linearVelocity = Vector3.zero; Body.angularVelocity = Vector3.zero; }
@@ -85,7 +87,7 @@ public sealed class SubaruAwdController : MonoBehaviour
     }
 
     public DrivingSettings PilotSettings(DrivingSettings settings) => new DrivingSettings {
-        grip = 9.2f * settings.awdGrip, braking = 6.5f, acceleration = .70f,
+        grip = 8.8f * settings.awdGrip, braking = 6.5f, acceleration = .70f,
         steering = settings.steering, highSpeedSteering = settings.highSpeedSteering,
         response = settings.awdSteeringRate / settings.steering, offRoadGrip = 3.5f
     };
@@ -157,13 +159,12 @@ public sealed class SubaruAwdController : MonoBehaviour
             if (wheel.GetGroundHit(out WheelHit hit))
             {
                 GroundedWheels++;
-                bool asphalt = track.Sample(hit.point.x, hit.point.z).OnRoad;
+                bool asphalt = surface.Sample(hit.point.x, hit.point.z).OnRoad;
                 if (!asphalt) grip *= .48f;
                 float forwardSlip = Mathf.Abs(hit.forwardSlip);
                 if (asphalt)
                 {
-                    float lateralPeak = frontAxle ? setup.frontLateralPeakSlip : setup.rearLateralPeakSlip;
-                    float demand = Mathf.Max(Mathf.Abs(hit.sidewaysSlip) / lateralPeak, forwardSlip / .22f);
+                    float demand = Mathf.Max(Mathf.Abs(hit.sidewaysSlip) / setup.lateralPeakSlip, forwardSlip / .22f);
                     float scrub = Mathf.InverseLerp(.28f, .85f, demand);
                     float load = Mathf.Clamp01(hit.force / (wheel.sprungMass * Physics.gravity.magnitude));
                     TyreSqueal += scrub * scrub * load;
@@ -179,10 +180,10 @@ public sealed class SubaruAwdController : MonoBehaviour
             }
             wheel.forwardFriction = new WheelFrictionCurve { extremumSlip = .22f, extremumValue = 1,
                 asymptoteSlip = .65f, asymptoteValue = .75f, stiffness = 1.05f * grip };
-            float peakSlip = frontAxle ? setup.frontLateralPeakSlip : setup.rearLateralPeakSlip;
-            wheel.sidewaysFriction = new WheelFrictionCurve { extremumSlip = peakSlip, extremumValue = 1,
-                asymptoteSlip = peakSlip * 2.5f, asymptoteValue = setup.slidingGripFraction,
-                stiffness = (frontAxle ? 1.05f : .98f) * grip * lateralBudget };
+            // Build force over a broad slip range; rear grip reserve makes steering reversals recoverable.
+            wheel.sidewaysFriction = new WheelFrictionCurve { extremumSlip = setup.lateralPeakSlip, extremumValue = 1,
+                asymptoteSlip = setup.lateralPeakSlip * 3f, asymptoteValue = setup.slidingGripFraction,
+                stiffness = (frontAxle ? 1.05f : 1.25f) * grip * lateralBudget };
             wheel.motorTorque = drive; wheel.brakeTorque = brakeTorque;
         }
         TyreSqueal = Mathf.Sqrt(TyreSqueal * .25f);
