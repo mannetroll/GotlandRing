@@ -21,8 +21,13 @@ public sealed class ImprezaModel : MonoBehaviour
  public bool CanChangePaint=>paintColors.Length>1;
  Quaternion steeringRest;
  float roll;
+ Vector3[] hubPositions;
+ float[] wheelAngles;
 
  void Awake(){
+  hubPositions=new Vector3[wheelSpin.Length];
+  wheelAngles=new float[wheelSpin.Length];
+  for(int i=0;i<wheelSpin.Length;i++)hubPositions[i]=wheelSpin[i].parent.localPosition;
   steeringRest=steeringWheel.localRotation;
   paintIndex=initialPaint;
   paintInstance=new Material(bodyPaint){color=paintColors[paintIndex]};
@@ -40,6 +45,19 @@ public sealed class ImprezaModel : MonoBehaviour
  }
 
  void OnDestroy(){Destroy(paintInstance);}
+
+ public void AnimateSuspension(WheelCollider[] wheels,float dt){
+  for(int i=0;i<wheels.Length;i++){
+   wheels[i].GetWorldPose(out var position,out _);
+   var hub=wheelSpin[i].parent;var local=hubPositions[i];
+   local.y=hub.parent.InverseTransformPoint(position).y+wheelRadius-wheels[i].radius;
+   hub.localPosition=local;
+   wheelAngles[i]=Mathf.Repeat(wheelAngles[i]+wheels[i].rpm*6*dt,360);
+   wheelSpin[i].localRotation=Quaternion.Euler(wheelAngles[i],0,0);
+  }
+ }
+
+ public void ResetSuspension(){for(int i=0;i<wheelSpin.Length;i++)wheelSpin[i].parent.localPosition=hubPositions[i];}
 
  public void Animate(float steering,float roadWheelAngle,float forwardSpeed,float dt,bool cockpit)
  {

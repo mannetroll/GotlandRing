@@ -9,7 +9,7 @@ public partial class RingDrive : MonoBehaviour
  Transform car, head; Camera cam; BoxerAudio motor; ImprezaModel carModel;
  ImprezaModel[] carModels;int selectedCar;
  Material black, silver, asphalt, grass, white, kerbBlue;
- Vector3 velocity; float yaw, steer, lookYaw, lookPitch, throttle, rpm=900, boost, lapStart, best;
+ Vector3 velocity; float yaw, steer, lookYaw, lookPitch, chaseSlipYaw, throttle, rpm=900, boost, lapStart, best;
  int nearest, lastIndex, checkpoints, lap=1, gear=1, view=2; bool paused, muted, automatic, smokeBrake, modelPreview, signTest, surfaceTest;
  DrivingSettings dynamics, draft; bool settingsOpen, wasPaused; float pauseStarted;
  float fpsElapsed; int fpsFrames; string fpsText="FPS --";
@@ -25,21 +25,27 @@ public partial class RingDrive : MonoBehaviour
  GameObject Box(string n,Vector3 p,Vector3 s,Material m,Transform parent=null){var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name=n;o.transform.SetParent(parent,false);o.transform.localPosition=p;o.transform.localScale=s;o.GetComponent<Renderer>().sharedMaterial=m;Destroy(o.GetComponent<Collider>());return o;}
  void Awake(){
   dynamics=DrivingSettings.Load();
+  var args=Environment.GetCommandLineArgs();
+  if(Array.Exists(args,x=>x=="--arcade"||x=="--autopilot-test"||x=="--surface-test"||x=="--car-switch-test"||x=="--model-preview"||x=="--sign-test"))dynamics.awdMode=false;
+  awdTest=Array.Exists(args,x=>x=="--awd-test");
+  if(awdTest||Array.Exists(args,x=>x=="--awd"))dynamics.awdMode=true;
   QualitySettings.vSyncCount=1;Application.targetFrameRate=60;Time.fixedDeltaTime=.01f;
   black=Mat("Charcoal",new Color(.025f,.032f,.039f));silver=Mat("Alloy",new Color(.6f,.65f,.68f),.7f);
   asphalt=Mat("Asphalt",new Color(.19f,.21f,.22f));grass=Mat("Gotland dry meadow",new Color(.42f,.46f,.27f));white=Mat("Paint",new Color(.88f,.88f,.8f));
   RenderSettings.ambientMode=UnityEngine.Rendering.AmbientMode.Flat;RenderSettings.ambientLight=new Color(.48f,.53f,.58f);RenderSettings.fog=true;RenderSettings.fogColor=new Color(.70f,.80f,.85f);RenderSettings.fogDensity=.0005f;
   var sun=new GameObject("Baltic afternoon sun").AddComponent<Light>();sun.type=LightType.Directional;sun.intensity=1.15f;sun.transform.rotation=Quaternion.Euler(38,-32,0);sun.shadows=LightShadows.Soft;QualitySettings.shadowDistance=130;
   VisualUpgrade.Surface(asphalt,"Asphalt",.22f,.45f);VisualUpgrade.Surface(grass,"Grass",.05f,.7f);silver.SetFloat("_Metallic",.85f);
-  kerbBlue=Mat("Blue kerbs",new Color(.2f,.55f,.78f));MakeTrack();MakeLandscape();BatchScenery();MakeCar();MakeMap();RecoverCar(0);
+  kerbBlue=Mat("Blue kerbs",new Color(.2f,.55f,.78f));MakeTrack();MakeLandscape();BatchScenery();MakeCar();MakeAwdCar();MakeMap();RecoverCar(0);
   VisualUpgrade.Lighting(cam,car);
   lapStart=Time.time;Cursor.lockState=CursorLockMode.Locked;Cursor.visible=false;
   automatic=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--smoke-test");
   if(automatic) StartCoroutine(SmokeTest());
-  autopilot=new AutopilotController(centerline,dynamics);
+  autopilot=new AutopilotController(centerline,dynamics.awdMode?awd.PilotSettings(dynamics):dynamics);
+  if(Array.Exists(args,x=>x=="--training"))ToggleTrainingArea();
   if(Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--autopilot"))SetAutopilot(true);
   autopilotTest=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--autopilot-test");
   if(autopilotTest)StartCoroutine(AutopilotTest());
+  if(awdTest)StartCoroutine(AwdTest());
   StartCoroutine(RenderStats());
   if(Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--settings-test"))StartCoroutine(SettingsTest());
   modelPreview=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--model-preview");if(modelPreview){muted=true;StartCoroutine(ModelPreview());}
@@ -82,7 +88,7 @@ public partial class RingDrive : MonoBehaviour
  }
  void Sign(string text,Vector3 p,Vector3 direction,float size){var o=new GameObject(text);o.transform.position=p;o.transform.rotation=Quaternion.LookRotation(-direction);var t=o.AddComponent<TextMesh>();t.text=text;t.fontSize=64;t.characterSize=size*.1f;t.anchor=TextAnchor.MiddleCenter;t.color=Color.white;}
  void MakeLandscape(){
-  const int n=220;var vs=new Vector3[(n+1)*(n+1)];var terrainUv=new Vector2[vs.Length];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*18,pz=(z-n/2)*18;vs[z*(n+1)+x]=new Vector3(px,centerline.Height(px,pz)-3,pz);terrainUv[z*(n+1)+x]=new Vector2(px/12,pz/12);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.uv=terrainUv;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;
+  const int n=220;var vs=new Vector3[(n+1)*(n+1)];var terrainUv=new Vector2[vs.Length];var ts=new int[n*n*6];for(int z=0;z<=n;z++)for(int x=0;x<=n;x++){float px=(x-n/2)*18,pz=(z-n/2)*18;vs[z*(n+1)+x]=new Vector3(px,centerline.Height(px,pz)-3,pz);terrainUv[z*(n+1)+x]=new Vector2(px/12,pz/12);}int ti=0;for(int z=0;z<n;z++)for(int x=0;x<n;x++){int a=z*(n+1)+x;ts[ti++]=a;ts[ti++]=a+n+1;ts[ti++]=a+1;ts[ti++]=a+1;ts[ti++]=a+n+1;ts[ti++]=a+n+2;}var mesh=new Mesh();mesh.vertices=vs;mesh.uv=terrainUv;mesh.triangles=ts;mesh.RecalculateNormals();var land=new GameObject("Rolling limestone meadow");land.AddComponent<MeshFilter>().sharedMesh=mesh;land.AddComponent<MeshRenderer>().sharedMaterial=grass;land.AddComponent<MeshCollider>().sharedMesh=mesh;
   TrackForest.Create();
   var stone=Mat("Limestone",new Color(.61f,.60f,.52f));UnityEngine.Random.InitState(2000);
   for(int i=0;i<160;i++){var p=new Vector3(UnityEngine.Random.Range(-1400,1400),0,UnityEngine.Random.Range(-1400,1400));if(DistanceToTrack(p,out _)<25)continue;p.y=Ground(p.x,p.z);var b=Box("Quarry stone",p,new Vector3(4,2,3)*UnityEngine.Random.Range(.6f,2),stone);b.transform.rotation=Quaternion.Euler(0,UnityEngine.Random.Range(0,180),0);}
@@ -108,88 +114,107 @@ public partial class RingDrive : MonoBehaviour
   carModels[selectedCar].gameObject.SetActive(false);
   selectedCar=(selectedCar+1)%carModels.Length;
   carModel=carModels[selectedCar];carModel.gameObject.SetActive(true);
-  float angle=steer*Mathf.Lerp(dynamics.steering,dynamics.highSpeedSteering,Mathf.Clamp01(velocity.magnitude/65));
-  carModel.Animate(steer,angle,Vector3.Dot(velocity,car.forward),0,view==0);
+  AnimateCar(0);
   UpdateCameraPose();
   Debug.Log("CAR_MODEL "+carModel.displayName);
  }
  public float DistanceToTrack(Vector3 p,out int index)=>centerline.Nearest(p.x,p.z,out index,out _);
- void RecoverCar(int i){nearest=i;car.position=track[i]+Vector3.up*.04f;yaw=Quaternion.LookRotation(track[(i+1)%track.Count]-track[i]).eulerAngles.y;PlaceCarOnSurface(car.position,0);velocity=Vector3.zero;reversing=false;steer=0;lookYaw=lookPitch=0;lastIndex=i;}
+ void RecoverCar(int i){
+  if(drivingSurface.Training){RecoverTrainingCar();return;}
+  nearest=i;yaw=Quaternion.LookRotation(track[(i+1)%track.Count]-track[i]).eulerAngles.y;
+  if(dynamics.awdMode){
+   var p=track[i];var normal=centerline.Sample(p.x,p.z).Normal;
+   var heading=Vector3.ProjectOnPlane(track[(i+1)%track.Count]-p,normal);
+   awd.ResetCar(p+normal*.30f,Quaternion.LookRotation(heading,normal));
+  }else PlaceCarOnSurface(track[i]+Vector3.up*.04f,0);
+  velocity=Vector3.zero;reversing=false;steer=throttle=boost=slip=0;rpm=900;gear=1;lookYaw=lookPitch=chaseSlipYaw=0;lastIndex=i;ResetMouseSteering();
+ }
  void RestartLap(){RecoverCar(0);checkpoints=0;lapStart=Time.time;if(paused)pauseStarted=Time.time;}
  void Update(){
   if(!paused)AnimateWindTurbines(Time.deltaTime);
   fpsElapsed+=Time.unscaledDeltaTime;fpsFrames++;
   if(fpsElapsed>=.5f){fpsText=$"{fpsFrames/fpsElapsed:0} FPS  /  {fpsElapsed*1000/fpsFrames:0.0} ms";fpsElapsed=0;fpsFrames=0;}
 
+  if(!settingsOpen&&Input.GetKeyDown(KeyCode.F4))ToggleHandlingMode();
   if(Input.GetKeyDown(KeyCode.F3)){if(settingsOpen)CloseSettings(false);else OpenSettings();}
   if(Input.GetKeyDown(KeyCode.Escape)){if(settingsOpen)CloseSettings(false);else SetPaused(!paused);}
   if(!settingsOpen && Input.GetKeyDown(KeyCode.P) && ShortcutModifierHeld)SetAutopilot(!autopilotEnabled);
+  if(!settingsOpen && Input.GetKeyDown(KeyCode.U))ToggleMouseSteering();
+  if(!settingsOpen && Input.GetKeyDown(KeyCode.Z))ToggleTrainingArea();
   if(Input.GetKeyDown(KeyCode.F) && ShortcutModifierHeld)ToggleFullscreen();
-  if(autopilotEnabled && !paused && !autopilotTest && ManualDrivingInput())SetAutopilot(false);
   if(!settingsOpen && Input.GetKeyDown(KeyCode.Y))SwitchCarModel();
   if(!settingsOpen && Input.GetKeyDown(KeyCode.T) && carModel.CanChangePaint)carModel.CyclePaint();
   if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C)){view=(view+1)%3;lookYaw=lookPitch=0;}if(!settingsOpen && Input.GetKeyDown(KeyCode.R))RecoverCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))RestartLap();if(Input.GetKeyDown(KeyCode.F2))CaptureScreenshot("GotlandRing-screenshot.png");
-  if(!paused && !modelPreview && !signTest && !surfaceTest){
-   float nextYaw=lookYaw+Input.GetAxis("Mouse X")*2;
-   lookYaw=view==2?Mathf.Repeat(nextYaw+180,360)-180:Mathf.Clamp(nextYaw,-115,115);
-   lookPitch=Mathf.Clamp(lookPitch-Input.GetAxis("Mouse Y")*1.5f,view==2?-13:-45,view==2?57:40);
-   if(Input.GetMouseButtonDown(1))lookYaw=lookPitch=0;
-  }
+  UpdatePointer(new Vector2(Input.GetAxisRaw("Mouse X"),Input.GetAxisRaw("Mouse Y")),Input.GetMouseButtonDown(1));
   if(!modelPreview){
    UpdateCameraPose();
-   float angle=steer*Mathf.Lerp(dynamics.steering,dynamics.highSpeedSteering,Mathf.Clamp01(velocity.magnitude/65));
-   carModel.Animate(steer,angle,Vector3.Dot(velocity,car.forward),paused?0:Time.deltaTime,view==0);
+   AnimateCar(paused?0:Time.deltaTime);
   }
   cam.fieldOfView=Mathf.Lerp(cam.fieldOfView,76+velocity.magnitude*.12f,Time.deltaTime*3);
-  motor.Rpm=rpm;motor.Load=throttle;motor.Speed=velocity.magnitude;motor.Slip=slip;motor.Muted=muted||paused;
+  motor.Rpm=rpm;motor.Load=throttle;motor.Speed=velocity.magnitude;motor.TyreSqueal=dynamics.tyreSquealEnabled?(dynamics.awdMode?awd.TyreSqueal:slip):0;motor.Muted=muted||paused;
  }
  void UpdateCameraPose(){
   if(view<2){var anchor=view==0?carModel.cockpitView:carModel.bonnetView;head.localPosition=anchor.localPosition;head.localRotation=Quaternion.Euler(anchor.localEulerAngles.x+lookPitch,lookYaw,view==0?-steer*velocity.magnitude*.015f:0);}
   else{
-   var orbit=Quaternion.Euler(18+lookPitch,lookYaw,0);
+   float slipYaw=dynamics.awdMode&&awd.ForwardSpeed>8?Mathf.Clamp(awd.SideslipDegrees,-20,20):0;
+   if(!paused)chaseSlipYaw=Mathf.Lerp(chaseSlipYaw,slipYaw,1-Mathf.Exp(-Time.deltaTime*5));
+   var orbit=Quaternion.Euler(18+lookPitch,lookYaw+chaseSlipYaw,0);
    head.localPosition=new Vector3(0,.7f,0)+orbit*new Vector3(0,0,-5.5f);
    head.localRotation=orbit;
   }
  }
  bool reversing;
  float slip;
- void FixedUpdate(){if(!autopilotTest)StepDriving(Time.fixedDeltaTime,Time.time);}
- void StepDriving(float dt,float now){if(paused||modelPreview||signTest||surfaceTest)return;float speed=velocity.magnitude;var surface=centerline.Sample(car.position.x,car.position.z);nearest=surface.Segment;bool road=surface.OnRoad;float input=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);throttle=(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0;float brake=(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0;
-  if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,surface);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
+ void FixedUpdate(){if(!autopilotTest&&!awdTest)StepDriving(Time.fixedDeltaTime,Time.time);}
+ void StepDriving(float dt,float now){
+  float keyboard=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);
+  StepDriving(dt,now,keyboard,(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0,
+   (Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0,Input.GetKey(KeyCode.X));
+ }
+ void StepDriving(float dt,float now,float keyboardSteering,float accelerator,float brake,bool reverseRequested){if(paused||modelPreview||signTest||surfaceTest)return;if(dynamics.awdMode)SyncAwdMotion();float speed=velocity.magnitude;var surface=drivingSurface.Sample(car.position.x,car.position.z);nearest=surface.Segment;bool road=surface.OnRoad;float input=mouseSteering?mouseSteer:keyboardSteering;throttle=accelerator;
+  if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,surface);if(dynamics.awdMode)pilotControls=awd.CorrectPilot(pilotControls,dynamics);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
   if(automatic){var aim=track[(nearest+20)%track.Count]-car.position;float angle=Vector3.SignedAngle(car.forward,aim,Vector3.up);input=Mathf.Clamp(angle/18,-1,1);throttle=speed<24?1:0;brake=speed>27?1:0;if(smokeBrake){throttle=0;brake=1;}}
+  reverseRequested=reverseRequested&&!automatic&&!autopilotEnabled;
+  if(dynamics.awdMode){StepAwdDriving(dt,input,brake,reverseRequested);UpdateLap(now);return;}
   steer=Mathf.MoveTowards(steer,input,dt*dynamics.response);Vector3 f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));Vector3 right=Vector3.Cross(Vector3.up,f);float longitudinal=Vector3.Dot(velocity,f),lateral=Vector3.Dot(velocity,right);
   float wheelRpm=Mathf.Abs(longitudinal)/(.32f*2*Mathf.PI)*60;float target=Mathf.Max(900,wheelRpm*ratios[gear-1]*4.11f);if(target>6400&&gear<5){gear++;target*=.72f;}else if(target<2200&&gear>1){gear--;target*=1.3f;}rpm=Mathf.Lerp(rpm,target+throttle*350,dt*8);boost=Mathf.MoveTowards(boost,throttle*Mathf.InverseLerp(2100,4000,rpm),dt*.7f);
-  bool reverseRequested=!automatic && !autopilotEnabled && Input.GetKey(KeyCode.X);
   if(reverseRequested){throttle=1;if(longitudinal>.3f){brake=1;throttle=0;}else reversing=true;}
   else if(throttle>0 && longitudinal<-.3f){brake=1;throttle=0;}
   else if(longitudinal>=-.3f)reversing=false;
   float drive=throttle*dynamics.acceleration*(reversing?-3f:2.6f+boost*3.3f)*Mathf.Clamp01(((reversing?8:72)-speed)/(reversing?2:15));float drag=.10f+speed*speed*.0012f+(road?0:2.5f);longitudinal=Mathf.MoveTowards(longitudinal,0,(drag+brake*dynamics.braking)*dt);longitudinal+=drive*dt;
-  float steeringAngle=steer*Mathf.Lerp(dynamics.steering,dynamics.highSpeedSteering,Mathf.Clamp01(speed/65))*Mathf.Deg2Rad;float yawRate=longitudinal/2.52f*Mathf.Tan(steeringAngle);float grip=road?dynamics.grip:dynamics.offRoadGrip,bank=TrackData.BankAcceleration(surface.Normal,right);float limitSpeed=Mathf.Max(speed,3),travelBank=longitudinal<0?-bank:bank;yawRate=Mathf.Clamp(yawRate,(travelBank-grip)/limitSpeed,(travelBank+grip)/limitSpeed);yaw+=yawRate*Mathf.Rad2Deg*dt;
-  lateral=Mathf.MoveTowards(lateral,0,(road?dynamics.lateralGrip:dynamics.offRoadGrip)*dt);slip=Mathf.Clamp01(Mathf.Abs(yawRate*longitudinal-bank)/grip)*.6f+(road?0:.3f);f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));right=Vector3.Cross(Vector3.up,f);velocity=f*longitudinal+right*lateral;PlaceCarOnSurface(car.position+velocity*dt,-steer*speed*.035f);
+  float steeringAngle=steer*dynamics.SteeringLimit(speed)*Mathf.Deg2Rad;float yawRate=longitudinal/2.52f*Mathf.Tan(steeringAngle);float grip=road?dynamics.grip:dynamics.offRoadGrip,bank=TrackData.BankAcceleration(surface.Normal,right);float limitSpeed=Mathf.Max(speed,3),travelBank=longitudinal<0?-bank:bank;yawRate=Mathf.Clamp(yawRate,(travelBank-grip)/limitSpeed,(travelBank+grip)/limitSpeed);yaw+=yawRate*Mathf.Rad2Deg*dt;
+  lateral=Mathf.MoveTowards(lateral,0,(road?dynamics.lateralGrip:dynamics.offRoadGrip)*dt);slip=road?Mathf.Clamp01(Mathf.Abs(yawRate*longitudinal-bank)/grip)*.6f:0;f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));right=Vector3.Cross(Vector3.up,f);velocity=f*longitudinal+right*lateral;PlaceCarOnSurface(car.position+velocity*dt,-steer*speed*.035f);
+  UpdateLap(now);
+ }
+ void UpdateLap(float now){
+  if(drivingSurface.Training)return;
   int quarter=track.Count/4;int nextCheckpoint=(checkpoints+1)*quarter;
   if(checkpoints<3 && lastIndex<nextCheckpoint && nearest>=nextCheckpoint && nearest-lastIndex<track.Count/8)checkpoints++;
   if(lastIndex>track.Count*.9f&&nearest<track.Count*.1f&&checkpoints==3){float lapTime=now-lapStart;if(best==0||lapTime<best)best=lapTime;lap++;lapStart=now;checkpoints=0;}lastIndex=nearest;
  }
- void OnGUI(){if(label==null){label=new GUIStyle(GUI.skin.label){fontSize=20};label.normal.textColor=Color.white;big=new GUIStyle(label){fontSize=54,fontStyle=FontStyle.Bold};small=new GUIStyle(label){fontSize=13};}float sx=Screen.width/1600f,sy=Screen.height/900f;GUI.matrix=Matrix4x4.TRS(Vector3.zero,Quaternion.identity,new Vector3(sx,sy,1));GUI.color=new Color(.035f,.055f,.07f,.9f);GUI.DrawTexture(new Rect(25,25,450,88),Texture2D.whiteTexture);GUI.DrawTexture(new Rect(25,735,370,135),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(45,35,420,32),"GOTLAND RING / OPEN PRACTICE",label);GUI.Label(new Rect(45,73,430,28),$"{carModel.displayName.ToUpperInvariant()}  /  {carModel.PaintName.ToUpperInvariant()}",small);
+ void OnGUI(){if(label==null){label=new GUIStyle(GUI.skin.label){fontSize=20};label.normal.textColor=Color.white;big=new GUIStyle(label){fontSize=54,fontStyle=FontStyle.Bold};small=new GUIStyle(label){fontSize=13};}float sx=Screen.width/1600f,sy=Screen.height/900f;GUI.matrix=Matrix4x4.TRS(Vector3.zero,Quaternion.identity,new Vector3(sx,sy,1));GUI.color=new Color(.035f,.055f,.07f,.9f);GUI.DrawTexture(new Rect(25,25,450,88),Texture2D.whiteTexture);GUI.DrawTexture(new Rect(25,735,370,152),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(45,35,420,32),drivingSurface.Training?"TRAINING AREA / SLIDE PRACTICE":"GOTLAND RING / OPEN PRACTICE",label);GUI.Label(new Rect(45,73,430,28),$"{carModel.displayName.ToUpperInvariant()}  /  {carModel.PaintName.ToUpperInvariant()}",small);
   GUI.Label(new Rect(45,742,180,75),(velocity.magnitude*3.6f).ToString("000"),big);GUI.Label(new Rect(180,787,90,25),"km/h",label);GUI.Label(new Rect(285,746,100,65),(reversing?"R":gear.ToString()),big);GUI.Label(new Rect(45,825,320,25),$"{rpm:0} RPM     BOOST {boost*.9f:0.00} bar",small);
   GUI.color=new Color(.15f,.2f,.24f);GUI.DrawTexture(new Rect(45,815,315,5),Texture2D.whiteTexture);GUI.color=new Color(.96f,.3f,.2f);GUI.DrawTexture(new Rect(45,815,315*Mathf.Clamp01(rpm/7000),5),Texture2D.whiteTexture);GUI.color=Color.white;
-  DrawMap();GUI.Label(new Rect(1340,268,255,30),$"LAP {lap}   {Format(Time.time-lapStart)}",label);GUI.Label(new Rect(1340,300,255,30),best>0?"BEST "+Format(best):$"{length/1000:0.000} km / CSV layout",small);
+  GUI.Label(new Rect(45,855,340,24),dynamics.awdMode?"AWD PHYSICS / F4 TO COMPARE":"ARCADE HANDLING / F4 FOR AWD",small);
+  if(dynamics.awdMode){float angle=Mathf.Abs(awd.SideslipDegrees);GUI.color=angle>3?new Color(1,.72f,.3f):Color.white;GUI.Label(new Rect(440,818,260,25),$"SIDE SLIP  {angle:0.0}°",small);GUI.color=Color.white;}
+  DrawMap();GUI.Label(new Rect(1340,268,255,30),drivingSurface.Training?"800 × 800 m / ASPHALT":$"LAP {lap}   {Format((paused?pauseStarted:Time.time)-lapStart)}",label);GUI.Label(new Rect(1340,300,255,30),drivingSurface.Training?"R or Home: return to start":best>0?"BEST "+Format(best):$"{length/1000:0.000} km / CSV layout",small);
+  GUI.enabled=!settingsOpen;if(GUI.Button(new Rect(1340,382,235,32),drivingSurface.Training?"Gotland Ring [Z]":"Training area [Z]"))ToggleTrainingArea();GUI.enabled=true;
   GUI.color=new Color(.035f,.055f,.07f,.9f);GUI.DrawTexture(new Rect(1340,335,235,36),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(1352,341,215,26),fpsText,label);
   GUI.color=new Color(.035f,.055f,.07f,.9f);GUI.DrawTexture(new Rect(25,163,370,autopilotEnabled?194:40),Texture2D.whiteTexture);GUI.color=autopilotEnabled?new Color(.35f,1,.65f):Color.white;
   GUI.Label(new Rect(45,169,340,30),$"AUTO(P)ILOT  {(autopilotEnabled?(paused?"PAUSED":"ON"):"OFF")}  /  {PilotShortcut}",label);GUI.color=Color.white;
-  if(autopilotEnabled){GUI.Label(new Rect(45,204,340,24),$"TARGET {pilotControls.TargetSpeed*3.6f:0} km/h    GAS {pilotControls.Throttle*100:0}%    BRAKE {pilotControls.Brake*100:0}%",small);GUI.Label(new Rect(45,230,340,24),"WASD / arrows / X to take over",small);DrawPilotKeyboard();}
-  GUI.Label(new Rect(440,850,880,30),"WASD / ARROWS Drive   MOUSE Look   C Camera   Y Car   T Colour   R Recover   X Reverse   F3 Dynamics",small);GUI.Label(new Rect(1250,830,350,25),carModel.credit,small);GUI.Label(new Rect(1250,855,350,25),"Mannetroll Solutions AB / Prototype",small);
+  if(autopilotEnabled){GUI.Label(new Rect(45,204,340,24),$"TARGET {pilotControls.TargetSpeed*3.6f:0} km/h    GAS {pilotControls.Throttle*100:0}%    BRAKE {pilotControls.Brake*100:0}%",small);GUI.Label(new Rect(45,230,340,24),$"{PilotShortcut} to return to manual driving",small);DrawPilotKeyboard();}
+  DrawSteeringInput();
+  GUI.Label(new Rect(440,850,880,30),mouseSteering?"MOUSE Steer   W/S Pedals   U Keyboard   C Camera   Y Car   R Recover   X Reverse   F3 Dynamics":"WASD Drive   MOUSE Look   U Mouse steering   C Camera   Y Car   R Recover   X Reverse   F3 Dynamics",small);GUI.Label(new Rect(1250,830,350,25),carModel.credit,small);GUI.Label(new Rect(1250,855,350,25),"Mannetroll Solutions AB / Prototype",small);
   if(GUI.Button(new Rect(45,120,170,32),"Dynamics [F3]"))OpenSettings();
   if(GUI.Button(new Rect(225,120,170,32),$"{(Screen.fullScreen?"Windowed":"Fullscreen")} [{ShortcutModifier}+F]"))ToggleFullscreen();
-  if(paused && !settingsOpen){GUI.color=new Color(0,0,0,.75f);GUI.DrawTexture(new Rect(450,270,700,300),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(510,310,600,65),"PRACTICE PAUSED",big);GUI.Label(new Rect(510,395,600,100),"Escape to resume  |  Right mouse to center head\nHome: restart lap  |  Y: car  |  T: colour  |  M: mute\nF2: screenshot",label);if(GUI.Button(new Rect(510,510,180,40),"Quit"))Application.Quit();if(GUI.Button(new Rect(710,510,220,40),"Driving dynamics"))OpenSettings();}
+  if(paused && !settingsOpen){GUI.color=new Color(0,0,0,.75f);GUI.DrawTexture(new Rect(450,270,700,300),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(510,310,600,65),"PRACTICE PAUSED",big);GUI.Label(new Rect(510,395,600,100),$"Escape to resume  |  U: steering mode\nRight mouse: centre {(mouseSteering?"steering":"view")}  |  Home: reset  |  Z: training area\nY: car  |  T: colour  |  M: mute  |  F2: screenshot",label);if(GUI.Button(new Rect(510,510,180,40),"Quit"))Application.Quit();if(GUI.Button(new Rect(710,510,220,40),"Driving dynamics"))OpenSettings();}
   if(settingsOpen)DrawSettings();
  }
- void SetPaused(bool value){if(value==paused)return;if(value)pauseStarted=Time.time;else lapStart+=Time.time-pauseStarted;paused=value;Cursor.lockState=value?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=value;}
+ void SetPaused(bool value){if(value==paused)return;if(value)pauseStarted=Time.time;else lapStart+=Time.time-pauseStarted;paused=value;ResetMouseSteering();awd.SetSimulationActive(dynamics.awdMode&&!paused);Cursor.lockState=value?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=value;}
  void OpenSettings(){if(settingsOpen)return;wasPaused=paused;draft=dynamics.Copy();settingsOpen=true;SetPaused(true);}
- void CloseSettings(bool apply){if(apply){dynamics=draft;dynamics.Save();autopilot.Configure(dynamics);}settingsOpen=false;SetPaused(wasPaused);}
+ void CloseSettings(bool apply){if(apply){ApplyDrivingSettings(draft);dynamics.Save();}settingsOpen=false;SetPaused(wasPaused);}
  string PilotShortcut=>ShortcutModifier+"+P";
- void SetAutopilot(bool enabled){autopilotEnabled=enabled;if(enabled)autopilot.Configure(dynamics);else pilotControls=default;Debug.Log("AUTOPILOT "+(enabled?"ON":"OFF"));}
- bool ManualDrivingInput()=>Input.GetKey(KeyCode.W)||Input.GetKey(KeyCode.A)||Input.GetKey(KeyCode.S)||Input.GetKey(KeyCode.D)||Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.X);
+ void SetAutopilot(bool enabled){autopilotEnabled=enabled;ResetMouseSteering();if(enabled)ConfigureAutopilot();else pilotControls=default;Debug.Log("AUTOPILOT "+(enabled?"ON":"OFF"));}
  void DrawPilotKeyboard(){
   float active=paused?0:1;
   DrawPilotKey("W",91,264,pilotControls.Throttle*active,new Color(.1f,.65f,.35f));
@@ -216,26 +241,40 @@ public partial class RingDrive : MonoBehaviour
   GUI.color=new Color(.035f,.055f,.07f,.98f);GUI.DrawTexture(new Rect(425,145,750,610),Texture2D.whiteTexture);GUI.color=Color.white;
   GUI.Label(new Rect(470,170,650,40),"DRIVING DYNAMICS",label);
   GUI.Label(new Rect(470,211,650,30),"Driving is paused. Apply saves your setup for the next launch.",small);
-  draft.grip=Setting("Cornering grip (m/s²)",draft.grip,10,40,260);
-  draft.lateralGrip=Setting("Side-slip recovery (m/s²)",draft.lateralGrip,10,60,306);
-  draft.steering=Setting("Low-speed steering (degrees)",draft.steering,25,55,352);
-  draft.highSpeedSteering=Setting("High-speed steering (degrees)",draft.highSpeedSteering,8,25,398);
-  draft.response=Setting("Steering response",draft.response,1,9,444);
-  draft.acceleration=Setting("Acceleration multiplier",draft.acceleration,.5f,1.8f,490,"0.00");
-  draft.braking=Setting("Braking (m/s²)",draft.braking,6,20,536);
+  draft.awdMode=GUI.SelectionGrid(new Rect(470,244,650,32),draft.awdMode?0:1,new[]{"AWD physics","Arcade comparison"},2)==0;
+  if(draft.awdMode){
+   draft.awdGrip=Setting("Tyre grip multiplier",draft.awdGrip,.7f,1.3f,288,"0.00");
+   draft.awdFrontTorque=Setting("Front torque share",draft.awdFrontTorque,.1f,.9f,330,"0.00");
+   draft.steering=Setting("Low-speed steering (degrees)",draft.steering,25,55,372);
+   draft.highSpeedSteering=Setting("High-speed steering (degrees)",draft.highSpeedSteering,8,25,414);
+   draft.awdSteeringRate=Setting("Steering speed (degrees/s)",draft.awdSteeringRate,40,150,456,"0");
+   GUI.Label(new Rect(470,488,650,24),"Steering angles are shared with Arcade comparison.",small);
+   draft.awdTractionControl=GUI.Toggle(new Rect(470,520,600,30),draft.awdTractionControl," Traction control assistance");
+   GUI.Label(new Rect(470,558,650,48),"Stock GT baseline: 160 kW / 290 Nm / five-speed AWD.\nABS is enabled. Tyres, suspension and clutch are approximate.",small);
+  }else{
+  draft.grip=Setting("Cornering grip (m/s²)",draft.grip,10,40,288);
+  draft.lateralGrip=Setting("Side-slip recovery (m/s²)",draft.lateralGrip,10,60,330);
+  draft.steering=Setting("Low-speed steering (degrees)",draft.steering,25,55,372);
+  draft.highSpeedSteering=Setting("High-speed steering (degrees)",draft.highSpeedSteering,8,25,414);
+  draft.response=Setting("Steering response",draft.response,1,9,456);
+  draft.acceleration=Setting("Acceleration multiplier",draft.acceleration,.5f,1.8f,498,"0.00");
+  draft.braking=Setting("Braking (m/s²)",draft.braking,6,20,540);
   draft.offRoadGrip=Setting("Off-road grip (m/s²)",draft.offRoadGrip,3,12,582);
-  GUI.Label(new Rect(470,625,650,35),"Higher grip keeps tighter turns; these are arcade handling settings.",small);
+  }
+  draft.tyreSquealEnabled=GUI.Toggle(new Rect(470,616,650,28),draft.tyreSquealEnabled," Tyre squeal");
+  GUI.Label(new Rect(470,650,650,25),"Changing handling mode restarts the lap and clears its best time.",small);
   if(GUI.Button(new Rect(470,685,180,40),"Restore defaults"))draft=new DrivingSettings();
   if(GUI.Button(new Rect(735,685,180,40),"Cancel"))CloseSettings(false);
   if(GUI.Button(new Rect(935,685,190,40),"Apply & close"))CloseSettings(true);
  }
  IEnumerator SettingsTest(){
-  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;CloseSettings(false);
-  Debug.Assert(dynamics.grip==original.grip && !paused,"Cancel must preserve dynamics and resume");
-  OpenSettings();draft.grip=31;CloseSettings(true);Debug.Assert(DrivingSettings.Load().grip==31,"Apply must persist dynamics");
+  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;draft.steering=35;draft.highSpeedSteering=12;draft.tyreSquealEnabled=!original.tyreSquealEnabled;CloseSettings(false);
+  Debug.Assert(dynamics.grip==original.grip && dynamics.steering==original.steering && dynamics.highSpeedSteering==original.highSpeedSteering && dynamics.tyreSquealEnabled==original.tyreSquealEnabled && !paused,"Cancel must preserve dynamics and sound settings and resume");
+  OpenSettings();draft.grip=31;draft.steering=48;draft.highSpeedSteering=22;draft.tyreSquealEnabled=true;CloseSettings(true);var saved=DrivingSettings.Load();Debug.Assert(saved.grip==31 && saved.steering==48 && saved.highSpeedSteering==22 && saved.tyreSquealEnabled,"Apply must persist dynamics, speed steering and enabled tyre squeal");
+  OpenSettings();draft.tyreSquealEnabled=false;CloseSettings(true);Debug.Assert(!DrivingSettings.Load().tyreSquealEnabled,"Apply must persist disabled tyre squeal");
   dynamics=original;dynamics.Save();SetPaused(true);OpenSettings();CloseSettings(false);Debug.Assert(paused,"Dialog must preserve existing pause");
   SetPaused(false);OpenSettings();yield return new WaitForSeconds(2);CaptureScreenshot("dynamics-dialog.png");
-  Debug.Log("SETTINGS_TEST passed: cancel, apply, persistence, pause restoration");yield return new WaitForSeconds(2);Application.Quit();
+  Debug.Log("SETTINGS_TEST passed: cancel, apply, dynamics and tyre-squeal persistence, pause restoration");yield return new WaitForSeconds(2);Application.Quit();
  }
  string Format(float t)=>$"{(int)t/60:00}:{t%60:00.00}";
  IEnumerator RenderStats(){yield return new WaitForSeconds(2);int first=Time.frameCount;float start=Time.realtimeSinceStartup;yield return new WaitForSeconds(5);Debug.Log($"RENDER_STATS fps={(Time.frameCount-first)/(Time.realtimeSinceStartup-start):F1} resolution={Screen.width}x{Screen.height} gpu={SystemInfo.graphicsDeviceName}");}

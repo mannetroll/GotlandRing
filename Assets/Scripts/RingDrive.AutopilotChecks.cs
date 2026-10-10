@@ -11,7 +11,7 @@ public partial class RingDrive
         Application.runInBackground = true;
         muted = true;
         yield return null;
-        try { CheckRacingLine(); CheckAutopilotState(); }
+        try { CheckRacingLine(); CheckMouseSteering(); CheckAutopilotState(); }
         catch (Exception e) { Debug.LogException(e); Application.Quit(1); yield break; }
         var original = dynamics.Copy();
         var setups = new[] {
@@ -21,6 +21,7 @@ public partial class RingDrive
             original
         };
         string[] names = { "defaults", "low-grip-weak-brakes", "high-power-slow-steering", "saved-settings" };
+        foreach (var setup in setups) setup.awdMode = false;
         for (int scenario = 0; scenario < setups.Length; scenario++)
         {
             dynamics = setups[scenario];

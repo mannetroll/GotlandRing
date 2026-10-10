@@ -1,26 +1,15 @@
-# Gotland Ring - Impreza v0.2.0
+# Gotland Ring 0.3.0
 
-Drive the reconstructed Gotland Ring in either the red Impreza Rally or the blue-and-gold Subaru Impreza. Press **Y** to switch models without interrupting the drive.
+Download **GotlandRing-Portable.exe** for Windows 11 x64 or **GotlandRing-macOS-arm64.zip** for Apple Silicon Macs. Both include the game runtime. The Windows launcher includes .NET; neither package requires Unity to be installed.
 
-- **Banked circuit and minimap:** estimated road widths, banking and crown/hollow profiles follow the supplied 3 m surface data. The minimap uses the matching blue–gray–red banking scale.
-- **Racing-line autopilot:** wider entries and exits, smoother corner paths, banking-aware speed planning and advance braking. The controller shares the player's driving physics and rejoins the line after recovery.
-- **Impreza audio:** engine-cycle waveforms isolated from the owner's 2022 recording, with cabin speech removed and steady RPM blending to prevent slow volume pulsing.
-- **Two animated cars:** steering and rotating road wheels, an animated shared cockpit and driver, and three camera views. **T** cycles the Impreza Rally paint; the Subaru retains its original livery.
-- **Mapped scenery:** 12 registry-positioned wind turbines face west and rotate at 10 RPM. The main building sits north of turbine 2; catch fencing, Armco rails and concrete barriers follow the film's trackside styles. The circuit retains 10,710 mapped pine trees and 42 numbered track signs.
-- **Native downloads:** self-contained Windows x64 EXE and macOS Apple Silicon ZIP. No Unity installation is required. Download checksums are in `SHA256SUMS`.
+- **Subaru AWD physics:** four driven wheels, individual suspension, progressive tyre grip, a stock/manual GT baseline and automatic five-speed shifting with downshifts under acceleration.
+- **Controllable power slides:** deliberate full-throttle steering reversals can break rear grip on flat asphalt. Lift and countersteer to recover. The circuit and training pad share the same physics.
+- **Asphalt training area:** press **Z** to toggle the circuit and an **800 × 800 metre pad** with 25, 50 and 100 metre practice circles. **R/Home** resets the car.
+- **Mouse steering:** press **U** to toggle mouse/keyboard steering. Mouse movement steers only; **W/Up** accelerates, **S/Down** brakes and **X** reverses. Right-click centres mouse steering.
+- **Autopilot:** **Ctrl+P** on Windows or **Cmd+P** on macOS is the sole driving-control toggle. The pilot follows the racing line, downshifts for corner exits and follows the large practice circle on the pad.
+- **Driving settings:** **F3** exposes grip, torque split, steering response and shared low/high-speed steering angles, defaulting to **42° / 19°**. **Tyre squeal** is off by default and can be enabled with its checkbox. **F4** switches to the arcade comparison.
+- Two selectable Imprezas, the banked 7.214 km circuit, onboard engine audio, mapped scenery, a matching minimap and 12 animated wind turbines are included. **Y** changes car visuals.
 
-![Impreza Rally in Splash red](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.2.0/docs/front.png)
+Validation covers full circuit laps, power slides entirely on asphalt, lift-and-countersteer recovery, steering response, AWD/arcade modes, mouse controls, pause, reset and area switching. Sustained reversals reach approximately **37° / 54°** of body sideslip at 100/140 km/h, and the AWD autopilot completes a lap in about **4:18** with the entire car on asphalt.
 
-![Subaru Impreza in blue and gold](https://raw.githubusercontent.com/mannetroll/GotlandRing/v0.2.0/docs/subaru-impreza.png)
-
-## Verification
-
-All nine standalone suites pass on macOS 15.7.9 with Apple M1 Max/Metal and Windows 11 with RTX 3090/Direct3D 11 on fractal. Each platform completes five racing-line autopilot laps plus recovery; both car models, switching, turbines, scenery, banking, driving/braking, settings and track signs pass. See [verification details](https://github.com/mannetroll/GotlandRing/blob/v0.2.0/VERIFICATION.md) for the measured results and coverage.
-
-## Requirements and scope
-
-Windows 11 x64 with working Direct3D 11 graphics drivers, or macOS 12 or later on Apple Silicon. The Windows EXE is unsigned; the macOS app is ad-hoc signed, without Developer ID signing or notarization.
-
-The track and scenery are approximate reconstructions. Handling remains a simplified ground-following bicycle model without wheel-by-wheel suspension, scenery collisions or damage. The racing line is a practical optimization, not a proven minimum-lap-time solution. The owner's source films are not included in either download.
-
-**Car credits:** [Rally Car](https://sketchfab.com/3d-models/rally-car-e0dfd3b6d19947df85002fd8de0a3a02) by SpatialNeglect and [Subaru Impreza](https://sketchfab.com/3d-models/subaru-impreza-7fb4298d5d8f4185b25bb2c43d7f3787) by Mateusz Woliński, both [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Builds containing these assets are for noncommercial use. Original project source is MIT licensed; geospatial data and third-party assets retain their separate licenses. Attribution accompanies both packages.
+These are unsigned prototype packages; the macOS app is not notarized. Car assets are for noncommercial use. Attribution and track-data notices are included.

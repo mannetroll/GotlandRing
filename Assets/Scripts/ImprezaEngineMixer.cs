@@ -9,8 +9,10 @@ public sealed class ImprezaEngineMixer
  readonly double[] positions=new double[3];
  readonly float[] overlapCorrelation;
  static readonly float[] referenceRpm={2530,3060,4500};
- float rpm=900,load,speed,slip,volume,previousLoad,lift;
+ float rpm=900,load,speed,squeal,volume,previousLoad,lift;
  float engineLow,engineBody,airLow,airBody,dcInput,dcOutput;
+ float tyreFast,tyreSlow,tyreWander;
+ double tyrePhase,tyreOvertone;
  uint random=1234567;
 
  public ImprezaEngineMixer(float[][] recordings,int outputRate){
@@ -39,15 +41,20 @@ public sealed class ImprezaEngineMixer
  static float Clamp(float value,float min,float max)=>Math.Max(min,Math.Min(max,value));
  static float Follow(float value,float target,float coefficient)=>value+(target-value)*coefficient;
 
- public void Render(float[] data,int channels,float targetRpm,float targetLoad,float targetSpeed,float targetSlip,bool muted){
+ public void Render(float[] data,int channels,float targetRpm,float targetLoad,float targetSpeed,float targetSqueal,bool muted){
   int rate=SampleRate;
   float rpmSmoothing=1-(float)Math.Exp(-1.0/(rate*.045));
   float loadSmoothing=1-(float)Math.Exp(-1.0/(rate*.065));
   float airSmoothing=1-(float)Math.Exp(-2*Math.PI*650/rate);
   float dcPole=(float)Math.Exp(-2*Math.PI*18/rate);
   float liftDecay=(float)Math.Exp(-1.0/(rate*.10));
+  float squealAttack=1-(float)Math.Exp(-1.0/(rate*.035));
+  float squealRelease=1-(float)Math.Exp(-1.0/(rate*.16));
+  float tyreFastFilter=1-(float)Math.Exp(-2*Math.PI*3200/rate);
+  float tyreSlowFilter=1-(float)Math.Exp(-2*Math.PI*900/rate);
+  float tyreWanderFilter=1-(float)Math.Exp(-2*Math.PI*12/rate);
   targetRpm=Clamp(targetRpm,700,8000);targetLoad=Clamp(targetLoad,0,1);
-  targetSpeed=Math.Max(0,targetSpeed);targetSlip=Clamp(targetSlip,0,1);
+  targetSpeed=Math.Max(0,targetSpeed);targetSqueal=Clamp(targetSqueal,0,1);
   if(previousLoad>.65f&&targetLoad<.15f)lift=.035f*Clamp((rpm-2500)/2500,0,1);
   previousLoad=targetLoad;
   // Throttle opens the intake note; coasting retains the exhaust rumble.
@@ -56,7 +63,7 @@ public sealed class ImprezaEngineMixer
    rpm=Follow(rpm,targetRpm,rpmSmoothing);
    load=Follow(load,targetLoad,loadSmoothing);
    speed=Follow(speed,targetSpeed,loadSmoothing);
-   slip=Follow(slip,targetSlip,loadSmoothing);
+   squeal=Follow(squeal,targetSqueal,targetSqueal>squeal?squealAttack:squealRelease);
    volume=muted?Math.Max(0,volume-1f/(rate*.012f)):Math.Min(1,volume+1f/(rate*.025f));
 
    int lower=rpm<referenceRpm[1]?0:1;
@@ -86,9 +93,18 @@ public sealed class ImprezaEngineMixer
    airLow=Follow(airLow,white,airSmoothing);airBody=Follow(airBody,airLow,airSmoothing);
    lift*=liftDecay;
    float rolling=Clamp(speed/65,0,1);
-   float air=airBody*(rolling*.045f+slip*slip*rolling*.055f+lift);
+   float air=airBody*(rolling*.045f+lift);
+   // A rough, wavering squeal above the exhaust, driven by loaded tyre slip.
+   tyreFast=Follow(tyreFast,white,tyreFastFilter);tyreSlow=Follow(tyreSlow,white,tyreSlowFilter);
+   tyreWander=Follow(tyreWander,white,tyreWanderFilter);
+   float tyrePitch=1330+180*squeal+70*rolling+tyreWander*700;
+   tyrePhase+=2*Math.PI*tyrePitch/rate;tyreOvertone+=2*Math.PI*(tyrePitch*1.43+17)/rate;
+   if(tyrePhase>=2*Math.PI)tyrePhase-=2*Math.PI;
+   if(tyreOvertone>=2*Math.PI)tyreOvertone-=2*Math.PI;
+   float tyreTone=(float)(Math.Sin(tyrePhase)+.3*Math.Sin(tyreOvertone))*.20f;
+   float tyres=(tyreTone+(tyreFast-tyreSlow)*.65f)*squeal*.30f*Clamp((speed-3)/12,0,1);
    float gain=(.52f+.30f*load)*(.8f+.2f*Clamp((rpm-900)/4000,0,1));
-   float value=engineBody*gain+air;
+   float value=engineBody*gain+air+tyres;
    // Remove subsonic energy from pitching down to idle, with ample headroom.
    float filtered=value-dcInput+dcPole*dcOutput;dcInput=value;dcOutput=filtered;
    value=(float)Math.Tanh(filtered)*volume;

@@ -15,7 +15,7 @@ public sealed class AutopilotController
 
     public struct Controls
     {
-        public float Steering, Throttle, Brake, TargetSpeed, LineError;
+        public float Steering, Throttle, Brake, TargetSpeed, LineError, Curvature;
     }
 
     public AutopilotController(TrackData track, DrivingSettings dynamics)
@@ -125,8 +125,8 @@ public sealed class AutopilotController
             float angleChange = Mathf.Abs(Mathf.Atan(Wheelbase * curvaturePlan[next])
                 - Mathf.Atan(Wheelbase * curvaturePlan[previous])) * Mathf.Rad2Deg;
             float distance = segmentLength[previous] + segmentLength[Next(previous)] + segmentLength[i] + segmentLength[Next(i)];
-            while (limit > 4 && (Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg > SteeringDegrees(limit) * .9f
-                || angleChange * limit / (distance * SteeringDegrees(limit)) > settings.response * .65f))
+            while (limit > 4 && (Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg > settings.SteeringLimit(limit) * .9f
+                || angleChange * limit / (distance * settings.SteeringLimit(limit)) > settings.response * .65f))
                 limit -= .5f;
             speedPlan[i] = limit;
         }
@@ -137,8 +137,6 @@ public sealed class AutopilotController
                 speedPlan[i] = Mathf.Min(speedPlan[i], Mathf.Sqrt(speedPlan[Next(i)] * speedPlan[Next(i)]
                     + 2 * settings.braking * .88f * segmentLength[i]));
     }
-
-    float SteeringDegrees(float speed) => Mathf.Lerp(settings.steering, settings.highSpeedSteering, Mathf.Clamp01(speed / 65));
 
     Vector3 PointAhead(int segment, float fraction, float distance)
     {
@@ -167,12 +165,15 @@ public sealed class AutopilotController
         }
         float speed = velocity.magnitude;
         var forward = new Vector3(Mathf.Sin(yawDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(yawDegrees * Mathf.Deg2Rad));
+        // Physical tyre slip separates body heading from the direction of travel.
+        if (settings.awdMode && Vector3.Dot(velocity, forward) > 8) forward = Flat(velocity).normalized;
         // Continuous target interpolation avoids steering jumps between CSV vertices.
         float lookAhead = Mathf.Clamp(4 + speed * .28f + speed * .06f / settings.response, 6, 26);
+        if (settings.awdMode) lookAhead = Mathf.Clamp(6 + speed * .45f, 10, 32);
         var aim = Flat(PointAhead(nearest, fraction, lookAhead) - position);
         float angle = Vector3.SignedAngle(forward, aim, Vector3.up) * Mathf.Deg2Rad;
         float curvature = 2 * Mathf.Sin(angle) / Mathf.Max(aim.magnitude, 1);
-        float steering = Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg / SteeringDegrees(speed);
+        float steering = Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg / settings.SteeringLimit(speed);
         // When facing away from the track, commit to a turn instead of stalling at sin(pi).
         if (Mathf.Abs(angle) > Mathf.PI * .5f) steering = Mathf.Sign(angle);
 
@@ -190,7 +191,9 @@ public sealed class AutopilotController
         float headingError = Mathf.Abs(angle) * Mathf.Rad2Deg;
         if (headingError > 50) target = Mathf.Min(target, Mathf.Lerp(12, 4, Mathf.InverseLerp(50, 140, headingError)));
         float lineError = Mathf.Sqrt(lineDistance);
-        if (lineError > 2) target = Mathf.Min(target, Mathf.Lerp(18, 6, Mathf.InverseLerp(2, 9, lineError)));
+        // Correct an AWD line error progressively so braking does not unload the rear abruptly.
+        if (settings.awdMode) target *= Mathf.Lerp(1, .45f, Mathf.InverseLerp(1.5f, 8, lineError));
+        else if (lineError > 2) target = Mathf.Min(target, Mathf.Lerp(18, 6, Mathf.InverseLerp(2, 9, lineError)));
         if (!road.OnRoad) target = Mathf.Min(target, Mathf.Sqrt(settings.offRoadGrip / Mathf.Max(Mathf.Abs(curvature), .01f)) * .8f);
 
         // Feed forward the deceleration along the planned envelope, then correct speed.
@@ -201,6 +204,6 @@ public sealed class AutopilotController
         float brake = Mathf.Clamp01((-desiredAcceleration - drag) / settings.braking);
         float throttle = brake > .001f ? 0 : Mathf.Clamp01((desiredAcceleration + drag) / (settings.acceleration * 5.9f));
         if (Vector3.Dot(velocity, forward) < -.3f) { brake = 1; throttle = 0; }
-        return new Controls { Steering = Mathf.Clamp(steering, -1, 1), Throttle = throttle, Brake = brake, TargetSpeed = target, LineError = lineError };
+        return new Controls { Steering = Mathf.Clamp(steering, -1, 1), Throttle = throttle, Brake = brake, TargetSpeed = target, LineError = lineError, Curvature = curvature };
     }
 }

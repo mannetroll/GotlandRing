@@ -165,11 +165,11 @@ Install GitHub CLI using its [macOS installation instructions](https://cli.githu
 
 ```bash
 gh auth login
-release_tag=v0.2.0
+release_tag=v0.3.0
 gh release upload "$release_tag" Build/GotlandRing-macOS-arm64.zip --repo mannetroll/GotlandRing
 ```
 
-An existing asset with the same filename causes the upload to stop. Add `--clobber` only when intentionally replacing it. The repository's GitHub Actions workflow builds the Windows launcher; it does not build or upload the Mac app.
+An existing asset with the same filename causes the upload to stop. Add `--clobber` only when intentionally replacing it. The repository's release workflow verifies the uploaded packages and their checksums. Build and test both packages before uploading them.
 
 ## Optional: build the Windows player from this Mac
 

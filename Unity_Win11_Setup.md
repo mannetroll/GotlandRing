@@ -152,7 +152,7 @@ Install GitHub CLI, authenticate, and set the tag of an existing release that ma
 
 ```powershell
 gh auth login
-$releaseTag = 'v0.2.0'
+$releaseTag = 'v0.3.0'
 gh release upload $releaseTag Build/Portable/GotlandRing-Portable.exe --repo mannetroll/GotlandRing
 ```
 
