@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class BoxerAudio : MonoBehaviour
 {
- public volatile float Rpm=900,Load,Speed,Slip;
+ public volatile float Rpm=900,Load,Speed,TyreSqueal;
  public volatile bool Muted;
  ImprezaEngineMixer mixer;
  AudioClip carrier;
@@ -31,6 +31,6 @@ public class BoxerAudio : MonoBehaviour
  }
 
  void AudioConfigurationChanged(bool deviceWasChanged){mixer.SampleRate=AudioSettings.outputSampleRate;}
- void OnAudioFilterRead(float[] data,int channels){mixer.Render(data,channels,Rpm,Load,Speed,Slip,Muted);}
+ void OnAudioFilterRead(float[] data,int channels){mixer.Render(data,channels,Rpm,Load,Speed,TyreSqueal,Muted);}
  void OnDestroy(){AudioSettings.OnAudioConfigurationChanged-=AudioConfigurationChanged;Destroy(carrier);}
 }

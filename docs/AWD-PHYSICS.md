@@ -88,11 +88,12 @@ Run the macOS executable with `--awd-test -batchmode -nographics` to check road
 contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
 cut, pause/resume, model/mode switching, 0–100 km/h and braking on the main
 straight, and a full physical autopilot lap with power downshifts, modest cornering slip and
-clearance checks for the four corners of the car.
+clearance checks for the four corners of the car. Tyre-audio checks require quiet
+resting, airborne and off-asphalt contacts, plus audible demand in corners.
 `GOTLAND_TEST_OUTPUT` optionally sets the results directory; otherwise it uses
 `Application.persistentDataPath`. `awd-lap.csv` records speed, target, line error,
 road margin, axle torque, contact count, steering, position, body sideslip,
-front/rear tyre slip, pedal inputs, gear and RPM. `awd-results.txt`
+front/rear tyre slip, pedal inputs, gear, RPM and normalized tyre-squeal demand. `awd-results.txt`
 reports the full-lap result. Non-batch runs with graphics enabled request
 `awd-cornering.png` during a corner and `awd-driving.png` at the end.
 `--autopilot-test` validates the separate arcade comparison mode.

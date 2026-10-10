@@ -21,6 +21,7 @@ public partial class RingDrive
             CheckAwdRoadContact();
             CheckAwdBanks();
             CheckAwdControls();
+            CheckAwdTyreSound();
             CheckAwdAcceleration(output);
         }
         catch (Exception e) { Debug.LogException(e); Application.Quit(1); yield break; }
@@ -30,13 +31,13 @@ public partial class RingDrive
         for (int i = 0; i < 300; i++) { awd.Step(.01f, 0, 1, 0, dynamics); Physics.Simulate(.01f); }
         int steps = 0, visitedCount = 0, powered = 0, brakeSteps = 0, leftSteps = 0, rightSteps = 0, powerDownshifts = 0;
         var visited = new bool[track.Count];
-        float maxSideslip = 0, slideSeconds = 0, rearPeakSeconds = 0;
+        float maxSideslip = 0, slideSeconds = 0, rearPeakSeconds = 0, cornerSquealSeconds = 0;
         float minBodyMargin = float.MaxValue;
         bool capturedSlide = false;
         float travelled = 0, minMargin = float.MaxValue, minUpright = 1, maxSpeed = 0, maxLineError = 0;
         using (var telemetry = new StreamWriter(Path.Combine(output, "awd-lap.csv")))
         {
-            telemetry.WriteLine("time_s,segment,speed_kph,target_kph,line_error_m,road_margin_m,front_torque_nm,rear_torque_nm,grounded,steering_deg,x_m,y_m,z_m,sideslip_deg,front_slip,rear_slip,throttle,brake,gear,rpm");
+            telemetry.WriteLine("time_s,segment,speed_kph,target_kph,line_error_m,road_margin_m,front_torque_nm,rear_torque_nm,grounded,steering_deg,x_m,y_m,z_m,sideslip_deg,front_slip,rear_slip,throttle,brake,gear,rpm,tyre_squeal");
             while (lap == 1 && steps < 70000)
             {
                 for (int batch = 0; batch < 250 && lap == 1; batch++)
@@ -61,6 +62,7 @@ public partial class RingDrive
                     {
                         maxSideslip = Mathf.Max(maxSideslip, beta);
                         if (beta > 3 && Mathf.Abs(pilotControls.Curvature) > .001f) slideSeconds += .01f;
+                        if (awd.TyreSqueal > .25f && Mathf.Abs(pilotControls.Curvature) > .001f) cornerSquealSeconds += .01f;
                         if (awd.RearLateralSlip > awd.setup.rearLateralPeakSlip) rearPeakSeconds += .01f;
                     }
                     if (pilotControls.Brake > .1f) brakeSteps++;
@@ -74,11 +76,11 @@ public partial class RingDrive
                         minBodyMargin = Mathf.Min(minBodyMargin, edge.Width - Mathf.Abs(edge.Offset));
                     }
                     if (steps % 10 == 0) telemetry.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                        "{0:F2},{1},{2:F2},{3:F2},{4:F3},{5:F3},{6:F1},{7:F1},{8},{9:F2},{10:F3},{11:F3},{12:F3},{13:F3},{14:F4},{15:F4},{16:F3},{17:F3},{18},{19:F0}",
+                        "{0:F2},{1},{2:F2},{3:F2},{4:F3},{5:F3},{6:F1},{7:F1},{8},{9:F2},{10:F3},{11:F3},{12:F3},{13:F3},{14:F4},{15:F4},{16:F3},{17:F3},{18},{19:F0},{20:F3}",
                         steps * .01f, nearest, velocity.magnitude * 3.6f, pilotControls.TargetSpeed * 3.6f,
                         pilotControls.LineError, margin, awd.FrontTorque, awd.RearTorque, awd.GroundedWheels,
                         awd.SteeringDegrees, car.position.x, car.position.y, car.position.z,
-                        awd.SideslipDegrees, awd.FrontLateralSlip, awd.RearLateralSlip, pilotControls.Throttle, pilotControls.Brake, awd.Gear, awd.EngineRpm));
+                        awd.SideslipDegrees, awd.FrontLateralSlip, awd.RearLateralSlip, pilotControls.Throttle, pilotControls.Brake, awd.Gear, awd.EngineRpm, awd.TyreSqueal));
                     if (!sample.OnRoad || minUpright < .85f || !float.IsFinite(velocity.magnitude))
                     {
                         Debug.LogError($"AWD_LAP_FAIL time={steps*.01f:F2} segment={nearest} speed={velocity.magnitude*3.6f:F1} margin={margin:F2} lineError={pilotControls.LineError:F2} grounded={awd.GroundedWheels} upright={minUpright:F3}");
@@ -100,10 +102,10 @@ public partial class RingDrive
         }
         bool passed = lap == 2 && travelled > length * .98f && visitedCount > track.Count * .98f
             && powered == 15 && brakeSteps > 100 && leftSteps > 100 && rightSteps > 100 && maxSpeed > 25
-            && minBodyMargin > 0 && maxSideslip < 12 && slideSeconds > 3 && powerDownshifts > 5;
+            && minBodyMargin > 0 && maxSideslip < 12 && slideSeconds > 3 && powerDownshifts > 5 && cornerSquealSeconds > 3;
         string report = string.Format(CultureInfo.InvariantCulture,
-            "AWD_LAP_TEST pass={0} lapSeconds={1:F2} distance={2:F1}m visited={3}/{4} maxSpeed={5:F1}km/h minRoadMargin={6:F2}m maxLineError={7:F2}m minUpright={8:F4} drivenMask={9} brakingSteps={10} maxSideslip={11:F2}deg slideSeconds={12:F2} rearPeakSeconds={13:F2} minBodyMargin={14:F2}m powerDownshifts={15}",
-            passed, steps*.01f, travelled, visitedCount, track.Count, maxSpeed*3.6f, minMargin, maxLineError, minUpright, powered, brakeSteps, maxSideslip, slideSeconds, rearPeakSeconds, minBodyMargin, powerDownshifts);
+            "AWD_LAP_TEST pass={0} lapSeconds={1:F2} distance={2:F1}m visited={3}/{4} maxSpeed={5:F1}km/h minRoadMargin={6:F2}m maxLineError={7:F2}m minUpright={8:F4} drivenMask={9} brakingSteps={10} maxSideslip={11:F2}deg slideSeconds={12:F2} rearPeakSeconds={13:F2} minBodyMargin={14:F2}m powerDownshifts={15} cornerSquealSeconds={16:F2}",
+            passed, steps*.01f, travelled, visitedCount, track.Count, maxSpeed*3.6f, minMargin, maxLineError, minUpright, powered, brakeSteps, maxSideslip, slideSeconds, rearPeakSeconds, minBodyMargin, powerDownshifts, cornerSquealSeconds);
         Debug.Log(report); File.WriteAllText(Path.Combine(output,"awd-results.txt"), report + "\n");
         if (!passed) { Application.Quit(1); yield break; }
         Physics.simulationMode = previousSimulation;
@@ -218,5 +220,23 @@ public partial class RingDrive
             "AWD_STRAIGHT_TEST pass={0} acceleration0To100={1:F2}s brakeStart={2:F2}km/h stoppingDistance={3:F2}m",passed,elapsed,startSpeed,distance);
         Debug.Log(report);File.WriteAllText(Path.Combine(output,"awd-straight-results.txt"),report+"\n");
         if(!passed)throw new Exception("Stock-baseline acceleration/braking failed");
+    }
+
+    void CheckAwdTyreSound()
+    {
+        RecoverCar(0);
+        for (int i = 0; i < 300; i++) { awd.Step(.01f, 0, 1, 0, dynamics); Physics.Simulate(.01f); }
+        if (awd.TyreSqueal > .01f) throw new Exception("Resting tyres request squeal");
+        awd.Body.position += Vector3.up * 5;
+        Physics.SyncTransforms();
+        for (int i = 0; i < 20; i++) { awd.Step(.01f, 1, 0, .5f, dynamics); Physics.Simulate(.01f); }
+        if (awd.GroundedWheels != 0 || awd.TyreSqueal != 0) throw new Exception("Airborne wheels request squeal");
+        RecoverCar(0);
+        awd.Body.position += car.right * 40;
+        Physics.SyncTransforms();
+        for (int i = 0; i < 500; i++) { awd.Step(.01f, i < 300 ? 0 : .7f, i < 300 ? 1 : 0, .5f, dynamics); Physics.Simulate(.01f); }
+        if (awd.GroundedWheels == 0 || centerline.Sample(car.position.x,car.position.z).OnRoad || awd.TyreSqueal != 0)
+            throw new Exception("Off-road tyre sound check failed");
+        Debug.Log("AWD_TYRE_SOUND pass=True resting, airborne and off-asphalt contacts stay quiet");
     }
 }

@@ -35,7 +35,7 @@ public static class BuildGame {
   if(!sky){sky=new Material(Shader.Find("Skybox/Panoramic"));AssetDatabase.CreateAsset(sky,skyPath);}
   sky.SetTexture("_MainTex",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Visuals/Sky.hdr"));sky.SetFloat("_Exposure",.8f);sky.SetFloat("_Rotation",145);
   EditorUtility.SetDirty(sky);
-  PlayerSettings.bundleVersion="0.3.0-awd.3";
+  PlayerSettings.bundleVersion="0.3.0-awd.4";
   PlayerSettings.companyName="Mannetroll Solutions AB"; PlayerSettings.productName="Gotland Ring - Impreza";
   PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Artwork/ImprezaIcon.png")});
   PlayerSettings.SplashScreen.show=true;

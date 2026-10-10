@@ -11,11 +11,11 @@ public sealed class SubaruAwdController : MonoBehaviour
     public float EngineRpm { get; private set; } = 900f;
     public float SteeringDegrees { get; private set; }
     public float ForwardSpeed => Vector3.Dot(Body.linearVelocity, transform.forward);
-    public float Slip { get; private set; }
     public float SideslipDegrees => Mathf.Atan2(Vector3.Dot(Body.linearVelocity, transform.right),
         Mathf.Max(1, Mathf.Abs(ForwardSpeed))) * Mathf.Rad2Deg;
     public float FrontLateralSlip { get; private set; }
     public float RearLateralSlip { get; private set; }
+    public float TyreSqueal { get; private set; }
     public float FrontTorque => Wheels[0].motorTorque + Wheels[1].motorTorque;
     public float RearTorque => Wheels[2].motorTorque + Wheels[3].motorTorque;
     public float Boost { get; private set; }
@@ -75,7 +75,7 @@ public sealed class SubaruAwdController : MonoBehaviour
         heldVelocity = heldAngularVelocity = Vector3.zero;
         if (!Body.isKinematic) { Body.linearVelocity = Vector3.zero; Body.angularVelocity = Vector3.zero; }
         Gear = 1; EngineRpm = setup.idleRpm;
-        shiftDelay = appliedThrottle = SteeringDegrees = Boost = Slip = FrontLateralSlip = RearLateralSlip = 0; GroundedWheels = 0;
+        shiftDelay = appliedThrottle = SteeringDegrees = Boost = FrontLateralSlip = RearLateralSlip = TyreSqueal = 0; GroundedWheels = 0;
         foreach (var wheel in Wheels)
         {
             wheel.motorTorque = 0; wheel.brakeTorque = 0; wheel.steerAngle = 0;
@@ -142,7 +142,7 @@ public sealed class SubaruAwdController : MonoBehaviour
         Boost = Mathf.MoveTowards(Boost, Mathf.Abs(appliedThrottle) * Mathf.InverseLerp(1800, 3600, EngineRpm), dt * 1.5f);
         float torque = brake > 0 || shiftDelay > 0 || EngineRpm >= setup.revLimitRpm || (reverse && speed > 8)
             ? 0 : Mathf.Max(0, setup.torque.Evaluate(EngineRpm)) * ratio * setup.efficiency * appliedThrottle;
-        GroundedWheels = 0; Slip = FrontLateralSlip = RearLateralSlip = 0;
+        GroundedWheels = 0; FrontLateralSlip = RearLateralSlip = TyreSqueal = 0;
         for (int i = 0; i < 4; i++)
         {
             var wheel = Wheels[i]; bool frontAxle = i < 2;
@@ -154,9 +154,17 @@ public sealed class SubaruAwdController : MonoBehaviour
             if (wheel.GetGroundHit(out WheelHit hit))
             {
                 GroundedWheels++;
-                if (!track.Sample(hit.point.x, hit.point.z).OnRoad) grip *= .48f;
+                bool asphalt = track.Sample(hit.point.x, hit.point.z).OnRoad;
+                if (!asphalt) grip *= .48f;
                 float forwardSlip = Mathf.Abs(hit.forwardSlip);
-                Slip = Mathf.Max(Slip, Mathf.Abs(hit.sidewaysSlip), forwardSlip);
+                if (asphalt)
+                {
+                    float lateralPeak = frontAxle ? setup.frontLateralPeakSlip : setup.rearLateralPeakSlip;
+                    float demand = Mathf.Max(Mathf.Abs(hit.sidewaysSlip) / lateralPeak, forwardSlip / .22f);
+                    float scrub = Mathf.InverseLerp(.28f, .85f, demand);
+                    float load = Mathf.Clamp01(hit.force / (wheel.sprungMass * Physics.gravity.magnitude));
+                    TyreSqueal += scrub * scrub * load;
+                }
                 if (frontAxle) FrontLateralSlip = Mathf.Max(FrontLateralSlip, Mathf.Abs(hit.sidewaysSlip));
                 else RearLateralSlip = Mathf.Max(RearLateralSlip, Mathf.Abs(hit.sidewaysSlip));
                 if (settings.awdTractionControl && forwardSlip > .22f) drive *= .22f / forwardSlip;
@@ -174,6 +182,7 @@ public sealed class SubaruAwdController : MonoBehaviour
                 stiffness = (frontAxle ? 1.05f : .98f) * grip * lateralBudget };
             wheel.motorTorque = drive; wheel.brakeTorque = brakeTorque;
         }
+        TyreSqueal = Mathf.Sqrt(TyreSqueal * .25f);
         AntiRoll(0, 1, setup.frontAntiRoll); AntiRoll(2, 3, setup.rearAntiRoll);
         Vector3 velocity = Body.linearVelocity;
         Body.AddForce(-velocity * velocity.magnitude * setup.dragCoefficient);

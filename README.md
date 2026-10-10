@@ -2,11 +2,12 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.3](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.3)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.3/GotlandRing-AWD-Portable.exe).
+**AWD Windows preview ([v0.3.0-awd.4](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.4)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.4/GotlandRing-AWD-Portable.exe).
 The AWD tyres allow modest cornering slip, and the autopilot steers into a slide
 and eases the pedals to recover. The chase camera follows the direction of travel
 to show the rear stepping out; the HUD displays the actual body sideslip angle.
+Tyre squeal rises with loaded wheel slip on asphalt and fades as the tyres settle.
 The stock GT physics mode includes four-wheel drive,
 individual suspension and physical contact with the banked circuit. Use **F3**
 to compare **AWD physics** and **Arcade comparison**, or press **F4** to switch
@@ -71,7 +72,7 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
 - Toggleable autopilot with an optimized racing line, corner-speed planning, advance braking and continuous steering; it uses the same driving physics as the player.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
-- Engine audio isolated from the owner's 2022 Impreza recording, with speech removed through engine-cycle extraction, RPM-matched playback, throttle-dependent intake tone, lift-off and subdued road/tire noise.
+- Engine audio isolated from the owner's 2022 Impreza recording, with speech removed through engine-cycle extraction, RPM-matched playback, throttle-dependent intake tone, lift-off, subdued road noise and slip-driven asphalt tyre squeal.
 
 ## What v0.2.0 is
 
@@ -229,11 +230,11 @@ The count covers game source, verification code and build/asset tools. It exclud
 ## Verification
 
 The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
-covers all **2,405** track segments in **4:19.68**, with maximum speed **181.8 km/h**
+covers all **2,405** track segments in **4:19.68**, with maximum speed **181.7 km/h**
 and **20 downshifts under power**. At more than 43 km/h, peak body sideslip is
-**6.75°**, with about **47.05 seconds** above 3° in corners. All four corners of
+**6.75°**, with about **47.03 seconds** above 3° in corners. All four corners of
 the car remain on the asphalt; minimum measured body clearance is **0.23 m**.
-Main-straight 0–100 km/h takes **7.21 s**, followed by a **35.84 m** stop.
+Main-straight 0–100 km/h takes **7.26 s**, followed by a **35.78 m** stop.
 These are prototype measurements.
 
 The AWD checks also cover mesh contact, banking, the lap seam, reverse, brake

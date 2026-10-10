@@ -19,7 +19,6 @@ public partial class RingDrive
         velocity = awd.Body.linearVelocity;
         yaw = car.eulerAngles.y;
         rpm = awd.EngineRpm; gear = awd.Gear; boost = awd.Boost;
-        slip = Mathf.Clamp01(awd.Slip);
         steer = awd.SteeringDegrees / awd.setup.SteeringLimit(velocity.magnitude);
     }
 
