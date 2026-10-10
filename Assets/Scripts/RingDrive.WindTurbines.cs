@@ -55,14 +55,7 @@ public partial class RingDrive
   mesh.RecalculateNormals();mesh.RecalculateBounds();return mesh;
  }
 
- float SceneryGroundHeight(float x,float z){
-  // Match the two triangles in each 18 m background-terrain cell.
-  float x0=Mathf.Floor(x/18)*18,z0=Mathf.Floor(z/18)*18,fx=(x-x0)/18,fz=(z-z0)/18;
-  float a=centerline.Height(x0,z0)-3,b=centerline.Height(x0+18,z0)-3,c=centerline.Height(x0,z0+18)-3,d=centerline.Height(x0+18,z0+18)-3;
-  float y=fx+fz<=1?a*(1-fx-fz)+b*fx+c*fz:d*(fx+fz-1)+c*(1-fx)+b*(1-fz);
-  var shoulder=centerline.Sample(x,z);
-  return shoulder.Distance<=TrackData.TerrainExtent?Mathf.Max(y,shoulder.Height):y;
- }
+ float SceneryGroundHeight(float x,float z)=>quarry.GroundHeight(x,z);
 
  void MakeTurbineGround(WindTurbineData turbine){
   // Local scenery transitions support the supplied base elevation without

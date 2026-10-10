@@ -20,6 +20,7 @@ public partial class RingDrive
         Directory.CreateDirectory(output);
         try
         {
+            CheckLapTiming();
             CheckMouseSteering();
             CheckAwdSteeringRange();
             CheckTrainingArea();

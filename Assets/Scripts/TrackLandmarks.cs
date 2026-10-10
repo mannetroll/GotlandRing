@@ -1,5 +1,7 @@
 public static class TrackLandmarks
 {
+ // Gutemålrakan: estimated reference-film timing crossing, CSV chainage 852 m.
+ public const int StartFinishPoint=284;
  // Approximate positions matched from the numbered map in track/track_points.jpeg.
  // Indices refer to the unique points in the bundled 3 m low-pass centerline.
  public static readonly (int Point, string Name)[] All = {

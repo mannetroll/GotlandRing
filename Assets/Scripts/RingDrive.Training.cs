@@ -12,7 +12,7 @@ public partial class RingDrive
         drivingSurface.Training = !drivingSurface.Training;
         autopilot = new AutopilotController(drivingSurface.Route, dynamics.awdMode ? awd.PilotSettings(dynamics) : dynamics);
         pilotControls = default;
-        RecoverCar(0);
+        RecoverCar(TrackLandmarks.StartFinishPoint);
         lap = 1; checkpoints = 0; lapStart = paused ? pauseStarted : Time.time;
         UpdateCameraPose();
         Debug.Log("DRIVING_AREA " + (drivingSurface.Training ? "TRAINING" : "GOTLAND_RING"));

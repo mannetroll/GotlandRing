@@ -1,15 +1,14 @@
-# Gotland Ring v0.3.0
+# Gotland Ring v0.3.1
 
 Download **GotlandRing-Portable.exe** for Windows 11 x64 or **GotlandRing-macOS-arm64.zip** for Apple Silicon Macs. Both include the game runtime. The Windows launcher includes .NET; neither package requires Unity to be installed.
 
-- **Subaru AWD physics:** four driven wheels, individual suspension, progressive tyre grip, a stock/manual GT baseline and automatic five-speed shifting with downshifts under acceleration.
-- **Controllable power slides:** deliberate full-throttle steering reversals can break rear grip on flat asphalt. Lift and countersteer to recover. The circuit and training pad share the same physics.
-- **Asphalt training area:** press **Z** to toggle the circuit and an **800 × 800 metre pad** with 25, 50 and 100 metre practice circles. **R/Home** resets the car.
-- **Mouse steering:** press **U** to toggle mouse/keyboard steering. Mouse movement steers only; **W/Up** accelerates, **S/Down** brakes and **X** reverses. Right-click centres mouse steering.
-- **Autopilot:** **Ctrl+P** on Windows or **Cmd+P** on macOS is the sole driving-control toggle. The pilot follows the racing line, downshifts for corner exits and follows the large practice circle on the pad.
-- **Driving settings:** **F3** exposes grip, torque split, steering response and shared low/high-speed steering angles, defaulting to **42° / 19°**. **Tyre squeal** is off by default and can be enabled with its checkbox. **F4** switches to the arcade comparison.
-- Two selectable Imprezas, the banked 7.214 km circuit, onboard engine audio, mapped scenery, a matching minimap and 12 animated wind turbines are included. **Y** changes car visuals.
+- **Live reference lap:** press **O** to watch the game-rendered Sadair’s Spear reference lap with bonnet and cockpit views, lap clock and Impreza engine sound. Press **O** again to return to the saved drive. **Space/Escape** pauses, **Home** restarts and **M** toggles sound. On compact Mac keyboards, Home is **Fn + Left arrow**.
+- **Corner kerbs:** 26 black-and-white kerb sections follow the asphalt edges, including Arho at checkpoint 41. They are visual markings and preserve the existing grip and collision surface.
+- **Quarry scenery:** raised limestone banks around Månen, Havsörnen and the southern quarry, with exposed ground and trees cleared from the quarry faces.
+- **Gutemålrakan start/finish:** the painted line, spawn, restart, minimap and lap timing use the reference-footage location. A lap requires the ordered checkpoints and a forward finish crossing.
+- **Driving refinements:** arcade cars can pull away from rest on gravel. Subaru AWD handling, controllable slides, mouse steering, autopilot and the **Z** training-area toggle are included.
+- **Visible version:** **v0.3.1** appears in the driving HUD and reference-lap title.
 
-Validation covers full circuit laps, power slides entirely on asphalt, lift-and-countersteer recovery, steering response, AWD/arcade modes, mouse controls, pause, reset and area switching. Sustained reversals reach approximately **37° / 54°** of body sideslip at 100/140 km/h, and the AWD autopilot completes a lap in about **4:18** with the entire car on asphalt.
+The reference lap is a position-matched camera replay with estimated gear/RPM controls, not a physics-driven Subaru lap or measured vehicle telemetry. It renders live and does not export video. Source footage and its sound are not bundled.
 
 These are unsigned prototype packages; the macOS app is not notarized. Car assets are for noncommercial use. Attribution and track-data notices are included.

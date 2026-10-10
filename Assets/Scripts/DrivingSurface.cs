@@ -9,14 +9,15 @@ public sealed class DrivingSurface
     public const float TrainingSize = 800;
     public const float TrainingRadius = 100;
     readonly TrackData circuit;
+    readonly QuarryTerrain quarry;
     TrackData trainingRoute;
     public bool Training;
-    public DrivingSurface(TrackData circuit) { this.circuit = circuit; }
+    public DrivingSurface(TrackData circuit, QuarryTerrain quarry) { this.circuit = circuit; this.quarry = quarry; }
     public TrackData Route => Training ? trainingRoute ??= MakeTrainingRoute() : circuit;
 
     public TrackData.SurfaceSample Sample(float x, float z)
     {
-        if (!Training) return circuit.Sample(x, z);
+        if (!Training) { var surface = circuit.Sample(x, z); quarry.Sample(x, z, ref surface); return surface; }
         var result = Route.Sample(x, z);
         float offset = Mathf.Max(Mathf.Abs(x - TrainingCentre.x), Mathf.Abs(z - TrainingCentre.z));
         result.Height = TrainingCentre.y; result.Normal = Vector3.up;

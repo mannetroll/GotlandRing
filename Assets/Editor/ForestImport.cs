@@ -79,7 +79,8 @@ public static class ForestImport
    p.y=SurfaceHeight(track,ground,p.x,p.z);
    if(distance<42)p.y=Mathf.Max(p.y,track.Sample(p.x,p.z).Height);
    minimum=Mathf.Min(minimum,distance-width*.5f);
-   trees.Add(new TrackForest.Tree{Position=p,Height=height,Width=width,Shade=Mathf.Lerp(.73f,1,(float)random.NextDouble()),Mirror=random.Next(2)==0});
+   var tree=new TrackForest.Tree{Position=p,Height=height,Width=width,Shade=Mathf.Lerp(.73f,1,(float)random.NextDouble()),Mirror=random.Next(2)==0};
+   if(!QuarryTerrain.BareGround(p.x,p.z))trees.Add(tree);
   }
   var csv=new StringBuilder("x_m,y_m,z_m,height_m,width_m,shade,mirror\n");var culture=CultureInfo.InvariantCulture;
   foreach(var tree in trees)csv.AppendFormat(culture,"{0:F3},{1:F3},{2:F3},{3:F3},{4:F3},{5:F3},{6}\n",

@@ -5,22 +5,15 @@ public partial class RingDrive
 {
  void MakeTrack(){
   centerline=TrackData.Load(Resources.Load<TextAsset>("Track/Surface").text);
-  drivingSurface=new DrivingSurface(centerline);
+  quarry=new QuarryTerrain(centerline);
+  drivingSurface=new DrivingSurface(centerline,quarry);
   track.AddRange(centerline.Points);length=centerline.HorizontalLength;
   var gravel=Mat("Limestone ground apron",Color.white);VisualUpgrade.Surface(gravel,"Gravel",.06f);
   var road=new GameObject("Estimated banked track surface");
   road.AddComponent<MeshFilter>().sharedMesh=centerline.SurfaceMesh;
   road.AddComponent<MeshCollider>().sharedMesh=centerline.SurfaceMesh;
   road.AddComponent<MeshRenderer>().sharedMaterials=new[]{grass,gravel,asphalt,gravel,grass};
-  MakeEdgePaint(-1);MakeEdgePaint(1);MakeStartLine();
-  var row=centerline.Sections[0];var forward=Vector3.Cross(row.Right,Vector3.up);
-  foreach(int side in new[]{-1,1}){
-   var foot=row.Ground(side*(side<0?row.LeftWidth+2:row.RightWidth+2));
-   Box("Gantry support",foot+Vector3.up*4,new Vector3(.4f,8,.4f),silver);
-  }
-  var middle=row.Center+row.Right*(row.RightWidth-row.LeftWidth)*.5f;
-  var banner=Box("Start gantry",middle+Vector3.up*8,new Vector3(row.LeftWidth+row.RightWidth+4,1.7f,.4f),black);banner.transform.rotation=Quaternion.LookRotation(forward);
-  Sign("GOTLAND RING",middle+Vector3.up*8-forward*.3f,-forward,1.2f);
+  MakeEdgePaint(-1);MakeEdgePaint(1);MakeKerbs();MakeStartLine();
   MakeTrackSigns();
  }
 
@@ -38,17 +31,17 @@ public partial class RingDrive
  }
 
  void MakeStartLine(){
-  var first=centerline.Sections[0];var next=centerline.Sections[1];int across=Mathf.CeilToInt(first.LeftWidth+first.RightWidth);
-  for(int x=0;x<across;x++)for(int z=0;z<2;z++){
-   var vertices=new Vector3[4];
-   for(int j=0;j<4;j++){
-    float u=(x+j%2)/(float)across,t=(z+j/2)/next.Distance;
-    var p=Vector3.Lerp(first.Road(Mathf.Lerp(-first.LeftWidth,first.RightWidth,u)),next.Road(Mathf.Lerp(-next.LeftWidth,next.RightWidth,u)),t);
-    p.y=Ground(p.x,p.z)+.018f;vertices[j]=p;
-   }
-   var mesh=new Mesh{name="Start line tile",vertices=vertices,triangles=new[]{0,2,1,1,2,3}};mesh.RecalculateNormals();
-   var tile=new GameObject(mesh.name);tile.AddComponent<MeshFilter>().sharedMesh=mesh;tile.AddComponent<MeshRenderer>().sharedMaterial=(x+z)%2==0?white:black;
+  int start=TrackLandmarks.StartFinishPoint;
+  var first=centerline.Sections[start];var next=centerline.Sections[start+1];
+  var vertices=new Vector3[(TrackData.Across+1)*2];var triangles=new List<int>();
+  for(int x=0;x<=TrackData.Across;x++)for(int z=0;z<2;z++){
+   float t=z*.45f/(next.Distance-first.Distance);
+   var p=Vector3.Lerp(first.Road(first.Offset(x+2)),next.Road(next.Offset(x+2)),t);
+   p.y=Ground(p.x,p.z)+.025f;vertices[x*2+z]=p;
+   if(x<TrackData.Across&&z==0){int a=x*2;triangles.AddRange(new[]{a,a+1,a+2,a+2,a+1,a+3});}
   }
+  var mesh=new Mesh{name="Gutemålrakan start / finish paint",vertices=vertices,triangles=triangles.ToArray()};mesh.RecalculateNormals();
+  var line=new GameObject(mesh.name);line.AddComponent<MeshFilter>().sharedMesh=mesh;line.AddComponent<MeshRenderer>().sharedMaterial=white;
  }
 
  void PlaceCarOnSurface(Vector3 position,float bodyRoll){

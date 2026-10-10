@@ -8,7 +8,7 @@ Use **`gotland_ring_full_centerline_3m_lowpass.csv`** for the revised smooth tra
 
 The game's `Assets/Resources/Track/Surface.csv` bundles `track/gotland_ring_full_surface_3m.csv` unchanged. Its first 12 columns preserve this low-pass centerline exactly; the additional columns supply estimated asymmetric road widths, banking, crown/hollow and adjacent ground heights. No additional height filter is applied at runtime. See [SURFACE_README.md](track/SURFACE_README.md) for the surface formula, sign conventions and uncertainty. Road geometry and vehicle surface queries use the same mesh.
 
-The original terrain heights were filtered once with a **circular, symmetric Gaussian low-pass filter**, standard deviation **15 m**, approximately 35.3 m full width at half maximum. The kernel is truncated at ±60 m and wraps across the start/finish. This introduces no spatial phase shift. The duplicate closing point is excluded during filtering and restored afterward. A constant correction preserves the distance-weighted lap mean exactly before CSV rounding. The saved CSV preserves both mean absolute elevation and mean Unity Y within 0.1 mm of the original. This is numerical preservation, not survey accuracy.
+The original terrain heights were filtered once with a **circular, symmetric Gaussian low-pass filter**, standard deviation **15 m**, approximately 35.3 m full width at half maximum. The kernel is truncated at ±60 m and wraps across the CSV closure. This introduces no spatial phase shift. The duplicate closing point is excluded during filtering and restored afterward. A constant correction preserves the distance-weighted lap mean exactly before CSV rounding. The saved CSV preserves both mean absolute elevation and mean Unity Y within 0.1 mm of the original. This is numerical preservation, not survey accuracy.
 
 This is a conservative modeling choice for the broad road profile, not a racing-track certification rule or a suspension-scale surface model. The ideal filter retains about 89.5% of a 200 m sinusoidal variation, 98.2% at 500 m, and only 0.7% at 30 m. Mean preservation applies to the full lap; individual short sections and extrema can change. [Filter implementation documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html).
 
@@ -43,7 +43,7 @@ See `gotland_ring_whole_lap_lowpass.png` for the full profile, close-ups and hei
 
 The nominal length and advertised relief are **not reproduced exactly**. The discrepancies remain unresolved; coordinates and heights have not been stretched to force agreement. This is suitable as an approximate Unity prototype, not validated vehicle-dynamics or survey data. Horizontal accuracy is unmeasured: expect several metres of uncertainty, particularly at broad junctions and ambiguous asphalt edges. Three decimal places preserve calculations; they do not imply millimetre accuracy.
 
-Heights represent **ground terrain**, not a dedicated track-surface survey. Banking, camber, kerbs, width and surface bumps are not modeled. The 1 m terrain catalogue lists 0.10 m vertical / 0.30 m horizontal source uncertainty over the site, but that is not the accuracy of this reconstructed track.
+Heights represent **ground terrain**, not a dedicated track-surface survey. The centerline alone does not encode banking, camber, kerbs, width or surface bumps. The game adds the estimated surface described above and visually placed kerb paint described in [scenery notes](docs/SCENERY.md). The 1 m terrain catalogue lists 0.10 m vertical / 0.30 m horizontal source uncertainty over the site, but that is not the accuracy of this reconstructed track.
 
 ## Coordinates and origin
 
@@ -97,6 +97,10 @@ Dark canopy coverage over 13 m neighbourhoods controls a deterministic, jittered
 The supplied full-lap video, kept locally at `unstaged/KOENIGSEGG.webm` outside Git, is a visual reference for the irregular, mostly low pine treeline and the contrast with open limestone areas. Tree heights of roughly 3–13.5 m, crown widths and individual positions are visual estimates, not a vegetation survey. The forest does not change track geometry or driving physics.
 
 Both Unity build commands regenerate `Assets/Resources/Track/Forest.csv` and check road clearance, tree scale and coverage of both loops. **Gotland Ring > Prepare mapped forest** regenerates it separately. Runtime meshes group the existing pine cutout into 96 m tiles with conservative bounds for camera-facing foliage. The reference video is not bundled into the game. The forest layout is processed Lantmäteriet imagery data under CC BY 4.0; retain the attribution below.
+
+### Start/finish and quarry scenery
+
+The game starts and times laps at CSV point 284 (852 m), on **4. Gutemålrakan**. This location is approximately matched to the onboard timing crossing; it does not change the CSV origin or route geometry. The major quarry banks near **25. Havsörnen** use aerial-map footprints and film-estimated heights. See [scenery geometry and limitations](docs/SCENERY.md).
 
 ### Track name boards
 

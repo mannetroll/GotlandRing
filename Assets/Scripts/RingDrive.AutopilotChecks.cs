@@ -11,7 +11,7 @@ public partial class RingDrive
         Application.runInBackground = true;
         muted = true;
         yield return null;
-        try { CheckRacingLine(); CheckMouseSteering(); CheckAutopilotState(); }
+        try { CheckLapTiming(); CheckRacingLine(); CheckMouseSteering(); CheckAutopilotState(); }
         catch (Exception e) { Debug.LogException(e); Application.Quit(1); yield break; }
         var original = dynamics.Copy();
         var setups = new[] {

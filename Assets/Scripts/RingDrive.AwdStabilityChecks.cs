@@ -8,7 +8,7 @@ public partial class RingDrive
     void CheckAwdManualStability(string output)
     {
         MakeTrainingArea();
-        var surface = new DrivingSurface(centerline) { Training = true };
+        var surface = new DrivingSurface(centerline, quarry) { Training = true };
         var vehicle = new GameObject("AWD stability test vehicle");
         var test = vehicle.AddComponent<SubaruAwdController>();
         test.Initialize(surface); test.Body.interpolation = RigidbodyInterpolation.None;

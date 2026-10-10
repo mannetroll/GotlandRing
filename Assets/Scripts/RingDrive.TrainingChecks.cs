@@ -41,7 +41,7 @@ public partial class RingDrive
             if (velocity.magnitude > .01f || Vector3.Distance(car.position, position) > .05f)
                 throw new Exception("Training recovery did not stop at its start");
             ToggleTrainingArea();
-            if (drivingSurface.Training || nearest != 0 || checkpoints != 0 || lap != 1
+            if (drivingSurface.Training || nearest != TrackLandmarks.StartFinishPoint || checkpoints != 0 || lap != 1
                 || velocity.magnitude > .01f || autopilotEnabled != pilot || best != 123)
                 throw new Exception("Return to Gotland Ring did not reset the timed lap or preserve driving preferences");
             Debug.Log($"TRAINING_AREA_TEST pass=True physical={physical} pilot={pilot} maxSpeed={maxSpeed * 3.6f:F1}km/h");

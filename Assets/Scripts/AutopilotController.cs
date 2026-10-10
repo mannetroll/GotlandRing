@@ -200,7 +200,7 @@ public sealed class AutopilotController
         float plannedAcceleration = (speedPlan[Next(nearest)] * speedPlan[Next(nearest)] - speedPlan[nearest] * speedPlan[nearest])
             / (2 * segmentLength[nearest]);
         float desiredAcceleration = (target - speed) * 3 + Mathf.Min(0, plannedAcceleration);
-        float drag = .10f + speed * speed * .0012f + (road.OnRoad ? 0 : 2.5f);
+        float drag = DrivingSettings.ArcadeDrag(speed, road.OnRoad);
         float brake = Mathf.Clamp01((-desiredAcceleration - drag) / settings.braking);
         float throttle = brake > .001f ? 0 : Mathf.Clamp01((desiredAcceleration + drag) / (settings.acceleration * 5.9f));
         if (Vector3.Dot(velocity, forward) < -.3f) { brake = 1; throttle = 0; }

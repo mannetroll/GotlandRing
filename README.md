@@ -2,9 +2,9 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.0/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.0/GotlandRing-macOS-arm64.zip) | [Release v0.3.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.0)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.1/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.1/GotlandRing-macOS-arm64.zip) | [Release v0.3.1](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.1)
 
-**Version v0.3.0** includes force-based Subaru AWD handling, progressive tyre grip and controllable power slides, automatic downshifts, mouse steering, and an **800 × 800 m asphalt training area**.
+**Version v0.3.1** adds a live reference-lap viewer, 26 black-and-white corner kerbs, limestone quarry banks and the start/finish on **Gutemålrakan**, alongside Subaru AWD handling and the **800 × 800 m asphalt training area**. The version appears in the driving HUD and replay title.
 
 Press **Z** to switch between Gotland Ring and the training pad. Both use the same vehicle physics and settings. **R/Home** resets the car on the pad. Repeated full-throttle steering reversals can break rear grip; lift and countersteer to recover. The chase camera and sideslip display make the car's rotation visible.
 
@@ -48,6 +48,7 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | Right mouse | Centre steering in mouse mode; centre the view in keyboard mode |
 | C | Cycle cockpit / bonnet / chase camera (starts behind the car) |
 | Y | Switch between Impreza Rally and the blue-and-gold Subaru Impreza, preserving the current drive |
+| O | Watch / leave the game-rendered Sadair’s Spear reference lap |
 | R | Recover to the nearest circuit point; reset to the start on the training pad |
 | Home | Restart the lap, or reset to the training start line |
 | Escape | Pause / resume and release the mouse |
@@ -62,17 +63,19 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 - Full circuit loaded from the supplied 3 m surface CSV, preserving the centerline and adding estimated widths, banking and crown/hollow profiles.
 - Limestone aprons, white edge markings, pines, pit wall and 12 wind turbines at the supplied registry coordinates and terrain elevations. Six V47s have 55 m hubs / 47 m rotors, three V66s have 78 m hubs / 66 m rotors, and three V90s have 105 m hubs / 90 m rotors. Rotors face **W (west)** and turn clockwise from the front at **10 RPM**, using a visual estimate from the 2022 recording, and stop while paused.
 - 42 numbered name boards on the right side of the circuit, matching the locations in `track/track_points.jpeg` approximately. Boards face approaching drivers and include both names where the map lists alternatives.
+- Map-positioned limestone quarry banks give the approaches to Månen and Havsörnen their raised, exposed silhouettes. Their heights are estimated from the onboard reference.
 - The main building and annex sit north of mapped turbine 2. Mesh catch fencing, Armco rails and concrete barriers follow the styles in the owner's 2022 film; see [scenery references](docs/SCENERY.md).
 - Automatic five-speed transmission, turbo boost, speed-sensitive steering and slower travel off the asphalt.
 - Toggleable autopilot with an optimized racing line, corner-speed planning, advance braking and continuous steering; it uses the same driving physics as the player.
+- Live reference-lap viewer with bonnet and cockpit views, reference clock and estimated Impreza engine sound. **O** starts the viewer and returns to the saved drive.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
 - Engine audio isolated from the owner's 2022 Impreza recording, with speech removed through engine-cycle extraction, RPM-matched playback, throttle-dependent intake tone, lift-off, subdued road noise and slip-driven asphalt tyre squeal.
 
 ## Driving environment
 
-The circuit uses the supplied surface reconstruction for variable asphalt widths, banking and crown/hollow profiles. Road rendering, car contact and recovery share the same surface; driving physics and autopilot account for banking. White edge markings follow the supplied boundary confidence, and scenery heights follow the new surface. Banking ranges from −4.835° to +5.778° in the estimated data. The mini-map matches the surface validation image's blue–gray–red banking scale: blue is negative, gray is zero, and red is positive (right edge higher). Its degree legend uses symmetric limits of ±5.8°, and a white marker shows your car.
+The circuit uses the supplied surface reconstruction for variable asphalt widths, banking and crown/hollow profiles. Road rendering, car contact and recovery share the same surface; driving physics and autopilot account for banking. White edge markings follow the supplied boundary confidence, and scenery heights follow the new surface. Banking ranges from −4.835° to +5.778° in the estimated data. The mini-map matches the surface validation image's blue–gray–red banking scale: blue is negative, gray is zero, and red is positive (right edge higher). Its degree legend uses symmetric limits of ±5.8°, a white marker shows your car, and a chequered marker locates the start/finish on Gutemålrakan.
 
-The detailed Impreza starts in red with a rear chase camera. **T** cycles its paint; mouse movement orbits the car in chase view. Cockpit view keeps the driver’s arms and body visible, and **R** recovery preserves lap timing. The circuit includes **10,710 pine trees** distributed from the supplied aerial references. AWD steering speed defaults to **90 degrees/s**, with speed-sensitive keyboard input. Arcade response defaults to **5**. Both are editable in F3.
+The detailed Impreza starts in red with a rear chase camera. **T** cycles its paint; mouse movement orbits the car in chase view. Cockpit view keeps the driver’s arms and body visible, and **R** recovery preserves lap timing. The circuit includes **10,595 pine trees** distributed from the supplied aerial references. AWD steering speed defaults to **90 degrees/s**, with speed-sensitive keyboard input. Arcade response defaults to **5**. Both are editable in F3.
 
 A playable prototype with force-based AWD handling and a selectable arcade bicycle model. AWD has individual tyre contacts, springs, dampers and anti-roll forces. Track elevations, widths and vehicle response are approximate; this is not a surveyed circuit or calibrated simulator. Complete scenery collisions, damage and AI opponents are not implemented. Audio uses engine-cycle waveforms extracted from the real in-car recording; idle and RPM outside the recorded ranges are pitch-derived.
 
@@ -97,7 +100,7 @@ Built games start in a resizable 1600×900 window. Press **Escape** to release t
 
 Press **Ctrl+F** on Windows or **Cmd+F** on macOS, or click the Fullscreen button beside Dynamics, to toggle borderless fullscreen at the display's resolution. Switching back restores the previous window dimensions. This also works while paused or in the settings dialog, preserving the pause and autopilot state. macOS also accepts Ctrl as an alternative to Cmd for the F/P shortcuts.
 
-Other platform differences: macOS uses an Apple Silicon ARM64 app and Metal, while Windows uses an x64 EXE and Direct3D 11. F2/F3/F4 may require Fn on a Mac keyboard. F2 saves images in the macOS application-support folder listed below, or beside the extracted game on Windows. Driving keys, mouse look, cameras, autopilot behaviour and the live WASD display are shared.
+Other platform differences: macOS uses an Apple Silicon ARM64 app and Metal, while Windows uses an x64 EXE and Direct3D 11. F2/F3/F4 may require Fn on a Mac keyboard. **Home** is **Fn + Left arrow** on compact Mac keyboards. F2 saves images in the macOS application-support folder listed below, or beside the extracted game on Windows. Driving keys, mouse look, cameras, autopilot behaviour and the live WASD display are shared.
 
 ### macOS (Apple Silicon)
 
@@ -120,7 +123,7 @@ After building and testing, package the app, track data and current notices for 
 
 ```bash
 ./scripts/Package-macOS.sh
-gh release upload v0.3.0 Build/GotlandRing-macOS-arm64.zip
+gh release upload v0.3.1 Build/GotlandRing-macOS-arm64.zip
 ```
 
 Both packages are built and tested before upload. The release workflow verifies the published downloads against `SHA256SUMS`.
@@ -168,13 +171,13 @@ After copying the tested Windows portable EXE into `Build/Portable/` on the Mac:
 ./scripts/Package-macOS.sh
 (cd Build && shasum -a 256 Portable/GotlandRing-Portable.exe GotlandRing-macOS-arm64.zip) | sed 's|Portable/||' > Build/SHA256SUMS
 git add Assets/Editor/BuildGame.cs ProjectSettings/ProjectSettings.asset PortableLauncher/PortableLauncher.csproj README.md docs/release-notes.md VERIFICATION.md
-git commit -m "Release v0.3.0"
-git tag -a v0.3.0 -m "Gotland Ring v0.3.0"
-git push origin main v0.3.0
-gh release create v0.3.0 --verify-tag --draft --title "Gotland Ring v0.3.0" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
+git commit -m "Release v0.3.1"
+git tag -a v0.3.1 -m "Gotland Ring v0.3.1"
+git push origin main v0.3.1
+gh release create v0.3.1 --verify-tag --draft --title "Gotland Ring v0.3.1" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
 ```
 
-Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.3.0 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
+Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.3.1 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
 
 | Location | Purpose |
 |---|---|
@@ -196,6 +199,7 @@ Check that both uploaded packages match the local checksums, then publish with `
 | `Assets/Scripts/RingDrive.Window.cs` | Ctrl/Cmd shortcuts and fullscreen/window-size restoration |
 | `Assets/Scripts/WindowsWindowAspectRatio.cs` / `MacWindowAspectRatio.cs` | Native 16:9 window resizing, excluding the window frame |
 | `Assets/Scripts/TrackLandmarks.cs` | Names and approximate CSV positions for the 42 numbered track signs |
+| `Assets/Scripts/ReferenceLapPlayer.cs` / `RingDrive.ReferenceLap.cs` | Live reference-lap rendering, split views, clock, sound and driving-state restoration |
 | `Assets/Scripts/BoxerAudio.cs` / `ImprezaEngineMixer.cs` | Recorded Impreza loops, RPM blending and throttle/road audio |
 | `scripts/Prepare-EngineAudio.py` | Reproduce engine loops from the owner's 2022 recording |
 | `Assets/Editor/BuildGame.cs` | Scene generation, Windows x64 and macOS ARM64 builds |
@@ -206,27 +210,32 @@ Check that both uploaded packages match the local checksums, then publish with `
 
 ## Lines of code
 
-Source snapshot for **v0.3.0, 10 October 2026**: **3,897 code lines across 51 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **4,223 physical lines** in total.
+Source snapshot for **10 October 2026**: **4,418 code lines across 58 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **4,766 physical lines** in total.
 
 | Source | Language | Files | Code LOC | Comment lines | Blank lines |
 |---|---|---:|---:|---:|---:|
-| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 34 | 2,964 | 89 | 139 |
-| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 569 | 16 | 21 |
+| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 40 | 3,462 | 100 | 150 |
+| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 570 | 16 | 21 |
 | Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 | 0 | 2 |
-| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 3 | 71 | 0 | 0 |
+| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 4 | 93 | 0 | 0 |
 | Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 | 23 | 26 |
 | macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 | 2 | 8 |
 | Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 | 0 | 0 |
-| **Total** | | **51** | **3,897** | **130** | **196** |
+| **Total** | | **58** | **4,418** | **141** | **207** |
 
 The count covers game source, verification code and build/asset tools. It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
 
 ## Verification
 
+`--reference-lap-test` checks the complete replay alignment, audio control ranges,
+clock boundaries, pause/mute/completion, circuit/training and AWD/arcade state
+restoration, lap-time isolation, camera layout and cleanup. It saves
+`reference-lap-arho.png` in the game screenshot folder and exits nonzero on failure.
+
 The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
-covers all **2,405** track segments in **4:18.38**, with maximum speed **181.7 km/h**
-and **21 downshifts under power**. At more than 43 km/h, peak body sideslip is
-**8.64°**, with about **93.17 seconds** above 3° in corners. All four corners of
+starts on Gutemålrakan and covers all **2,405** track segments in **4:15.61**, with maximum speed **181.7 km/h**
+and **20 downshifts under power**. At more than 43 km/h, peak body sideslip is
+**8.62°**, with about **91.59 seconds** above 3° in corners. All four corners of
 the car remain on the asphalt; minimum measured body clearance is **0.44 m**.
 Main-straight 0–100 km/h takes **7.27 s**, followed by a **35.79 m** stop.
 On the flat pad, sustained full-throttle reversals at 100/140 km/h produce
@@ -276,9 +285,34 @@ response and speed-dependent AWD range. Pausing, recovery, a focus change or
 an autopilot handover centres mouse steering. Autopilot remains in charge until
 **Ctrl+P** (Windows) or **Cmd+P** (macOS) is pressed.
 
+### Reference lap viewer
+
+Press **O** to watch the game-rendered lap matched to the
+[Koenigsegg Sadair’s Spear onboard reference](https://youtu.be/fSb8Rx1OKHI).
+It shows the bonnet above a cockpit inset and a lap clock, using the same
+alignment as the comparison video. **O** returns to your drive; **Space** or
+**Escape** pauses/resumes playback; **Home** restarts it; **M** toggles sound.
+Fullscreen and F2 screenshots remain available. Playback holds at the end.
+
+The 3:06 sequence includes the approach and a **2:55.88 reference lap**.
+Your drive is paused while watching, preserving position, momentum, handling
+mode, selected car, autopilot and lap progress. Viewing time is excluded from
+your driving lap. The viewer renders the circuit live; it does not play or
+export an MP4 and does not require a video encoder or the source footage.
+
+`Assets/Resources/Replay/ReferenceLap.json` contains the 24 Hz distance
+alignment and estimated engine controls prepared for the comparison. The
+sound uses the game's Impreza mixer, with earlier downshifts and rev-matching
+blips; tyre squeal is off. The motion and clock reproduce approximate reference
+progress, not a Subaru physics lap or measured vehicle telemetry. Rendering
+uses the current game scenery and a separate red rally-car visual, so returning
+from the viewer leaves your selected driving car intact.
+
 ### Auto(P)ilot
 
 Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again to return to manual driving. WASD, arrows and X are ignored while autopilot is on. Camera selection remains available. In keyboard steering mode, the mouse controls camera look; in mouse steering mode it waits for manual driving and does not override autopilot. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
+
+Arcade gravel resistance rises with speed, allowing manual and autopilot pull-away from the runoff.
 
 The controller computes a smooth racing line around the complete circuit, using wider entries and exits and moving toward the apex through bends. It minimizes changes in direction within the supplied asymmetric asphalt boundaries, reserving 2.6 m from the planned car centre to each edge for body width and steering corrections. The line closes smoothly across the start/finish. This is a practical curvature optimization; it does not establish a global minimum lap time.
 
@@ -306,9 +340,9 @@ Track data and derived geospatial data have separate licensing requirements; see
 
 ![Gotland Ring centerline and elevation validation](track/gotland_ring_validation.png)
 
-The bundled `Assets/Resources/Track/Surface.csv` is an unchanged copy of `track/gotland_ring_full_surface_3m.csv`. Its first 12 columns preserve `track/gotland_ring_full_centerline_3m_lowpass.csv` exactly. The 2,405 unique positions define approximately 7,214.397 m horizontally / 7,216.638 m in 3D, with 23.374 m elevation variation. No additional height filter or horizontal scaling is applied. The mesh repeats the first cross-section to close the lap, while navigation omits that duplicate. Row zero remains an arbitrary gameplay start, not a surveyed start/finish line.
+The bundled `Assets/Resources/Track/Surface.csv` is an unchanged copy of `track/gotland_ring_full_surface_3m.csv`. Its first 12 columns preserve `track/gotland_ring_full_centerline_3m_lowpass.csv` exactly. The 2,405 unique positions define approximately 7,214.397 m horizontally / 7,216.638 m in 3D, with 23.374 m elevation variation. No additional height filter or horizontal scaling is applied. The mesh repeats the first cross-section to close the lap, while navigation omits that duplicate. The start/finish, spawn and lap timing use point 284 (852 m) on Gutemålrakan, approximately matched to the reference footage. Row zero remains the CSV coordinate origin.
 
-The road uses the supplied asymmetric widths (10.535–17.125 m total), cross-slope and quadratic crown/hollow profile, with 16 subdivisions across the asphalt. Estimated edge-to-edge banking ranges from −4.835° to +5.778°; positive banking raises the right edge. Banking is already encoded in the surface heights and is not applied as a second rotation. Three-metre aprons follow the supplied ground height differences; the broader grass shoulders remain an approximate connection to the existing terrain. White paint follows accepted boundary estimates, with gaps at inferred boundaries. Kerbs are omitted because their positions and profiles are not supplied.
+The road uses the supplied asymmetric widths (10.535–17.125 m total), cross-slope and quadratic crown/hollow profile, with 16 subdivisions across the asphalt. Estimated edge-to-edge banking ranges from −4.835° to +5.778°; positive banking raises the right edge. Banking is already encoded in the surface heights and is not applied as a second rotation. Three-metre aprons follow the supplied ground height differences; the broader grass shoulders remain an approximate connection to the existing terrain. White paint follows accepted boundary estimates, with gaps at inferred boundaries. Twenty-six black-and-white kerb strips follow the corners and exits visible in the comparison footage, including Arho (41). Their placement and dimensions are visual estimates; they follow the existing ground without adding unmeasured raised collision profiles. See [scenery notes](docs/SCENERY.md).
 
 AWD wheel contacts use the rendered track mesh, with gravity and individual suspension determining body height, pitch and roll. The arcade comparison follows the surface directly and includes banking in its cornering limit. Both modes classify asphalt/off-road from the same data and have their own autopilot speed budgets. Tyre behaviour remains approximate. The estimated surface does not establish surveyed banking or reproduce the historical 10° claim. See [surface data and limitations](track/SURFACE_README.md) and [surface validation](track/gotland_ring_surface_validation.png).
 

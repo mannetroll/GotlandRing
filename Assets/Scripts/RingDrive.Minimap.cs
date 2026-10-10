@@ -46,6 +46,9 @@ public partial class RingDrive
      pixels[Mathf.RoundToInt(point.y+y)*256+Mathf.RoundToInt(point.x+x)]=color;
    }
   }
+  var finish=MapPoint(track[TrackLandmarks.StartFinishPoint]);
+  for(int x=0;x<8;x++)for(int y=0;y<6;y++)
+   pixels[(Mathf.RoundToInt(finish.y)+y)*256+Mathf.RoundToInt(finish.x)+x]=(x/2+y/2)%2==0?Color.white:Color.black;
   map=new Texture2D(256,256,TextureFormat.RGBA32,false){name="Banking mini-map",wrapMode=TextureWrapMode.Clamp};
   map.SetPixels(pixels);map.Apply();
   var legendPixels=new Color[256];
