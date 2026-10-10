@@ -6,6 +6,8 @@
 |---|---|
 | ![v0.3.2 cockpit with live speed, RPM and gear instruments](docs/cockpit.png) | ![Subaru Impreza in v0.3.2](docs/subaru-impreza.png) |
 
+[Download the v0.3.2 game lap recording (MKV, 92.1 MB)](docs/Gotland-Ring-Record.mkv)
+
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-macOS-arm64.zip) | [Release v0.3.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.2)
