@@ -4,7 +4,7 @@
 
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.0/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.0/GotlandRing-macOS-arm64.zip) | [Release v0.3.0](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.0)
 
-**Version 0.3.0** includes force-based Subaru AWD handling, progressive tyre grip and controllable power slides, automatic downshifts, mouse steering, and an **800 × 800 m asphalt training area**.
+**Version v0.3.0** includes force-based Subaru AWD handling, progressive tyre grip and controllable power slides, automatic downshifts, mouse steering, and an **800 × 800 m asphalt training area**.
 
 Press **Z** to switch between Gotland Ring and the training pad. Both use the same vehicle physics and settings. **R/Home** resets the car on the pad. Repeated full-throttle steering reversals can break rear grip; lift and countersteer to recover. The chase camera and sideslip display make the car's rotation visible.
 
@@ -160,7 +160,7 @@ dotnet publish PortableLauncher\PortableLauncher.csproj -c Release -o Build/Port
 
 ### Publish a release
 
-Set the version in `Assets/Editor/BuildGame.cs`, `ProjectSettings/ProjectSettings.asset` and `PortableLauncher/PortableLauncher.csproj`. Update the download links and `docs/release-notes.md`. Build and run the checks above for both targets, then package the macOS app and Windows portable launcher. Windows builds can use the Mac editor’s Windows Build Support; run the resulting EXE and package checks on Windows.
+Set the displayed version, including its `v` prefix, in `Assets/Editor/BuildGame.cs`, `ProjectSettings/ProjectSettings.asset` and the launcher’s `InformationalVersion` in `PortableLauncher/PortableLauncher.csproj`. Keep the launcher’s numeric `Version` without the prefix for .NET build metadata. Update the download links and `docs/release-notes.md`. Build and run the checks above for both targets, then package the macOS app and Windows portable launcher. Windows builds can use the Mac editor’s Windows Build Support; run the resulting EXE and package checks on Windows.
 
 After copying the tested Windows portable EXE into `Build/Portable/` on the Mac:
 
@@ -206,18 +206,18 @@ Check that both uploaded packages match the local checksums, then publish with `
 
 ## Lines of code
 
-Source snapshot for **v0.3.0, 10 October 2026**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once.
+Source snapshot for **v0.3.0, 10 October 2026**: **3,897 code lines across 51 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **4,223 physical lines** in total.
 
-| Source | Language | Files | LOC |
-|---|---|---:|---:|
-| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 34 | 2,964 |
-| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 569 |
-| Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 |
-| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 3 | 71 |
-| Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 |
-| macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 |
-| Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 |
-| **Total** | | **51** | **3,897** |
+| Source | Language | Files | Code LOC | Comment lines | Blank lines |
+|---|---|---:|---:|---:|---:|
+| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 34 | 2,964 | 89 | 139 |
+| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 569 | 16 | 21 |
+| Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 | 0 | 2 |
+| Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 3 | 71 | 0 | 0 |
+| Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 | 23 | 26 |
+| macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 | 2 | 8 |
+| Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 | 0 | 0 |
+| **Total** | | **51** | **3,897** | **130** | **196** |
 
 The count covers game source, verification code and build/asset tools. It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
 

@@ -227,7 +227,7 @@ tag as v0.1.1 and do the drill
 Timestamp is the recorded turn start; the individual message timestamp is unavailable in the retrieved Windows history.
 
 ```text
-Remove the "RNX994" from back plate
+Remove the registration text from the back plate
 ```
 
 ## 019 — 2026-10-05T23:33:20+02:00 (turn start)

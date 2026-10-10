@@ -1,4 +1,4 @@
-# Gotland Ring 0.3.0
+# Gotland Ring v0.3.0
 
 Download **GotlandRing-Portable.exe** for Windows 11 x64 or **GotlandRing-macOS-arm64.zip** for Apple Silicon Macs. Both include the game runtime. The Windows launcher includes .NET; neither package requires Unity to be installed.
 

@@ -5,6 +5,8 @@
 <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>GotlandRing-Portable</AssemblyName><DebugType>none</DebugType><DebugSymbols>false</DebugSymbols>
 <ApplicationIcon>Impreza.ico</ApplicationIcon>
 <Version>0.3.0</Version>
+<InformationalVersion>v0.3.0</InformationalVersion>
+<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 <Company>Mannetroll Solutions AB</Company><Product>Gotland Ring - Impreza</Product>
 </PropertyGroup>
 <ItemGroup><EmbeddedResource Include="Game.zip" LogicalName="Game.zip" /></ItemGroup>

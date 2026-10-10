@@ -1,6 +1,6 @@
-# Gotland Ring 0.3.0 verification
+# Gotland Ring v0.3.0 verification
 
-Verified on 10 October 2026 with Unity 6000.3.25f1. Fresh macOS ARM64 and Windows x64 builds use the same release source and report version 0.3.0.
+Verified on 10 October 2026 with Unity 6000.3.25f1. Fresh macOS ARM64 and Windows x64 builds use the same release source and report version v0.3.0.
 
 ## Native driving checks
 
@@ -40,9 +40,9 @@ The 24 manual steering cases cover 60, 100 and 140 km/h, both directions, thrott
 
 Both native builds pass the track/surface, turbine, forest, car-import and engine/tyre-audio checks. The source surface CSV is preserved, both car models are prepared and the bundled data/attribution files are included.
 
-The macOS ZIP passes archive-integrity checking. All 147 extracted app files and 18 accompanying documentation/data files match their sources by SHA-256 or byte comparison. The extracted app reports version 0.3.0 and passes `codesign --verify --deep --strict`.
+The macOS ZIP passes archive-integrity checking. All 147 extracted app files and 18 accompanying documentation/data files match their sources by SHA-256 or byte comparison. The extracted app reports version v0.3.0 and passes `codesign --verify --deep --strict`.
 
-The Windows portable EXE is built with .NET 10 and reports version 0.3.0 for both launcher and game. All 161 transferred runtime files match before testing, and all 161 extracted payload files match the package inputs by SHA-256. Launching the final portable EXE also reaches the game's settings-test success marker. The retrieved EXE matches the Windows packaging checksum.
+The Windows portable EXE is built with .NET 10 and reports version v0.3.0 for both launcher and game. All 161 transferred runtime files match before testing, and all 161 extracted payload files match the package inputs by SHA-256. Launching the final portable EXE also reaches the game's settings-test success marker. The retrieved EXE matches the Windows packaging checksum.
 
 Both downloads include attribution and track/turbine data, with source films excluded. `SHA256SUMS` records the final package hashes.
 
