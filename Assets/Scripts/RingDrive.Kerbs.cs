@@ -3,37 +3,7 @@ using UnityEngine;
 
 public partial class RingDrive
 {
- // Visually matched to the full onboard/comparison timeline. Indices use the
- // bundled 3 m surface CSV; dimensions and endpoints are scenery estimates.
- static readonly (string Name,int First,int Last,int Side,float FilmSeconds)[] KerbRuns={
-  ("Manegaard exit",132,146,1,174),
-  ("Sverige-Finland",148,174,-1,176),
-  ("Nordkalk",312,345,1,13),
-  ("Flying Finn",538,560,-1,33),
-  ("Wilson",612,638,1,39),
-  ("Senna S entry",682,719,-1,44),
-  ("Senna S exit",731,762,1,48),
-  ("North Shore",778,805,-1,51),
-  ("Fangio approach",844,862,1,57),
-  ("Altarkarusellen",915,950,-1,64),
-  ("Tangentrakan",963,985,-1,68),
-  ("Gotska Sandön",1000,1032,1,71),
-  ("Jirhall",1041,1065,1,76),
-  ("Linnamae",1103,1128,-1,80),
-  ("VAV-kurvan",1157,1185,-1,85),
-  ("Månen",1199,1227,1,88.5f),
-  ("Havsörnen",1230,1270,-1,92),
-  ("Kalk",1297,1340,1,96),
-  ("Mannerheim-chikanen",1580,1605,-1,108),
-  ("F.S. Krämertsskog",1870,1898,1,128),
-  ("S.I-kurvan",1906,1935,1,131),
-  ("S.I-kurvan exit",1950,1975,-1,133),
-  ("Lönner",1992,2030,1,136),
-  ("Tarmo approach",2067,2097,1,141),
-  ("Tarmo-karusellen",2110,2148,-1,146),
-  ("Arho",2255,2294,1,156.6f)
- };
- const float KerbWidth=1.15f,KerbBlockLength=1.5f,KerbPaintHeight=.025f;
+ const float KerbWidth=TrackLandmarks.KerbWidth,KerbBlockLength=1.5f,KerbPaintHeight=.025f;
  readonly List<Mesh> kerbMeshes=new List<Mesh>();
 
  void MakeKerbs(){
@@ -43,7 +13,7 @@ public partial class RingDrive
    material.SetTexture("_BumpMap",Resources.Load<Texture2D>("Visuals/AsphaltNormal"));
    material.EnableKeyword("_NORMALMAP");material.SetFloat("_BumpScale",.12f);
   }
-  foreach(var run in KerbRuns){
+  foreach(var run in TrackLandmarks.KerbRuns){
    float start=centerline.Sections[run.First].Distance,end=centerline.Sections[run.Last].Distance;
    int steps=Mathf.CeilToInt((end-start)/(KerbBlockLength/3));
    var vertices=new Vector3[(steps+1)*3];var uv=new Vector2[vertices.Length];
@@ -72,7 +42,7 @@ public partial class RingDrive
    var kerb=new GameObject(mesh.name);kerb.AddComponent<MeshFilter>().sharedMesh=mesh;
    kerb.AddComponent<MeshRenderer>().sharedMaterials=new[]{light,dark};
   }
-  Debug.Log($"TRACK_KERBS runs={KerbRuns.Length} width={KerbWidth:F2}m block={KerbBlockLength:F2}m source=onboard visual estimates");
+  Debug.Log($"TRACK_KERBS runs={TrackLandmarks.KerbRuns.Length} width={KerbWidth:F2}m block={KerbBlockLength:F2}m source=onboard visual estimates");
  }
 
  void CheckKerbs(){
@@ -82,7 +52,7 @@ public partial class RingDrive
    for(int i=0;i<vertices.Length;i++){
     var point=vertices[i];var sample=drivingSurface.Sample(point.x,point.z);
     float gap=point.y-sample.Height;maximumGap=Mathf.Max(maximumGap,gap);
-    if(!float.IsFinite(point.sqrMagnitude)||Mathf.Abs(gap-KerbPaintHeight)>.002f||sample.OnRoad||Mathf.Sign(sample.Offset)!=KerbRuns[run].Side)
+    if(!float.IsFinite(point.sqrMagnitude)||Mathf.Abs(gap-KerbPaintHeight)>.002f||sample.OnRoad||Mathf.Sign(sample.Offset)!=TrackLandmarks.KerbRuns[run].Side)
      throw new System.Exception($"Kerb is not attached to the correct road edge: {mesh.name}, vertex={i}, gap={gap:F4}");
     checkedVertices++;
    }

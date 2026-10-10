@@ -57,7 +57,7 @@ public partial class RingDrive
     {
         float angle = dynamics.awdMode ? awd.SteeringDegrees
             : steer * dynamics.SteeringLimit(velocity.magnitude);
-        carModel.Animate(steer, angle, Vector3.Dot(velocity, car.forward), dt, view == 0);
+        carModel.Animate(angle, Vector3.Dot(velocity, car.forward), dt, view == 0);
         if (dynamics.awdMode) carModel.AnimateSuspension(awd.Wheels, dt);
         else carModel.ResetSuspension();
     }

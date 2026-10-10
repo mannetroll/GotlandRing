@@ -25,7 +25,12 @@ public partial class RingDrive
                 int oldLap = lap, oldCheckpoints = checkpoints, oldCar = selectedCar; bool pilot = autopilotEnabled;
                 ToggleReferenceLap();
                 if (!paused || car.gameObject.activeSelf || !awd.Body.isKinematic) throw new Exception("Replay did not suspend driving");
-                referenceLap.Seek(90); referenceLap.Paused = true; referenceLap.Tick(3, false);
+                referenceLap.Model.Animate(0,0,0,true);var cockpitStraight=referenceLap.Model.steeringWheel.localRotation;
+                referenceLap.Seek(90);
+                float roadAngle=Mathf.DeltaAngle(0,referenceLap.Model.frontSteering[0].localEulerAngles.y);
+                if(Quaternion.Angle(referenceLap.Model.steeringWheel.localRotation,cockpitStraight*Quaternion.AngleAxis(-roadAngle*ImprezaModel.SteeringRatio,Vector3.forward))>.02f)
+                    throw new Exception("Replay cockpit wheel disagrees with its road wheels");
+                referenceLap.Paused = true; referenceLap.Tick(3, false);
                 if (referenceLap.Elapsed != 90 || !referenceLap.Motor.Muted) throw new Exception("Replay pause advanced time or left audio running");
                 referenceLap.Paused = false; referenceLap.Tick(.5f, true);
                 if (Mathf.Abs(referenceLap.Elapsed - 90.5f) > .001f || !referenceLap.Motor.Muted) throw new Exception("Replay mute changed timing");
@@ -56,7 +61,21 @@ public partial class RingDrive
             var startSample = data.Sample(data.lapStart); var finishSample = data.Sample(data.lapStart + data.lapDuration);
             // The visual landmark fit has metre-scale uncertainty at each crossing.
             if (Mathf.Abs(finishSample.distance - startSample.distance - centerline.HorizontalLength) > 10) throw new Exception("Reference clock does not span a complete circuit");
+            dynamics.cockpitMovement=.5f;dynamics.surfaceSound=.65f;referenceLap.Paused=false;
+            referenceLap.Seek(90);
+            float maxMovement=0;
+            for(int i=0;i<120;i++){
+                referenceLap.Tick(1f/60,false);
+                maxMovement=Mathf.Max(maxMovement,Vector3.Distance(referenceLap.Cockpit.transform.localPosition,referenceLap.Model.cockpitView.localPosition));
+            }
+            if(maxMovement<.0001f||maxMovement>.023f||referenceLap.Motor.Asphalt<.1f)throw new Exception("Replay movement or road feedback missing/out of bounds");
+            referenceLap.Paused=true;var frozenView=referenceLap.Cockpit.transform.localPosition;referenceLap.Tick(1,false);
+            if(referenceLap.Cockpit.transform.localPosition!=frozenView)throw new Exception("Replay camera moved while paused");
+            dynamics.cockpitMovement=dynamics.surfaceSound=0;referenceLap.Tick(0,false);
+            if(referenceLap.Cockpit.transform.localPosition!=referenceLap.Model.cockpitView.localPosition||referenceLap.Motor.Asphalt!=0)throw new Exception("Replay ignores view/sound sliders");
+            dynamics.cockpitMovement=.5f;dynamics.surfaceSound=.65f;
             referenceLap.Seek(156.6f); referenceLap.Paused = true;
+            if(referenceLap.Cockpit.transform.localPosition!=referenceLap.Model.cockpitView.localPosition)throw new Exception("Replay seek retained movement");
         }
         catch (Exception error) { Debug.LogException(error); Application.Quit(1); yield break; }
         yield return new WaitForSeconds(.7f);

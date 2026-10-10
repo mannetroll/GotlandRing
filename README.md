@@ -2,13 +2,13 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.1/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.1/GotlandRing-macOS-arm64.zip) | [Release v0.3.1](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.1)
+[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-macOS-arm64.zip) | [Release v0.3.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.2)
 
-**Version v0.3.1** adds a live reference-lap viewer, 26 black-and-white corner kerbs, limestone quarry banks and the start/finish on **Gutemålrakan**, alongside Subaru AWD handling and the **800 × 800 m asphalt training area**. The version appears in the driving HUD and replay title.
+**Version v0.3.2** adds subtle cockpit movement, asphalt/kerb/loose-ground sound, and a steering wheel with animated driver hands and elbows. **F3 → View & sound** adjusts the feedback; either slider at zero disables that effect. Both car models and the live reference-lap viewer use the animations. Subaru AWD handling, the Gotland Ring circuit and the **800 × 800 m asphalt training area** are included.
 
 Press **Z** to switch between Gotland Ring and the training pad. Both use the same vehicle physics and settings. **R/Home** resets the car on the pad. Repeated full-throttle steering reversals can break rear grip; lift and countersteer to recover. The chase camera and sideslip display make the car's rotation visible.
 
-Press **U** for mouse steering; **W/Up** and **S/Down** remain the pedals. **Ctrl+P** on Windows or **Cmd+P** on macOS toggles autopilot, which follows the circuit racing line or the pad's large practice circle. **F3** exposes tyre grip, torque split, steering response and the shared **42° low-speed / 19° high-speed** defaults. Tyre squeal is off by default and has its own checkbox. **F4** switches between AWD physics and the arcade comparison.
+Press **U** for mouse steering; **W/Up** and **S/Down** remain the pedals. **Ctrl+P** on Windows or **Cmd+P** on macOS toggles autopilot, which follows the circuit racing line or the pad's large practice circle. **F3** exposes tyre grip, torque split, steering response and the shared **42° low-speed / 19° high-speed** defaults. The **View & sound** tab adjusts cockpit movement and surface sound. **F4** switches between AWD physics and the arcade comparison.
 
 The stock/manual GT baseline has four driven wheels, individual suspension and physical contact with the banked circuit. Its five-speed gearbox shifts automatically. See [physics assumptions and validation](docs/AWD-PHYSICS.md).
 
@@ -69,7 +69,7 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 - Toggleable autopilot with an optimized racing line, corner-speed planning, advance braking and continuous steering; it uses the same driving physics as the player.
 - Live reference-lap viewer with bonnet and cockpit views, reference clock and estimated Impreza engine sound. **O** starts the viewer and returns to the saved drive.
 - Speed/RPM/boost display, minimap, live FPS/frame time and checkpoint-gated lap timing.
-- Engine audio isolated from the owner's 2022 Impreza recording, with speech removed through engine-cycle extraction, RPM-matched playback, throttle-dependent intake tone, lift-off, subdued road noise and slip-driven asphalt tyre squeal.
+- Engine audio isolated from the owner's 2022 Impreza recording, with speech removed through engine-cycle extraction, RPM-matched playback, throttle-dependent intake tone, lift-off and speed-dependent wind noise, plus wheel-contact asphalt, kerb and loose-ground sound.
 
 ## Driving environment
 
@@ -123,7 +123,7 @@ After building and testing, package the app, track data and current notices for 
 
 ```bash
 ./scripts/Package-macOS.sh
-gh release upload v0.3.1 Build/GotlandRing-macOS-arm64.zip
+gh release upload v0.3.2 Build/GotlandRing-macOS-arm64.zip
 ```
 
 Both packages are built and tested before upload. The release workflow verifies the published downloads against `SHA256SUMS`.
@@ -133,6 +133,7 @@ F2 screenshots and automated test images on macOS are saved under `~/Library/App
 Run the existing standalone checks with graphics enabled:
 
 ```bash
+open -n -W Build/macOS/GotlandRing.app --args --feedback-test -logFile "$PWD/Logs/feedback-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --model-preview -logFile "$PWD/Logs/rally-model-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --car-switch-test -logFile "$PWD/Logs/car-switch-macOS.log"
 open -n -W Build/macOS/GotlandRing.app --args --wind-test -logFile "$PWD/Logs/wind-macOS.log"
@@ -171,13 +172,13 @@ After copying the tested Windows portable EXE into `Build/Portable/` on the Mac:
 ./scripts/Package-macOS.sh
 (cd Build && shasum -a 256 Portable/GotlandRing-Portable.exe GotlandRing-macOS-arm64.zip) | sed 's|Portable/||' > Build/SHA256SUMS
 git add Assets/Editor/BuildGame.cs ProjectSettings/ProjectSettings.asset PortableLauncher/PortableLauncher.csproj README.md docs/release-notes.md VERIFICATION.md
-git commit -m "Release v0.3.1"
-git tag -a v0.3.1 -m "Gotland Ring v0.3.1"
-git push origin main v0.3.1
-gh release create v0.3.1 --verify-tag --draft --title "Gotland Ring v0.3.1" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
+git commit -m "Release v0.3.2"
+git tag -a v0.3.2 -m "Gotland Ring v0.3.2"
+git push origin main v0.3.2
+gh release create v0.3.2 --verify-tag --draft --title "Gotland Ring v0.3.2" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
 ```
 
-Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.3.1 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
+Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.3.2 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
 
 | Location | Purpose |
 |---|---|
@@ -186,7 +187,7 @@ Check that both uploaded packages match the local checksums, then publish with `
 | `Assets/Scripts/RingDrive.SurfaceChecks.cs` | Forward/reverse ground contact, bank direction, recovery and seam checks |
 | `windmills/` / `Assets/Resources/Track/WindTurbines.csv` | Supplied registry positions, model dimensions and RH2000 base heights; the bundled CSV is unchanged |
 | `Assets/Scripts/RingDrive.WindTurbines.cs` / `WindTurbineData.cs` | Registered turbine placement, scaled procedural geometry and rotor animation |
-| `Assets/Scripts/ImprezaModel.cs` | Imported car steering, wheel animation and cockpit visibility |
+| `Assets/Scripts/ImprezaModel.cs` | Imported car steering, driver arms, wheel animation and cockpit visibility |
 | `Assets/Models/RallyCar` | FBX model, textures and materials by SpatialNeglect (CC BY-NC 4.0) |
 | `Assets/Editor/RallyCarImport.cs` | Prepare the scaled car prefab and camera/wheel pivots |
 | `Assets/Editor/SubaruCarImport.cs` | Prepare the second car's exterior, materials, wheel pivots and shared cockpit |
@@ -200,7 +201,8 @@ Check that both uploaded packages match the local checksums, then publish with `
 | `Assets/Scripts/WindowsWindowAspectRatio.cs` / `MacWindowAspectRatio.cs` | Native 16:9 window resizing, excluding the window frame |
 | `Assets/Scripts/TrackLandmarks.cs` | Names and approximate CSV positions for the 42 numbered track signs |
 | `Assets/Scripts/ReferenceLapPlayer.cs` / `RingDrive.ReferenceLap.cs` | Live reference-lap rendering, split views, clock, sound and driving-state restoration |
-| `Assets/Scripts/BoxerAudio.cs` / `ImprezaEngineMixer.cs` | Recorded Impreza loops, RPM blending and throttle/road audio |
+| `Assets/Scripts/BoxerAudio.cs` / `ImprezaEngineMixer.cs` / `SurfaceAudioMixer.cs` | Recorded Impreza loops, RPM blending and procedural surface audio |
+| `Assets/Scripts/RideFeedback.cs` / `RingDrive.Feedback.cs` | Inertial cockpit movement, wheel-contact surface cues and view/sound settings |
 | `scripts/Prepare-EngineAudio.py` | Reproduce engine loops from the owner's 2022 recording |
 | `Assets/Editor/BuildGame.cs` | Scene generation, Windows x64 and macOS ARM64 builds |
 | `scripts/Build-macOS.sh` | Command-line macOS build |
@@ -210,22 +212,29 @@ Check that both uploaded packages match the local checksums, then publish with `
 
 ## Lines of code
 
-Source snapshot for **10 October 2026**: **4,418 code lines across 58 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **4,766 physical lines** in total.
+Source snapshot for **10 October 2026**: **4,835 code lines across 67 files**. LOC counts physical lines containing code, excluding blank lines, comment-only lines, Python docstrings and script shebangs. Braces and compiler directives count as code; multiple statements on one line count once. The comment column includes Python docstrings and script shebangs; the table accounts for **5,201 physical lines** in total.
 
 | Source | Language | Files | Code LOC | Comment lines | Blank lines |
 |---|---|---:|---:|---:|---:|
-| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 40 | 3,462 | 100 | 150 |
-| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 7 | 570 | 16 | 21 |
+| Game and runtime checks (`Assets/Scripts/*.cs`) | C# | 46 | 3,738 | 103 | 160 |
+| Unity editor, importers and build checks (`Assets/Editor/*.cs`) | C# | 10 | 711 | 19 | 23 |
 | Windows portable launcher (`PortableLauncher/Program.cs`) | C# | 1 | 45 | 0 | 2 |
 | Rendering shaders (`Assets/Resources/Visuals/*.shader`) | ShaderLab with Cg/HLSL | 4 | 93 | 0 | 0 |
 | Asset preparation and audio regression (`scripts/*.py`) | Python | 3 | 188 | 23 | 26 |
 | macOS build and packaging (`scripts/*.sh`) | Bash | 2 | 45 | 2 | 8 |
 | Windows packaging (`scripts/*.ps1`) | PowerShell | 1 | 15 | 0 | 0 |
-| **Total** | | **58** | **4,418** | **141** | **207** |
+| **Total** | | **67** | **4,835** | **147** | **219** |
 
 The count covers game source, verification code and build/asset tools. It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
 
 ## Verification
+
+`--feedback-test` checks live AWD road/shoulder/airborne contacts, acceleration,
+view/sound controls, mouse look, chase view and recovery. Unity builds also check
+all 26 kerb runs against the surface classifier, inertial movement direction and
+bounds, frame-rate consistency, stationary/airborne settling and audio headroom
+at 44.1/48/96 kHz. `--settings-test` covers Apply/Cancel and persistence for both
+tabs; `--reference-lap-test` includes the replay's movement, pause and seek.
 
 `--reference-lap-test` checks the complete replay alignment, audio control ranges,
 clock boundaries, pause/mute/completion, circuit/training and AWD/arcade state
@@ -260,11 +269,21 @@ Both modes share **Low-speed steering (degrees)** and **High-speed steering
 **234 km/h**, with the high-speed value used above that speed. Keyboard, mouse,
 autopilot and visible front wheels all use the configured angles.
 Arcade exposes cornering grip, side-slip recovery, steering, acceleration,
-braking and off-road grip. Both modes have a **Tyre squeal** checkbox, off by default;
-engine and road sound remain on. **Apply & close** saves locally; **Cancel** discards
+braking and off-road grip. The **View & sound** tab offers **Cockpit movement**
+(default 50%) and **Surface sound** (default 65%). Set either to zero to disable
+that effect. Engine sound has its usual **M** mute control. **Apply & close** saves locally; **Cancel** discards
 edits. **Restore defaults** resets the draft to the stock AWD setup until Apply.
 Press **F4** outside the dialog to switch modes directly. Switching modes
 restarts the lap and clears its best time. The mode is shown on the speed HUD.
+
+Cockpit movement follows acceleration, braking and lateral acceleration, with a
+small vibration from the ground under each wheel. The bonnet view uses a quarter
+of the road vibration; chase view stays steady. Road hum, kerb rumble and loose
+ground have separate procedural sounds, mixed by wheel contact and speed. AWD
+airborne wheels contribute no surface sound or road vibration. Arcade and the
+reference replay use their wheel positions on the ground. Recovery and replay
+seeking reset head movement; pause freezes it. These are approximate view and
+sound cues: they do not change grip, suspension forces or the racing line.
 
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
@@ -303,7 +322,7 @@ export an MP4 and does not require a video encoder or the source footage.
 `Assets/Resources/Replay/ReferenceLap.json` contains the 24 Hz distance
 alignment and estimated engine controls prepared for the comparison. The
 sound uses the game's Impreza mixer, with earlier downshifts and rev-matching
-blips; tyre squeal is off. The motion and clock reproduce approximate reference
+blips and the configured view/surface effects. The motion and clock reproduce approximate reference
 progress, not a Subaru physics lap or measured vehicle telemetry. Rendering
 uses the current game scenery and a separate red rally-car visual, so returning
 from the viewer leaves your selected driving car intact.
@@ -326,7 +345,7 @@ The current source adds linear lighting, an HDR photographic sky, local sky/circ
 
 Turbines use `windmills/gotland_ring_wind_turbines.csv` directly in the track's metre-based coordinate frame, without another offset or terrain snap. The fixed Y origin is 38.507350922 m RH2000. Base positions, hub heights and rotor diameters come from the supplied export. The scene uses a west-facing rotor front (−X), corresponding to wind arriving from W and flowing east (+X), with clockwise rotation at 10 RPM. These are visual estimates from `Gotland Ring 2022 - 1 of 1.mp4`: west is the selected coarse cardinal match from the film/layout comparison, and the blade motion around 02:39–02:41 supports roughly 10 RPM. The bearing is less certain than the rotation rate; neither is calibrated telemetry or a registry field. All turbines share this scene setting. Tower/blade shapes, blade phases and local ground transitions are also visual approximations. Ground transitions connect the supplied base heights to the game's approximate landscape and avoid the road/aprons. They are not additional terrain measurements. Registry position accuracy is unspecified, and ground heights are terrain-model estimates. See [turbine import notes](windmills/WIND_TURBINES_README.txt) and the [location map](windmills/gotland_ring_wind_turbines_map.png).
 
-The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. Steering and road-wheel animation follow the game controls.
+The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. The cockpit steering wheel follows the actual front-wheel angle with a fixed visual 12:1 ratio (504° at the default 42° low-speed lock). The speed-dependent steering limits therefore reduce cockpit rotation too. Both car models, manual driving, autopilot and reference replay share this animation; the ratio is a visual approximation, not a measured steering-rack specification. The driver’s hands follow the rim with bending elbows and alternating regrips at large steering angles. The seated torso stays fixed; pause and replay seeks preserve the steering pose. Road wheels follow steering and vehicle speed.
 
 The cabin includes a dashboard, racing seats, roll cage and a single driver. Cockpit view hides only the driver’s head and helmet; the arms, body and seatbelts remain visible. Exterior views show the complete driver. The dashboard screen is part of the supplied artwork; current speed, RPM and gear are shown by the game HUD.
 

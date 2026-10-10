@@ -37,6 +37,13 @@ public static class RallyCarImport
   controller.bodyPaint=AssetDatabase.LoadAssetAtPath<Material>("Assets/Models/RallyCar/Materials/livery.mat");
   var transforms=model.GetComponentsInChildren<Transform>(true);
   controller.steeringWheel=transforms.Single(t=>t.name=="Wheel");
+  // The visible mesh and its column-axis transform are separate in the source.
+  var steeringMesh=meshes.Single(t=>t.name=="wheel");
+  var steeringVertices=steeringMesh.GetComponent<MeshFilter>().sharedMesh.vertices;
+  var rim=new Bounds(controller.steeringWheel.InverseTransformPoint(steeringMesh.transform.TransformPoint(steeringVertices[0])),Vector3.zero);
+  foreach(var vertex in steeringVertices)rim.Encapsulate(controller.steeringWheel.InverseTransformPoint(steeringMesh.transform.TransformPoint(vertex)));
+  controller.steeringWheel.position+=controller.steeringWheel.TransformVector(new Vector3(rim.center.x,rim.center.y,0));
+  steeringMesh.transform.SetParent(controller.steeringWheel,true);
   controller.cockpitHead=driverHead;
   controller.frontSteering=new Transform[2];controller.wheelSpin=new Transform[4];
   string[] wheels={"Wheel.001","Wheel.005","Wheel.002","Wheel.004"};
@@ -66,6 +73,7 @@ public static class RallyCarImport
   var final=meshes[0].bounds;foreach(var r in meshes)final.Encapsulate(r.bounds);
   if(Mathf.Abs(final.size.z-4.32f)>.01f || Mathf.Abs(final.min.y)>.01f)
    throw new InvalidOperationException("Rally car scale or ground contact is invalid");
+  controller.driverSteering=DriverSteeringImport.Prepare(controller,meshes.Single(t=>t.name=="driver"));
   float radius=controller.wheelRadius;
   PrefabUtility.SaveAsPrefabAsset(root,Prefab);
   UnityEngine.Object.DestroyImmediate(root);

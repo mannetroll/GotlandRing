@@ -32,14 +32,18 @@ public sealed class ReferenceLapPlayer : MonoBehaviour
     public Camera Bonnet { get; private set; }
     public Camera Cockpit { get; private set; }
     public ImprezaModel Model { get; private set; }
+    readonly RideFeedback feedback=new RideFeedback();
+    DrivingSettings settings;
+    Vector3 bonnetPosition;
     TrackData track;
     IReadOnlyList<Vector3> line;
     GUIStyle title, caption, clock, credit, rightTitle, rightCaption;
     Rect canvas;
     float scale;
 
-    public void Initialize(Camera source, TrackData surface, IReadOnlyList<Vector3> racingLine)
+    public void Initialize(Camera source, TrackData surface, IReadOnlyList<Vector3> racingLine, DrivingSettings drivingSettings)
     {
+        settings=drivingSettings;
         Data = JsonUtility.FromJson<Timeline>(Resources.Load<TextAsset>("Replay/ReferenceLap").text);
         track = surface; line = racingLine;
         Model = Instantiate(Resources.Load<GameObject>("RallyCar"), transform, false).GetComponent<ImprezaModel>();
@@ -47,6 +51,7 @@ public sealed class ReferenceLapPlayer : MonoBehaviour
         background.transform.SetParent(transform, false); background.cullingMask = 0;
         background.clearFlags = CameraClearFlags.SolidColor; background.backgroundColor = new Color(.035f, .055f, .07f);
         background.depth = -10;
+        bonnetPosition=Model.bonnetView.localPosition;
         Bonnet = View("Replay bonnet", source, Model.bonnetView.localPosition, Quaternion.Euler(-7, 0, 0), 48);
         Cockpit = View("Replay cockpit", source, Model.cockpitView.localPosition, Model.cockpitView.localRotation, 58);
         Bonnet.gameObject.AddComponent<AudioListener>();
@@ -69,7 +74,7 @@ public sealed class ReferenceLapPlayer : MonoBehaviour
         float end = next == 0 ? track.HorizontalLength : track.Sections[next].Distance;
         return Vector3.Lerp(line[low], line[next], (distance - track.Sections[low].Distance) / (end - track.Sections[low].Distance));
     }
-    public void Seek(float seconds) { Elapsed = Mathf.Clamp(seconds, 0, Data.Duration); Pose(0); }
+    public void Seek(float seconds) { feedback.Reset(); Motor.Asphalt=Motor.Kerb=Motor.LooseGround=0; Elapsed = Mathf.Clamp(seconds, 0, Data.Duration); Pose(0); }
     public float Tick(float dt, bool muted)
     {
         float advance = Paused ? 0 : Mathf.Min(dt, Data.Duration - Elapsed);
@@ -87,8 +92,20 @@ public sealed class ReferenceLapPlayer : MonoBehaviour
         before.y = after.y = 0;
         float curvature = Vector3.SignedAngle(before, after, Vector3.up) * Mathf.Deg2Rad / 6;
         float angle = Mathf.Atan(2.52f * curvature) * Mathf.Rad2Deg;
-        Model.Animate(Mathf.Clamp(angle / 19, -1, 1), angle, sample.speed, dt, true);
-        Motor.Rpm = sample.rpm; Motor.Load = sample.load; Motor.Speed = sample.speed; Motor.TyreSqueal = 0;
+        Model.Animate(angle, sample.speed, dt, true);
+        if(dt>0){
+            var contacts=Vector3.zero;
+            for(int wheel=0;wheel<4;wheel++)
+                contacts+=RideFeedback.Weight(RideFeedback.SurfaceAt(track,transform.TransformPoint(new Vector3((wheel%2==0?-1:1)*.73f,0,(wheel<2?1:-1)*1.26f)),false))*.25f;
+            feedback.Tick(dt,transform.forward*sample.speed,transform.rotation,contacts);
+        }
+        float amount=settings.cockpitMovement;
+        Cockpit.transform.localPosition=Model.cockpitView.localPosition+feedback.Offset*amount;
+        Cockpit.transform.localRotation=Model.cockpitView.localRotation*Quaternion.Euler(feedback.Angles*amount);
+        Bonnet.transform.localPosition=bonnetPosition+feedback.RoadOffset*amount*.25f;
+        Bonnet.transform.localRotation=Quaternion.Euler(-7,0,0)*Quaternion.Euler(feedback.RoadAngles*amount*.25f);
+        Motor.Asphalt=feedback.Contacts.x*settings.surfaceSound;Motor.Kerb=feedback.Contacts.y*settings.surfaceSound;Motor.LooseGround=feedback.Contacts.z*settings.surfaceSound;
+        Motor.Rpm = sample.rpm; Motor.Load = sample.load; Motor.Speed = sample.speed;
     }
     void UpdateLayout()
     {

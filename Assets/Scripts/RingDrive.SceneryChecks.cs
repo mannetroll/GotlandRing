@@ -65,7 +65,7 @@ public partial class RingDrive
   cam.orthographic=true;cam.orthographicSize=140;head.position=mainBuilding.position+new Vector3(-20,240,-35);head.rotation=Quaternion.Euler(90,0,0);
   yield return new WaitForSeconds(.6f);CaptureScreenshot("main-building-turbine-2.png");yield return new WaitForSeconds(.3f);cam.orthographic=false;
   foreach(var shot in new[]{(235,-30f,"pit-catch-fence"),(444,-15f,"armco-barriers"),(1835,0f,"concrete-barriers"),(TrackLandmarks.StartFinishPoint-6,0f,"gutemalrakan-finish"),(1240,0f,"havsornen-approach"),(1280,0f,"havsornen-quarry"),(2264,0f,"arho-kerb"),(932,0f,"altarkarusellen-kerb"),(1883,0f,"kramertsskog-kerb")}){
-   RecoverCar(shot.Item1);view=1;lookYaw=shot.Item2;lookPitch=0;UpdateCameraPose();carModel.Animate(0,0,0,0,false);
+   RecoverCar(shot.Item1);view=1;lookYaw=shot.Item2;lookPitch=0;UpdateCameraPose();carModel.Animate(0,0,0,false);
    yield return new WaitForSeconds(.6f);CaptureScreenshot(shot.Item3+".png");yield return new WaitForSeconds(.3f);
   }
   Application.Quit();

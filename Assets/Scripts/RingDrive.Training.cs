@@ -20,6 +20,7 @@ public partial class RingDrive
 
     void RecoverTrainingCar()
     {
+        ResetFeedback();
         var position = DrivingSurface.TrainingCentre + Vector3.back * DrivingSurface.TrainingRadius;
         yaw = 90; nearest = lastIndex = 0;
         if (dynamics.awdMode) awd.ResetCar(position + Vector3.up * .30f, Quaternion.Euler(0, yaw, 0));

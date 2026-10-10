@@ -11,7 +11,7 @@ public partial class RingDrive
         if (referenceLap)
         {
             referenceLap.gameObject.SetActive(false); Destroy(referenceLap.gameObject); referenceLap = null;
-            car.gameObject.SetActive(true); SetPaused(referenceDriveWasPaused);
+            car.gameObject.SetActive(true); ResetFeedback(); SetPaused(referenceDriveWasPaused);
             Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked; Cursor.visible = paused;
             ResetMouseSteering();
             Debug.Log("REFERENCE_LAP stopped; driving restored");
@@ -20,7 +20,7 @@ public partial class RingDrive
         referenceDriveWasPaused = paused; SetPaused(true);
         car.gameObject.SetActive(false);
         referenceLap = new GameObject("Reference lap replay").AddComponent<ReferenceLapPlayer>();
-        referenceLap.Initialize(cam, centerline, referenceLine);
+        referenceLap.Initialize(cam, centerline, referenceLine, dynamics);
         referenceLap.Tick(0, muted);
         Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
         Debug.Log("REFERENCE_LAP started; game-rendered reference timing, no recording");

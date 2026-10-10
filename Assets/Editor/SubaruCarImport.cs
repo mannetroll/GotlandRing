@@ -56,12 +56,12 @@ public static class SubaruCarImport
   // detailed Impreza cockpit and driver at the same vehicle scale.
   var cabin=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/RallyCar.prefab"),root.transform);
   cabin.name="Shared Impreza cockpit";var donor=cabin.GetComponent<ImprezaModel>();
-  controller.steeringWheel=donor.steeringWheel;controller.cockpitHead=donor.cockpitHead;
+  controller.driverSteering=donor.driverSteering;controller.steeringWheel=donor.steeringWheel;controller.cockpitHead=donor.cockpitHead;
   controller.cockpitView=donor.cockpitView;controller.bonnetView=donor.bonnetView;
   foreach(var spin in donor.wheelSpin)UnityEngine.Object.DestroyImmediate(spin.parent.gameObject);
   UnityEngine.Object.DestroyImmediate(donor);
   var interior=new HashSet<string>{"interior","buttons","lcd_screen","seat","driver","roll_cage"};
-  foreach(var r in cabin.GetComponentsInChildren<MeshRenderer>(true))
+  foreach(var r in cabin.GetComponentsInChildren<Renderer>(true))
    if(!r.sharedMaterials.All(m=>interior.Contains(m.name)))UnityEngine.Object.DestroyImmediate(r.gameObject);
 
   var final=meshes[0].bounds;foreach(var r in meshes)final.Encapsulate(r.bounds);

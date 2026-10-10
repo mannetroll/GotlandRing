@@ -2,7 +2,10 @@ using UnityEngine;
 
 public sealed class ImprezaModel : MonoBehaviour
 {
+ // Visual steering ratio: 42 degrees at the road wheels gives 504 at the rim.
+ public const float SteeringRatio=12;
  public Transform steeringWheel;
+ public DriverSteering driverSteering;
  public Transform[] frontSteering;
  public Transform[] wheelSpin;
  public Renderer cockpitHead;
@@ -59,9 +62,10 @@ public sealed class ImprezaModel : MonoBehaviour
 
  public void ResetSuspension(){for(int i=0;i<wheelSpin.Length;i++)wheelSpin[i].parent.localPosition=hubPositions[i];}
 
- public void Animate(float steering,float roadWheelAngle,float forwardSpeed,float dt,bool cockpit)
+ public void Animate(float roadWheelAngle,float forwardSpeed,float dt,bool cockpit)
  {
-  steeringWheel.localRotation=steeringRest*Quaternion.AngleAxis(-steering*110,Vector3.forward);
+  steeringWheel.localRotation=steeringRest*Quaternion.AngleAxis(-roadWheelAngle*SteeringRatio,Vector3.forward);
+  driverSteering.Pose(-roadWheelAngle*SteeringRatio);
   foreach(var pivot in frontSteering)pivot.localRotation=Quaternion.Euler(0,roadWheelAngle,0);
   roll=Mathf.Repeat(roll+forwardSpeed*dt/wheelRadius*Mathf.Rad2Deg,360);
   foreach(var pivot in wheelSpin)pivot.localRotation=Quaternion.Euler(roll,0,0);

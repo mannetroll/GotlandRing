@@ -13,6 +13,7 @@ public sealed class DrivingSurface
     TrackData trainingRoute;
     public bool Training;
     public DrivingSurface(TrackData circuit, QuarryTerrain quarry) { this.circuit = circuit; this.quarry = quarry; }
+    public static bool OnTrainingAsphalt(float x,float z)=>Mathf.Max(Mathf.Abs(x-TrainingCentre.x),Mathf.Abs(z-TrainingCentre.z))<=TrainingSize*.5f;
     public TrackData Route => Training ? trainingRoute ??= MakeTrainingRoute() : circuit;
 
     public TrackData.SurfaceSample Sample(float x, float z)
@@ -21,7 +22,7 @@ public sealed class DrivingSurface
         var result = Route.Sample(x, z);
         float offset = Mathf.Max(Mathf.Abs(x - TrainingCentre.x), Mathf.Abs(z - TrainingCentre.z));
         result.Height = TrainingCentre.y; result.Normal = Vector3.up;
-        result.OnRoad = offset <= TrainingSize * .5f;
+        result.OnRoad = OnTrainingAsphalt(x,z);
         result.Width = TrainingSize * .5f; result.Offset = offset;
         return result;
     }

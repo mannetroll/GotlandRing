@@ -20,9 +20,13 @@ public partial class RingDrive
    SetPaused(false);SetAutopilot(false);velocity=Vector3.zero;rpm=900;gear=1;lookYaw=lookPitch=0;
   }catch(Exception e){Debug.LogException(e);Application.Quit(1);yield break;}
   for(int model=0;model<carModels.Length;model++){
-   view=0;UpdateCameraPose();carModel.Animate(0,0,0,0,true);
+   view=0;UpdateCameraPose();carModel.Animate(0,0,0,true);
    yield return new WaitForSeconds(1);CaptureScreenshot($"car-{model}-cockpit.png");yield return new WaitForSeconds(.3f);
-   view=1;UpdateCameraPose();carModel.Animate(0,0,0,0,false);
+   foreach(float angle in new[]{-4f,4f,-19f,19f,-42f,42f}){
+    carModel.Animate(angle,0,0,true);
+    yield return new WaitForSeconds(.5f);CaptureScreenshot($"car-{model}-cockpit-{(angle<0?"left":"right")}-{Mathf.Abs(angle):0}.png");yield return new WaitForSeconds(.3f);
+   }
+   view=1;UpdateCameraPose();carModel.Animate(0,0,0,false);
    yield return new WaitForSeconds(1);CaptureScreenshot($"car-{model}-bonnet.png");yield return new WaitForSeconds(.3f);
    view=2;UpdateCameraPose();
    yield return new WaitForSeconds(1);CaptureScreenshot($"car-{model}-chase.png");yield return new WaitForSeconds(.3f);

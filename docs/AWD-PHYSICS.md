@@ -125,7 +125,7 @@ resting, airborne and off-asphalt contacts, plus audible demand in corners.
 `GOTLAND_TEST_OUTPUT` optionally sets the results directory; otherwise it uses
 `Application.persistentDataPath`. `awd-lap.csv` records speed, target, line error,
 road margin, axle torque, contact count, steering, position, body sideslip,
-front/rear tyre slip, pedal inputs, gear, RPM and normalized tyre-squeal demand. `awd-results.txt`
+front/rear tyre slip, pedal inputs, gear and RPM. `awd-results.txt`
 reports the full-lap result. `awd-grip-curve.csv` measures lateral acceleration
 under imposed slip, and `awd-steering-recovery.csv` records full-lock pulses and
 35%-lock steering reversals with coasting/full throttle in both directions.
