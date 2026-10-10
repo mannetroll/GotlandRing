@@ -6,7 +6,7 @@
 |---|---|
 | ![v0.3.2 cockpit with live speed, RPM and gear instruments](docs/cockpit.png) | ![Subaru Impreza in v0.3.2](docs/subaru-impreza.png) |
 
-[Download the v0.3.2 game lap recording (MKV, 92.1 MB)](docs/Gotland-Ring-Record.mkv)
+[Download the v0.3.2 game lap recording (MP4, 92.1 MB)](docs/Gotland-Ring-Record.mp4)
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
