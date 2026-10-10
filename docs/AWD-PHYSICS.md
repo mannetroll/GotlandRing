@@ -22,6 +22,23 @@ Reverse uses the same distribution. Each wheel has its own slip-based traction
 control and ABS; braking cuts engine drive. Traction control is a gameplay
 assist, not a claim about factory equipment on the 1999/2000 car.
 
+## Cornering slip
+
+The front and rear tyre curves build lateral force gradually and retain 90% of
+their peak coefficient at large slip. Acceleration and braking demand reduce
+the lateral coefficient by up to about 13%, using each wheel's load and torque.
+This is a bounded combined-grip approximation, not a calibrated friction-circle
+or differential model. The same tyre response applies to manual driving.
+The engine, mass and default 50:50 torque split use the stock baseline below.
+
+AWD autopilot follows its direction of travel and compensates for body sideslip
+and excess rotation with ordinary front-wheel steering. It progressively eases
+throttle and brake demand as a slide grows. The car's rotation and lateral motion
+come from tyre forces. The chase camera smoothly follows the direction of travel
+so small angles remain visible, and the HUD shows the measured body sideslip.
+A nonzero body sideslip angle does not by itself mean a tyre is beyond peak grip;
+the telemetry records front/rear tyre slip separately.
+
 ## Stock/manual baseline
 
 The reference is Subaru Germany's factory [1999/2000 Impreza brochure](https://www.subaru.de/hubfs/Service%20und%20Zubeh%C3%B6r/Prospektarchiv/Impreza/Impreza_MJ1999-2000_PTA.pdf?hsLang=de),
@@ -57,19 +74,21 @@ both selectable models share the stock GT physics.
 ## Autopilot and validation
 
 AWD autopilot uses the same racing line and ordinary throttle, brake and steering
-inputs. Its speed plan uses a conservative lateral acceleration budget and
-braking estimate for the physical vehicle, rather than the arcade grip settings.
+inputs. Its speed plan uses an AWD lateral acceleration budget and braking
+estimate for the physical vehicle. Speed corrections are gradual near the racing line.
 It does not teleport, align or push the car along the racing line.
 
 Run the macOS executable with `--awd-test -batchmode -nographics` to check road
 contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
 cut, pause/resume, model/mode switching, 0–100 km/h and braking on the main
-straight, and a full physical autopilot lap.
+straight, and a full physical autopilot lap with modest cornering slip and
+clearance checks for the four corners of the car.
 `GOTLAND_TEST_OUTPUT` optionally sets the results directory; otherwise it uses
 `Application.persistentDataPath`. `awd-lap.csv` records speed, target, line error,
-road margin, axle torque, contact count, steering and position. `awd-results.txt`
-reports the full-lap result. With graphics enabled, the test requests an
-`awd-driving.png` screenshot; batch-mode runs may not write it.
+road margin, axle torque, contact count, steering, position, body sideslip,
+front/rear tyre slip and pedal inputs. `awd-results.txt`
+reports the full-lap result. Non-batch runs with graphics enabled request
+`awd-cornering.png` during a corner and `awd-driving.png` at the end.
 `--autopilot-test` validates the separate arcade comparison mode.
 
 The surface's elevation, banking and width estimates retain the limitations in

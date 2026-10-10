@@ -12,6 +12,10 @@ public sealed class SubaruAwdController : MonoBehaviour
     public float SteeringDegrees { get; private set; }
     public float ForwardSpeed => Vector3.Dot(Body.linearVelocity, transform.forward);
     public float Slip { get; private set; }
+    public float SideslipDegrees => Mathf.Atan2(Vector3.Dot(Body.linearVelocity, transform.right),
+        Mathf.Max(1, Mathf.Abs(ForwardSpeed))) * Mathf.Rad2Deg;
+    public float FrontLateralSlip { get; private set; }
+    public float RearLateralSlip { get; private set; }
     public float FrontTorque => Wheels[0].motorTorque + Wheels[1].motorTorque;
     public float RearTorque => Wheels[2].motorTorque + Wheels[3].motorTorque;
     public float Boost { get; private set; }
@@ -58,6 +62,9 @@ public sealed class SubaruAwdController : MonoBehaviour
         if (!active) { heldVelocity = Body.linearVelocity; heldAngularVelocity = Body.angularVelocity; }
         foreach (var wheel in Wheels) wheel.enabled = active;
         chassis.enabled = active;
+        // Arcade moves the transform directly; physics interpolation must not replay an older pose.
+        Body.interpolation = active && Physics.simulationMode != SimulationMode.Script
+            ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
         Body.isKinematic = !active;
         if (active) { Body.linearVelocity = heldVelocity; Body.angularVelocity = heldAngularVelocity; Body.WakeUp(); }
     }
@@ -68,7 +75,7 @@ public sealed class SubaruAwdController : MonoBehaviour
         heldVelocity = heldAngularVelocity = Vector3.zero;
         if (!Body.isKinematic) { Body.linearVelocity = Vector3.zero; Body.angularVelocity = Vector3.zero; }
         Gear = 1; EngineRpm = setup.idleRpm;
-        shiftDelay = appliedThrottle = SteeringDegrees = Boost = Slip = 0; GroundedWheels = 0;
+        shiftDelay = appliedThrottle = SteeringDegrees = Boost = Slip = FrontLateralSlip = RearLateralSlip = 0; GroundedWheels = 0;
         foreach (var wheel in Wheels)
         {
             wheel.motorTorque = 0; wheel.brakeTorque = 0; wheel.steerAngle = 0;
@@ -78,10 +85,24 @@ public sealed class SubaruAwdController : MonoBehaviour
     }
 
     public DrivingSettings PilotSettings(DrivingSettings settings) => new DrivingSettings {
-        grip = 7.5f * settings.awdGrip, braking = 6.5f, acceleration = .70f,
+        grip = 8.4f * settings.awdGrip, braking = 6.5f, acceleration = .70f,
         steering = setup.steeringLock, highSpeedSteering = setup.highSpeedSteering,
         response = settings.awdSteeringRate / setup.steeringLock, offRoadGrip = 3.5f
     };
+
+    public AutopilotController.Controls CorrectPilot(AutopilotController.Controls controls)
+    {
+        if (ForwardSpeed < 8) return controls;
+        // The path controller aims along velocity; steer relative to the body and damp excess rotation.
+        float slip = SideslipDegrees;
+        float yawError = controls.Curvature * ForwardSpeed - Vector3.Dot(Body.angularVelocity, transform.up);
+        float correction = slip * 1.05f + yawError * Mathf.Rad2Deg * .3f;
+        controls.Steering = Mathf.Clamp(controls.Steering + correction / setup.SteeringLimit(ForwardSpeed), -1, 1);
+        controls.Throttle *= 1 - .8f * Mathf.InverseLerp(5, 12, Mathf.Abs(slip));
+        // Releasing some brake load lets the rear tyres recover during corner entry.
+        controls.Brake *= 1 - .8f * Mathf.InverseLerp(3, 9, Mathf.Abs(slip));
+        return controls;
+    }
 
     public void Step(float dt, float throttle, float brake, float steering, DrivingSettings settings)
     {
@@ -107,7 +128,7 @@ public sealed class SubaruAwdController : MonoBehaviour
         Boost = Mathf.MoveTowards(Boost, Mathf.Abs(appliedThrottle) * Mathf.InverseLerp(1800, 3600, EngineRpm), dt * 1.5f);
         float torque = brake > 0 || shiftDelay > 0 || EngineRpm >= setup.revLimitRpm || (reverse && speed > 8)
             ? 0 : Mathf.Max(0, setup.torque.Evaluate(EngineRpm)) * ratio * setup.efficiency * appliedThrottle;
-        GroundedWheels = 0; Slip = 0;
+        GroundedWheels = 0; Slip = FrontLateralSlip = RearLateralSlip = 0;
         for (int i = 0; i < 4; i++)
         {
             var wheel = Wheels[i]; bool frontAxle = i < 2;
@@ -115,19 +136,28 @@ public sealed class SubaruAwdController : MonoBehaviour
             float drive = torque * (frontAxle ? front : 1 - front) * .5f;
             float brakeTorque = brake * (frontAxle ? setup.frontBrakeTorque : setup.rearBrakeTorque);
             float grip = settings.awdGrip;
+            float lateralBudget = 1;
             if (wheel.GetGroundHit(out WheelHit hit))
             {
                 GroundedWheels++;
                 if (!track.Sample(hit.point.x, hit.point.z).OnRoad) grip *= .48f;
                 float forwardSlip = Mathf.Abs(hit.forwardSlip);
                 Slip = Mathf.Max(Slip, Mathf.Abs(hit.sidewaysSlip), forwardSlip);
+                if (frontAxle) FrontLateralSlip = Mathf.Max(FrontLateralSlip, Mathf.Abs(hit.sidewaysSlip));
+                else RearLateralSlip = Mathf.Max(RearLateralSlip, Mathf.Abs(hit.sidewaysSlip));
                 if (settings.awdTractionControl && forwardSlip > .22f) drive *= .22f / forwardSlip;
                 if (speed > 3 && forwardSlip > .22f) brakeTorque *= .22f / forwardSlip;
+                // Longitudinal demand uses some of the same grip as cornering.
+                float longitudinalUse = Mathf.Clamp((Mathf.Abs(drive) + brakeTorque)
+                    / (Mathf.Max(500, hit.force) * setup.wheelRadius * 1.05f * grip), 0, .5f);
+                lateralBudget = Mathf.Sqrt(1 - longitudinalUse * longitudinalUse);
             }
             wheel.forwardFriction = new WheelFrictionCurve { extremumSlip = .22f, extremumValue = 1,
                 asymptoteSlip = .65f, asymptoteValue = .75f, stiffness = 1.05f * grip };
-            wheel.sidewaysFriction = new WheelFrictionCurve { extremumSlip = .12f, extremumValue = 1,
-                asymptoteSlip = .45f, asymptoteValue = .72f, stiffness = 1.05f * grip };
+            float peakSlip = frontAxle ? setup.frontLateralPeakSlip : setup.rearLateralPeakSlip;
+            wheel.sidewaysFriction = new WheelFrictionCurve { extremumSlip = peakSlip, extremumValue = 1,
+                asymptoteSlip = peakSlip * 2.5f, asymptoteValue = setup.slidingGripFraction,
+                stiffness = (frontAxle ? 1.05f : .98f) * grip * lateralBudget };
             wheel.motorTorque = drive; wheel.brakeTorque = brakeTorque;
         }
         AntiRoll(0, 1, setup.frontAntiRoll); AntiRoll(2, 3, setup.rearAntiRoll);

@@ -2,9 +2,12 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.1](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.1)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.1/GotlandRing-AWD-Portable.exe).
-The stock GT physics mode adds four-wheel drive,
+**AWD Windows preview ([v0.3.0-awd.2](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.2)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.2/GotlandRing-AWD-Portable.exe).
+The AWD tyres allow modest cornering slip, and the autopilot steers into a slide
+and eases the pedals to recover. The chase camera follows the direction of travel
+to show the rear stepping out; the HUD displays the actual body sideslip angle.
+The stock GT physics mode includes four-wheel drive,
 individual suspension and physical contact with the banked circuit. Use **F3**
 to compare **AWD physics** and **Arcade comparison**, or press **F4** to switch
 directly. Switching restarts the lap.
@@ -225,20 +228,16 @@ The count covers game source, verification code and build/asset tools. It exclud
 
 ## Verification
 
-The AWD integration builds on Unity **6000.3.25f1** for macOS Apple Silicon.
-The physical car completed a full **7.214 km** circuit, visiting all **2,405**
-track segments, in **4:27.35** with a conservative autopilot. Maximum speed was
-**181.7 km/h**, and minimum car-centre margin to the road edge was **2.12 m**.
-On the main straight, 0–100 km/h took **7.28 s**, followed by a **35.89 m** stop.
-These are prototype measurements, not real Subaru or original GRID telemetry.
+The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
+covers all **2,405** track segments in **4:22.16**, with maximum speed **181.8 km/h**.
+At more than 43 km/h, peak body sideslip is **6.29°**, with about **44.75 seconds**
+above 3° in corners. All four corners of the car remain on the asphalt; minimum
+measured body clearance is **0.29 m**. Main-straight 0–100 km/h takes **7.21 s**,
+followed by a **35.84 m** stop. These are prototype measurements.
 
-Checks pass for mesh contact, four-wheel support at both banking extremes and
-the lap seam, reverse drive, brake torque cut, pause/resume, car/model switching,
-and AWD/arcade switching. The arcade regression also passes all five laps and
-recovery checks. Track, car-import, forest and engine-audio build checks pass.
-The Windows x64 AWD checks also pass on `fractal`: **4:27.34** for the full lap,
-**7.26 s** from 0–100 km/h and **35.83 m** braking distance. See [physics assumptions and
-reproduction commands](docs/AWD-PHYSICS.md).
+The AWD checks also cover mesh contact, banking, the lap seam, reverse, brake
+torque cut, pause/resume and model/mode switching. The arcade regression covers
+five laps and recovery. See [physics assumptions and reproduction commands](docs/AWD-PHYSICS.md).
 
 ### Driving dynamics
 
