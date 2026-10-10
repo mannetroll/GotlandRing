@@ -6,6 +6,7 @@ public sealed class DrivingSettings
 {
  public float grip=28, lateralGrip=38, steering=42, highSpeedSteering=19, response=5, acceleration=1, braking=12, offRoadGrip=8;
  public bool awdMode=true, awdTractionControl=true;
+ public bool tyreSquealEnabled=false;
  public float awdGrip=1, awdFrontTorque=.5f, awdSteeringRate=90;
  const string Key="DrivingDynamics.v1";
  public static DrivingSettings Load(){try{var s=JsonUtility.FromJson<DrivingSettings>(PlayerPrefs.GetString(Key,""))??new DrivingSettings();s.Clamp();return s;}catch{return new DrivingSettings();}}

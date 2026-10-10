@@ -11,8 +11,9 @@ Open **Dynamics (F3)** to select **AWD physics** or **Arcade comparison**.
 Press **F4** outside the settings panel to switch modes directly. Changing mode restarts the lap and clears its best time, so times from the two
 models are not mixed. AWD is the default for a new setup. `--awd` and `--arcade`
 select a mode for one launch. Existing keyboard controls, cameras, model/paint
-switching and Cmd+P autopilot work in both modes.
-Keyboard steering demand reduces with speed to make short key presses usable
+switching and Cmd+P autopilot work in both modes. **U** toggles horizontal mouse
+steering; the keyboard retains the accelerator, brake and reverse controls.
+Keyboard and mouse steering demand reduce with speed for usable manual control
 at circuit speeds; the tyre model still determines the resulting turn.
 
 The AWD settings expose tyre grip, front torque share, steering speed and

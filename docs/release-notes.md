@@ -1,18 +1,14 @@
-# Gotland Ring — asphalt tyre squeal
+# Gotland Ring — mouse steering and optional tyre squeal
 
 Download **GotlandRing-AWD-Portable.exe** and run it on Windows 11 x64. Unity and .NET are included. This is an unsigned portable preview.
 
-- Tyres build a higher-pitched squeal as they scrub through corners, brake or spin on asphalt.
-- Sound follows actual AWD tyre slip and contact load, with smooth attack and release. Airborne and off-asphalt wheels do not request squeal.
-- **M** mutes the game, and pausing silences it.
-- **Ctrl+P** toggles autopilot; driving keys leave it engaged. The automatic downshifts and cornering-slip setup remain in use.
+- Press **U** to switch between keyboard and mouse steering. The **Steering** button shows the active mode; it can also be clicked while paused.
+- In mouse mode, horizontal movement adjusts and holds the steering. Move back to straighten, or **right-click** to centre. The steering bar shows the requested position.
+- **W/Up** accelerates, **S/Down** brakes and **X** reverses. Vertical mouse movement and mouse buttons do not operate the pedals.
+- Mouse mode keeps the camera centred. Toggle U back for mouse look/orbit; **C** cycles cameras in either mode.
+- **Ctrl+P** remains the autopilot toggle. U and manual inputs leave autopilot engaged.
+- **Tyre squeal is off by default.** Use its checkbox in **F3** settings and **Apply & close** to save your choice. Engine and road sound stay on. The setting applies to AWD and Arcade.
 
-**C** cycles cameras; **F3** opens handling settings; **F4** switches AWD/arcade. In manual mode, **WASD/arrows** drive and **X** reverses. **R** recovers and **Escape** pauses.
-
-The sound is synthesized using the owner’s clips as spectral references. The **GotlandRing-Tyre-Squeal-Preview.wav** asset demonstrates the first sound tuning. See [audio implementation and checks](https://github.com/mannetroll/awd/blob/v0.3.0-awd.4/docs/ENGINE-AUDIO.md).
-
-Audio signal checks pass at **44.1, 48 and 96 kHz**, including mute, stationary
-silence, stereo agreement and headroom. The Windows AWD lap completes in
-**4:19.66**, with the car remaining on the asphalt.
+Keyboard steering is the default on each launch. Pausing, recovery, focus changes and autopilot handover centre mouse steering. **F3** opens handling settings, **F4** switches AWD/arcade and **M** mutes sound.
 
 Car assets are for noncommercial use; attribution and track-data notices are included.

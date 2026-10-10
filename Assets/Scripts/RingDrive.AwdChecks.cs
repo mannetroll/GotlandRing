@@ -18,6 +18,7 @@ public partial class RingDrive
         Directory.CreateDirectory(output);
         try
         {
+            CheckMouseSteering();
             CheckAwdRoadContact();
             CheckAwdBanks();
             CheckAwdControls();

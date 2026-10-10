@@ -22,16 +22,15 @@ public partial class RingDrive
         steer = awd.SteeringDegrees / awd.setup.SteeringLimit(velocity.magnitude);
     }
 
-    void StepAwdDriving(float dt, float steeringInput, float brake)
+    void StepAwdDriving(float dt, float steeringInput, float brake, bool reverseRequested)
     {
         float forward = awd.ForwardSpeed;
         if (!autopilotEnabled && !automatic)
         {
-            // Binary keyboard input gets a speed-dependent steering demand; tyre forces still decide the turn.
-            float keyboardLock = Mathf.Atan(awd.setup.wheelbase * 12f / (forward * forward + 1f)) * Mathf.Rad2Deg;
-            steeringInput *= Mathf.Clamp01(keyboardLock / awd.setup.SteeringLimit(forward));
+            // Both manual steering inputs share the speed-dependent range.
+            float manualLock = Mathf.Atan(awd.setup.wheelbase * 12f / (forward * forward + 1f)) * Mathf.Rad2Deg;
+            steeringInput *= Mathf.Clamp01(manualLock / awd.setup.SteeringLimit(forward));
         }
-        bool reverseRequested = !automatic && !autopilotEnabled && Input.GetKey(KeyCode.X);
         float drive = throttle;
         if (reverseRequested)
         {

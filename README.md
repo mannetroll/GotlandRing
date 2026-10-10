@@ -2,17 +2,18 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.4](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.4)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.4/GotlandRing-AWD-Portable.exe).
+**AWD Windows preview ([v0.3.0-awd.5](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.5)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.5/GotlandRing-AWD-Portable.exe).
 The AWD tyres allow modest cornering slip, and the autopilot steers into a slide
 and eases the pedals to recover. The chase camera follows the direction of travel
 to show the rear stepping out; the HUD displays the actual body sideslip angle.
-Tyre squeal rises with loaded wheel slip on asphalt and fades as the tyres settle.
+Tyre squeal is off by default. Enable it with the **Tyre squeal** checkbox in **F3** settings.
 The stock GT physics mode includes four-wheel drive,
 individual suspension and physical contact with the banked circuit. Use **F3**
 to compare **AWD physics** and **Arcade comparison**, or press **F4** to switch
 directly. Switching restarts the lap.
-The five-speed gearbox shifts automatically for keyboard driving. See
+Press **U** for mouse steering; W/Up and S/Down remain the pedals.
+The five-speed gearbox shifts automatically for manual driving. See
 [the setup, assumptions and validation](docs/AWD-PHYSICS.md). Build locally with
 `scripts/Build-macOS.sh`; the v0.2.0 downloads below are the stable release.
 
@@ -44,14 +45,15 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 |---|---|
 | W / Up arrow | Accelerate |
 | S / Down arrow | Brake |
-| A / D or Left / Right arrows | Steer |
+| A / D or Left / Right arrows | Steer in keyboard mode |
+| U | Toggle mouse / keyboard steering |
 | X | Reverse (brakes before changing direction) |
 | Ctrl+P (Windows) / Cmd+P (macOS) | Toggle Auto(P)ilot |
 | Ctrl+F (Windows) / Cmd+F (macOS) | Toggle fullscreen / restore window size |
 | F3 | Configure and save driving dynamics |
 | F4 | Switch AWD / arcade handling and restart the lap |
-| Mouse | Look around in cockpit/bonnet view; orbit the car in chase view |
-| Right mouse | Center your view; return behind the car in chase view |
+| Mouse | Horizontal steering in mouse mode; camera look/orbit in keyboard mode |
+| Right mouse | Centre steering in mouse mode; centre the view in keyboard mode |
 | C | Cycle cockpit / bonnet / chase camera (starts behind the car) |
 | Y | Switch between Impreza Rally and the blue-and-gold Subaru Impreza, preserving the current drive |
 | R | Recover to the nearest track point, preserving lap time and checkpoint progress |
@@ -246,7 +248,8 @@ five laps and recovery. See [physics assumptions and reproduction commands](docs
 Press **F3**, or click **Dynamics**, to pause and choose a handling mode.
 AWD exposes tyre grip, front torque share, steering speed and traction control.
 Arcade exposes cornering grip, side-slip recovery, steering, acceleration,
-braking and off-road grip. **Apply & close** saves locally; **Cancel** discards
+braking and off-road grip. Both modes have a **Tyre squeal** checkbox, off by default;
+engine and road sound remain on. **Apply & close** saves locally; **Cancel** discards
 edits. **Restore defaults** resets the draft to the stock AWD setup until Apply.
 Press **F4** outside the dialog to switch modes directly. Switching modes
 restarts the lap and clears its best time. The mode is shown on the speed HUD.
@@ -254,9 +257,25 @@ restarts the lap and clears its best time. The mode is shown on the speed HUD.
 
 Hold **X** to reverse (maximum approximately 29 km/h). Changing between forward and reverse first brakes the car; S/down remains the brake.
 
+### Mouse steering
+
+Press **U**, or click the **Steering** button while paused, to switch steering
+input. Keyboard mode is the default on each launch. In mouse mode, moving left
+or right adjusts and holds the steering position; move back to straighten or
+right-click to centre. The indicator shows the requested steering position.
+Vertical motion does nothing. **W/Up** accelerates, **S/Down** brakes and **X**
+reverses in either mode; mouse movement and buttons do not operate the pedals.
+A/D and the left/right arrows are ignored while mouse steering is selected.
+
+Mouse mode keeps the camera centred; **C** still changes views. Toggle **U** back
+to keyboard mode to use mouse look/orbit. Both inputs use the same steering
+response and speed-dependent AWD range. Pausing, recovery, a focus change or
+an autopilot handover centres mouse steering. Autopilot remains in charge until
+**Ctrl+P** (Windows) or **Cmd+P** (macOS) is pressed.
+
 ### Auto(P)ilot
 
-Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again to return to manual driving. WASD, arrows and X are ignored while autopilot is on. Mouse look and camera selection remain available. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
+Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again to return to manual driving. WASD, arrows and X are ignored while autopilot is on. Camera selection remains available. In keyboard steering mode, the mouse controls camera look; in mouse steering mode it waits for manual driving and does not override autopilot. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
 
 The controller computes a smooth racing line around the complete circuit, using wider entries and exits and moving toward the apex through bends. It minimizes changes in direction within the supplied asymmetric asphalt boundaries, reserving 2.6 m from the planned car centre to each edge for body width and steering corrections. The line closes smoothly across the start/finish. This is a practical curvature optimization; it does not establish a global minimum lap time.
 

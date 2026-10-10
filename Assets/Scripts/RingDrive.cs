@@ -125,7 +125,7 @@ public partial class RingDrive : MonoBehaviour
    var heading=Vector3.ProjectOnPlane(track[(i+1)%track.Count]-p,normal);
    awd.ResetCar(p+normal*.30f,Quaternion.LookRotation(heading,normal));
   }else PlaceCarOnSurface(track[i]+Vector3.up*.04f,0);
-  velocity=Vector3.zero;reversing=false;steer=0;lookYaw=lookPitch=chaseSlipYaw=0;lastIndex=i;
+  velocity=Vector3.zero;reversing=false;steer=0;lookYaw=lookPitch=chaseSlipYaw=0;lastIndex=i;ResetMouseSteering();
  }
  void RestartLap(){RecoverCar(0);checkpoints=0;lapStart=Time.time;if(paused)pauseStarted=Time.time;}
  void Update(){
@@ -137,22 +137,18 @@ public partial class RingDrive : MonoBehaviour
   if(Input.GetKeyDown(KeyCode.F3)){if(settingsOpen)CloseSettings(false);else OpenSettings();}
   if(Input.GetKeyDown(KeyCode.Escape)){if(settingsOpen)CloseSettings(false);else SetPaused(!paused);}
   if(!settingsOpen && Input.GetKeyDown(KeyCode.P) && ShortcutModifierHeld)SetAutopilot(!autopilotEnabled);
+  if(!settingsOpen && Input.GetKeyDown(KeyCode.U))ToggleMouseSteering();
   if(Input.GetKeyDown(KeyCode.F) && ShortcutModifierHeld)ToggleFullscreen();
   if(!settingsOpen && Input.GetKeyDown(KeyCode.Y))SwitchCarModel();
   if(!settingsOpen && Input.GetKeyDown(KeyCode.T) && carModel.CanChangePaint)carModel.CyclePaint();
   if(!settingsOpen && Input.GetKeyDown(KeyCode.M))muted=!muted;if(!settingsOpen && Input.GetKeyDown(KeyCode.C)){view=(view+1)%3;lookYaw=lookPitch=0;}if(!settingsOpen && Input.GetKeyDown(KeyCode.R))RecoverCar(nearest);if(!settingsOpen && Input.GetKeyDown(KeyCode.Home))RestartLap();if(Input.GetKeyDown(KeyCode.F2))CaptureScreenshot("GotlandRing-screenshot.png");
-  if(!paused && !modelPreview && !signTest && !surfaceTest){
-   float nextYaw=lookYaw+Input.GetAxis("Mouse X")*2;
-   lookYaw=view==2?Mathf.Repeat(nextYaw+180,360)-180:Mathf.Clamp(nextYaw,-115,115);
-   lookPitch=Mathf.Clamp(lookPitch-Input.GetAxis("Mouse Y")*1.5f,view==2?-13:-45,view==2?57:40);
-   if(Input.GetMouseButtonDown(1))lookYaw=lookPitch=0;
-  }
+  UpdatePointer(new Vector2(Input.GetAxisRaw("Mouse X"),Input.GetAxisRaw("Mouse Y")),Input.GetMouseButtonDown(1));
   if(!modelPreview){
    UpdateCameraPose();
    AnimateCar(paused?0:Time.deltaTime);
   }
   cam.fieldOfView=Mathf.Lerp(cam.fieldOfView,76+velocity.magnitude*.12f,Time.deltaTime*3);
-  motor.Rpm=rpm;motor.Load=throttle;motor.Speed=velocity.magnitude;motor.TyreSqueal=dynamics.awdMode?awd.TyreSqueal:slip;motor.Muted=muted||paused;
+  motor.Rpm=rpm;motor.Load=throttle;motor.Speed=velocity.magnitude;motor.TyreSqueal=dynamics.tyreSquealEnabled?(dynamics.awdMode?awd.TyreSqueal:slip):0;motor.Muted=muted||paused;
  }
  void UpdateCameraPose(){
   if(view<2){var anchor=view==0?carModel.cockpitView:carModel.bonnetView;head.localPosition=anchor.localPosition;head.localRotation=Quaternion.Euler(anchor.localEulerAngles.x+lookPitch,lookYaw,view==0?-steer*velocity.magnitude*.015f:0);}
@@ -167,13 +163,18 @@ public partial class RingDrive : MonoBehaviour
  bool reversing;
  float slip;
  void FixedUpdate(){if(!autopilotTest&&!awdTest)StepDriving(Time.fixedDeltaTime,Time.time);}
- void StepDriving(float dt,float now){if(paused||modelPreview||signTest||surfaceTest)return;if(dynamics.awdMode)SyncAwdMotion();float speed=velocity.magnitude;var surface=centerline.Sample(car.position.x,car.position.z);nearest=surface.Segment;bool road=surface.OnRoad;float input=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);throttle=(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0;float brake=(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0;
+ void StepDriving(float dt,float now){
+  float keyboard=((Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))?1:0)-((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))?1:0);
+  StepDriving(dt,now,keyboard,(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))?1:0,
+   (Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0,Input.GetKey(KeyCode.X));
+ }
+ void StepDriving(float dt,float now,float keyboardSteering,float accelerator,float brake,bool reverseRequested){if(paused||modelPreview||signTest||surfaceTest)return;if(dynamics.awdMode)SyncAwdMotion();float speed=velocity.magnitude;var surface=centerline.Sample(car.position.x,car.position.z);nearest=surface.Segment;bool road=surface.OnRoad;float input=mouseSteering?mouseSteer:keyboardSteering;throttle=accelerator;
   if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,surface);if(dynamics.awdMode)pilotControls=awd.CorrectPilot(pilotControls);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
   if(automatic){var aim=track[(nearest+20)%track.Count]-car.position;float angle=Vector3.SignedAngle(car.forward,aim,Vector3.up);input=Mathf.Clamp(angle/18,-1,1);throttle=speed<24?1:0;brake=speed>27?1:0;if(smokeBrake){throttle=0;brake=1;}}
-  if(dynamics.awdMode){StepAwdDriving(dt,input,brake);UpdateLap(now);return;}
+  reverseRequested=reverseRequested&&!automatic&&!autopilotEnabled;
+  if(dynamics.awdMode){StepAwdDriving(dt,input,brake,reverseRequested);UpdateLap(now);return;}
   steer=Mathf.MoveTowards(steer,input,dt*dynamics.response);Vector3 f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));Vector3 right=Vector3.Cross(Vector3.up,f);float longitudinal=Vector3.Dot(velocity,f),lateral=Vector3.Dot(velocity,right);
   float wheelRpm=Mathf.Abs(longitudinal)/(.32f*2*Mathf.PI)*60;float target=Mathf.Max(900,wheelRpm*ratios[gear-1]*4.11f);if(target>6400&&gear<5){gear++;target*=.72f;}else if(target<2200&&gear>1){gear--;target*=1.3f;}rpm=Mathf.Lerp(rpm,target+throttle*350,dt*8);boost=Mathf.MoveTowards(boost,throttle*Mathf.InverseLerp(2100,4000,rpm),dt*.7f);
-  bool reverseRequested=!automatic && !autopilotEnabled && Input.GetKey(KeyCode.X);
   if(reverseRequested){throttle=1;if(longitudinal>.3f){brake=1;throttle=0;}else reversing=true;}
   else if(throttle>0 && longitudinal<-.3f){brake=1;throttle=0;}
   else if(longitudinal>=-.3f)reversing=false;
@@ -197,17 +198,18 @@ public partial class RingDrive : MonoBehaviour
   GUI.color=new Color(.035f,.055f,.07f,.9f);GUI.DrawTexture(new Rect(25,163,370,autopilotEnabled?194:40),Texture2D.whiteTexture);GUI.color=autopilotEnabled?new Color(.35f,1,.65f):Color.white;
   GUI.Label(new Rect(45,169,340,30),$"AUTO(P)ILOT  {(autopilotEnabled?(paused?"PAUSED":"ON"):"OFF")}  /  {PilotShortcut}",label);GUI.color=Color.white;
   if(autopilotEnabled){GUI.Label(new Rect(45,204,340,24),$"TARGET {pilotControls.TargetSpeed*3.6f:0} km/h    GAS {pilotControls.Throttle*100:0}%    BRAKE {pilotControls.Brake*100:0}%",small);GUI.Label(new Rect(45,230,340,24),$"{PilotShortcut} to return to manual driving",small);DrawPilotKeyboard();}
-  GUI.Label(new Rect(440,850,880,30),"WASD Drive   MOUSE Look   C Camera   Y Car   T Colour   R Recover   X Reverse   F3 Dynamics   F4 Physics",small);GUI.Label(new Rect(1250,830,350,25),carModel.credit,small);GUI.Label(new Rect(1250,855,350,25),"Mannetroll Solutions AB / Prototype",small);
+  DrawSteeringInput();
+  GUI.Label(new Rect(440,850,880,30),mouseSteering?"MOUSE Steer   W/S Pedals   U Keyboard   C Camera   Y Car   R Recover   X Reverse   F3 Dynamics":"WASD Drive   MOUSE Look   U Mouse steering   C Camera   Y Car   R Recover   X Reverse   F3 Dynamics",small);GUI.Label(new Rect(1250,830,350,25),carModel.credit,small);GUI.Label(new Rect(1250,855,350,25),"Mannetroll Solutions AB / Prototype",small);
   if(GUI.Button(new Rect(45,120,170,32),"Dynamics [F3]"))OpenSettings();
   if(GUI.Button(new Rect(225,120,170,32),$"{(Screen.fullScreen?"Windowed":"Fullscreen")} [{ShortcutModifier}+F]"))ToggleFullscreen();
-  if(paused && !settingsOpen){GUI.color=new Color(0,0,0,.75f);GUI.DrawTexture(new Rect(450,270,700,300),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(510,310,600,65),"PRACTICE PAUSED",big);GUI.Label(new Rect(510,395,600,100),"Escape to resume  |  Right mouse to center head\nHome: restart lap  |  Y: car  |  T: colour  |  M: mute\nF2: screenshot",label);if(GUI.Button(new Rect(510,510,180,40),"Quit"))Application.Quit();if(GUI.Button(new Rect(710,510,220,40),"Driving dynamics"))OpenSettings();}
+  if(paused && !settingsOpen){GUI.color=new Color(0,0,0,.75f);GUI.DrawTexture(new Rect(450,270,700,300),Texture2D.whiteTexture);GUI.color=Color.white;GUI.Label(new Rect(510,310,600,65),"PRACTICE PAUSED",big);GUI.Label(new Rect(510,395,600,100),$"Escape to resume  |  U: steering mode\nRight mouse: centre {(mouseSteering?"steering":"view")}  |  Home: restart lap\nY: car  |  T: colour  |  M: mute  |  F2: screenshot",label);if(GUI.Button(new Rect(510,510,180,40),"Quit"))Application.Quit();if(GUI.Button(new Rect(710,510,220,40),"Driving dynamics"))OpenSettings();}
   if(settingsOpen)DrawSettings();
  }
- void SetPaused(bool value){if(value==paused)return;if(value)pauseStarted=Time.time;else lapStart+=Time.time-pauseStarted;paused=value;awd.SetSimulationActive(dynamics.awdMode&&!paused);Cursor.lockState=value?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=value;}
+ void SetPaused(bool value){if(value==paused)return;if(value)pauseStarted=Time.time;else lapStart+=Time.time-pauseStarted;paused=value;ResetMouseSteering();awd.SetSimulationActive(dynamics.awdMode&&!paused);Cursor.lockState=value?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=value;}
  void OpenSettings(){if(settingsOpen)return;wasPaused=paused;draft=dynamics.Copy();settingsOpen=true;SetPaused(true);}
  void CloseSettings(bool apply){if(apply){ApplyDrivingSettings(draft);dynamics.Save();}settingsOpen=false;SetPaused(wasPaused);}
  string PilotShortcut=>ShortcutModifier+"+P";
- void SetAutopilot(bool enabled){autopilotEnabled=enabled;if(enabled)ConfigureAutopilot();else pilotControls=default;Debug.Log("AUTOPILOT "+(enabled?"ON":"OFF"));}
+ void SetAutopilot(bool enabled){autopilotEnabled=enabled;ResetMouseSteering();if(enabled)ConfigureAutopilot();else pilotControls=default;Debug.Log("AUTOPILOT "+(enabled?"ON":"OFF"));}
  void DrawPilotKeyboard(){
   float active=paused?0:1;
   DrawPilotKey("W",91,264,pilotControls.Throttle*active,new Color(.1f,.65f,.35f));
@@ -250,20 +252,21 @@ public partial class RingDrive : MonoBehaviour
   draft.acceleration=Setting("Acceleration multiplier",draft.acceleration,.5f,1.8f,498,"0.00");
   draft.braking=Setting("Braking (m/s²)",draft.braking,6,20,540);
   draft.offRoadGrip=Setting("Off-road grip (m/s²)",draft.offRoadGrip,3,12,582);
-  GUI.Label(new Rect(470,625,650,35),"Higher grip keeps tighter turns; these are arcade handling settings.",small);
   }
+  draft.tyreSquealEnabled=GUI.Toggle(new Rect(470,616,650,28),draft.tyreSquealEnabled," Tyre squeal");
   GUI.Label(new Rect(470,650,650,25),"Changing handling mode restarts the lap and clears its best time.",small);
   if(GUI.Button(new Rect(470,685,180,40),"Restore defaults"))draft=new DrivingSettings();
   if(GUI.Button(new Rect(735,685,180,40),"Cancel"))CloseSettings(false);
   if(GUI.Button(new Rect(935,685,190,40),"Apply & close"))CloseSettings(true);
  }
  IEnumerator SettingsTest(){
-  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;CloseSettings(false);
-  Debug.Assert(dynamics.grip==original.grip && !paused,"Cancel must preserve dynamics and resume");
-  OpenSettings();draft.grip=31;CloseSettings(true);Debug.Assert(DrivingSettings.Load().grip==31,"Apply must persist dynamics");
+  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;draft.tyreSquealEnabled=!original.tyreSquealEnabled;CloseSettings(false);
+  Debug.Assert(dynamics.grip==original.grip && dynamics.tyreSquealEnabled==original.tyreSquealEnabled && !paused,"Cancel must preserve dynamics and sound settings and resume");
+  OpenSettings();draft.grip=31;draft.tyreSquealEnabled=true;CloseSettings(true);var saved=DrivingSettings.Load();Debug.Assert(saved.grip==31 && saved.tyreSquealEnabled,"Apply must persist dynamics and enabled tyre squeal");
+  OpenSettings();draft.tyreSquealEnabled=false;CloseSettings(true);Debug.Assert(!DrivingSettings.Load().tyreSquealEnabled,"Apply must persist disabled tyre squeal");
   dynamics=original;dynamics.Save();SetPaused(true);OpenSettings();CloseSettings(false);Debug.Assert(paused,"Dialog must preserve existing pause");
   SetPaused(false);OpenSettings();yield return new WaitForSeconds(2);CaptureScreenshot("dynamics-dialog.png");
-  Debug.Log("SETTINGS_TEST passed: cancel, apply, persistence, pause restoration");yield return new WaitForSeconds(2);Application.Quit();
+  Debug.Log("SETTINGS_TEST passed: cancel, apply, dynamics and tyre-squeal persistence, pause restoration");yield return new WaitForSeconds(2);Application.Quit();
  }
  string Format(float t)=>$"{(int)t/60:00}:{t%60:00.00}";
  IEnumerator RenderStats(){yield return new WaitForSeconds(2);int first=Time.frameCount;float start=Time.realtimeSinceStartup;yield return new WaitForSeconds(5);Debug.Log($"RENDER_STATS fps={(Time.frameCount-first)/(Time.realtimeSinceStartup-start):F1} resolution={Screen.width}x{Screen.height} gpu={SystemInfo.graphicsDeviceName}");}
