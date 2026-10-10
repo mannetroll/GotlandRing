@@ -169,7 +169,7 @@ public partial class RingDrive : MonoBehaviour
    (Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))?1:0,Input.GetKey(KeyCode.X));
  }
  void StepDriving(float dt,float now,float keyboardSteering,float accelerator,float brake,bool reverseRequested){if(paused||modelPreview||signTest||surfaceTest)return;if(dynamics.awdMode)SyncAwdMotion();float speed=velocity.magnitude;var surface=centerline.Sample(car.position.x,car.position.z);nearest=surface.Segment;bool road=surface.OnRoad;float input=mouseSteering?mouseSteer:keyboardSteering;throttle=accelerator;
-  if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,surface);if(dynamics.awdMode)pilotControls=awd.CorrectPilot(pilotControls);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
+  if(autopilotEnabled){pilotControls=autopilot.Drive(car.position,yaw,velocity,surface);if(dynamics.awdMode)pilotControls=awd.CorrectPilot(pilotControls,dynamics);input=pilotControls.Steering;throttle=pilotControls.Throttle;brake=pilotControls.Brake;}
   if(automatic){var aim=track[(nearest+20)%track.Count]-car.position;float angle=Vector3.SignedAngle(car.forward,aim,Vector3.up);input=Mathf.Clamp(angle/18,-1,1);throttle=speed<24?1:0;brake=speed>27?1:0;if(smokeBrake){throttle=0;brake=1;}}
   reverseRequested=reverseRequested&&!automatic&&!autopilotEnabled;
   if(dynamics.awdMode){StepAwdDriving(dt,input,brake,reverseRequested);UpdateLap(now);return;}
@@ -179,7 +179,7 @@ public partial class RingDrive : MonoBehaviour
   else if(throttle>0 && longitudinal<-.3f){brake=1;throttle=0;}
   else if(longitudinal>=-.3f)reversing=false;
   float drive=throttle*dynamics.acceleration*(reversing?-3f:2.6f+boost*3.3f)*Mathf.Clamp01(((reversing?8:72)-speed)/(reversing?2:15));float drag=.10f+speed*speed*.0012f+(road?0:2.5f);longitudinal=Mathf.MoveTowards(longitudinal,0,(drag+brake*dynamics.braking)*dt);longitudinal+=drive*dt;
-  float steeringAngle=steer*Mathf.Lerp(dynamics.steering,dynamics.highSpeedSteering,Mathf.Clamp01(speed/65))*Mathf.Deg2Rad;float yawRate=longitudinal/2.52f*Mathf.Tan(steeringAngle);float grip=road?dynamics.grip:dynamics.offRoadGrip,bank=TrackData.BankAcceleration(surface.Normal,right);float limitSpeed=Mathf.Max(speed,3),travelBank=longitudinal<0?-bank:bank;yawRate=Mathf.Clamp(yawRate,(travelBank-grip)/limitSpeed,(travelBank+grip)/limitSpeed);yaw+=yawRate*Mathf.Rad2Deg*dt;
+  float steeringAngle=steer*dynamics.SteeringLimit(speed)*Mathf.Deg2Rad;float yawRate=longitudinal/2.52f*Mathf.Tan(steeringAngle);float grip=road?dynamics.grip:dynamics.offRoadGrip,bank=TrackData.BankAcceleration(surface.Normal,right);float limitSpeed=Mathf.Max(speed,3),travelBank=longitudinal<0?-bank:bank;yawRate=Mathf.Clamp(yawRate,(travelBank-grip)/limitSpeed,(travelBank+grip)/limitSpeed);yaw+=yawRate*Mathf.Rad2Deg*dt;
   lateral=Mathf.MoveTowards(lateral,0,(road?dynamics.lateralGrip:dynamics.offRoadGrip)*dt);slip=road?Mathf.Clamp01(Mathf.Abs(yawRate*longitudinal-bank)/grip)*.6f:0;f=new Vector3(Mathf.Sin(yaw*Mathf.Deg2Rad),0,Mathf.Cos(yaw*Mathf.Deg2Rad));right=Vector3.Cross(Vector3.up,f);velocity=f*longitudinal+right*lateral;PlaceCarOnSurface(car.position+velocity*dt,-steer*speed*.035f);
   UpdateLap(now);
  }
@@ -238,11 +238,12 @@ public partial class RingDrive : MonoBehaviour
   GUI.Label(new Rect(470,211,650,30),"Driving is paused. Apply saves your setup for the next launch.",small);
   draft.awdMode=GUI.SelectionGrid(new Rect(470,244,650,32),draft.awdMode?0:1,new[]{"AWD physics","Arcade comparison"},2)==0;
   if(draft.awdMode){
-   draft.awdGrip=Setting("Tyre grip multiplier",draft.awdGrip,.7f,1.3f,300,"0.00");
-   draft.awdFrontTorque=Setting("Front torque share",draft.awdFrontTorque,.1f,.9f,352,"0.00");
-   draft.awdSteeringRate=Setting("Steering speed (degrees/s)",draft.awdSteeringRate,40,150,404,"0");
-   draft.awdSpeedSteering=Setting("Steering angle at speed",draft.awdSpeedSteering,.5f,3,456,"0.00'x'");
-   GUI.Label(new Rect(470,488,650,24),$"Keyboard / mouse: ±{ManualAwdSteeringLimit(100/3.6f,draft):0.0}° at 100 km/h; 32° when stopped.",small);
+   draft.awdGrip=Setting("Tyre grip multiplier",draft.awdGrip,.7f,1.3f,288,"0.00");
+   draft.awdFrontTorque=Setting("Front torque share",draft.awdFrontTorque,.1f,.9f,330,"0.00");
+   draft.steering=Setting("Low-speed steering (degrees)",draft.steering,25,55,372);
+   draft.highSpeedSteering=Setting("High-speed steering (degrees)",draft.highSpeedSteering,8,25,414);
+   draft.awdSteeringRate=Setting("Steering speed (degrees/s)",draft.awdSteeringRate,40,150,456,"0");
+   GUI.Label(new Rect(470,488,650,24),"Steering angles are shared with Arcade comparison.",small);
    draft.awdTractionControl=GUI.Toggle(new Rect(470,520,600,30),draft.awdTractionControl," Traction control assistance");
    GUI.Label(new Rect(470,558,650,48),"Stock GT baseline: 160 kW / 290 Nm / five-speed AWD.\nABS is enabled. Tyres, suspension and clutch are approximate.",small);
   }else{
@@ -262,9 +263,9 @@ public partial class RingDrive : MonoBehaviour
   if(GUI.Button(new Rect(935,685,190,40),"Apply & close"))CloseSettings(true);
  }
  IEnumerator SettingsTest(){
-  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;draft.awdSpeedSteering=1.25f;draft.tyreSquealEnabled=!original.tyreSquealEnabled;CloseSettings(false);
-  Debug.Assert(dynamics.grip==original.grip && dynamics.awdSpeedSteering==original.awdSpeedSteering && dynamics.tyreSquealEnabled==original.tyreSquealEnabled && !paused,"Cancel must preserve dynamics and sound settings and resume");
-  OpenSettings();draft.grip=31;draft.awdSpeedSteering=2.5f;draft.tyreSquealEnabled=true;CloseSettings(true);var saved=DrivingSettings.Load();Debug.Assert(saved.grip==31 && saved.awdSpeedSteering==2.5f && saved.tyreSquealEnabled,"Apply must persist dynamics, speed steering and enabled tyre squeal");
+  yield return new WaitForSeconds(2);var original=dynamics.Copy();OpenSettings();draft.grip=39;draft.steering=35;draft.highSpeedSteering=12;draft.tyreSquealEnabled=!original.tyreSquealEnabled;CloseSettings(false);
+  Debug.Assert(dynamics.grip==original.grip && dynamics.steering==original.steering && dynamics.highSpeedSteering==original.highSpeedSteering && dynamics.tyreSquealEnabled==original.tyreSquealEnabled && !paused,"Cancel must preserve dynamics and sound settings and resume");
+  OpenSettings();draft.grip=31;draft.steering=48;draft.highSpeedSteering=22;draft.tyreSquealEnabled=true;CloseSettings(true);var saved=DrivingSettings.Load();Debug.Assert(saved.grip==31 && saved.steering==48 && saved.highSpeedSteering==22 && saved.tyreSquealEnabled,"Apply must persist dynamics, speed steering and enabled tyre squeal");
   OpenSettings();draft.tyreSquealEnabled=false;CloseSettings(true);Debug.Assert(!DrivingSettings.Load().tyreSquealEnabled,"Apply must persist disabled tyre squeal");
   dynamics=original;dynamics.Save();SetPaused(true);OpenSettings();CloseSettings(false);Debug.Assert(paused,"Dialog must preserve existing pause");
   SetPaused(false);OpenSettings();yield return new WaitForSeconds(2);CaptureScreenshot("dynamics-dialog.png");

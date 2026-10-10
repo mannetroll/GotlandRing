@@ -14,7 +14,6 @@ public sealed class SubaruVehicleSetup
     public float[] gears = {3.454f, 1.947f, 1.366f, .972f, .738f};
     public float finalDrive = 4.111f, reverseRatio = 3.333f, efficiency = .88f;
     public float idleRpm = 900f, revLimitRpm = 6800f, shiftRpm = 6300f;
-    public float steeringLock = 32f, highSpeedSteering = 10f;
     public float frontLateralPeakSlip = .16f, rearLateralPeakSlip = .14f;
     public float slidingGripFraction = .90f;
     public float dragCoefficient = .42f, rollingResistance = .012f;
@@ -24,5 +23,4 @@ public sealed class SubaruVehicleSetup
         new Keyframe(4000, 290), new Keyframe(5000, 280), new Keyframe(5600, 272.837f),
         new Keyframe(6200, 230), new Keyframe(6800, 175));
     public float Mass => kerbMass + driverMass;
-    public float SteeringLimit(float speed) => Mathf.Lerp(steeringLock, highSpeedSteering, Mathf.Clamp01(Mathf.Abs(speed) / 65f));
 }

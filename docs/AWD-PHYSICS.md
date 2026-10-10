@@ -13,16 +13,16 @@ models are not mixed. AWD is the default for a new setup. `--awd` and `--arcade`
 select a mode for one launch. Existing keyboard controls, cameras, model/paint
 switching and Cmd+P autopilot work in both modes. **U** toggles horizontal mouse
 steering; the keyboard retains the accelerator, brake and reverse controls.
-Keyboard and mouse steering demand reduce with speed for usable manual control
-at circuit speeds; the tyre model still determines the resulting turn.
-**Steering angle at speed** scales this manual range from **0.5× to 3×**,
-defaulting to **2×**. The requested angle is capped by the steering range of the
-vehicle, including **32°** at rest. At 2×, full input gives approximately **17.7° at
-50 km/h**, **4.5° at 100 km/h** and **2.0° at 150 km/h**. Both manual inputs and
-the visible front wheels use the configured range. Autopilot calculates its own
-steering demand independently of this manual setting.
+AWD and Arcade share the same low- and high-speed steering settings, defaulting
+to **42°** and **19°**. Both F3 panels expose the same **25–55°** low-speed range
+and **8–25°** high-speed range. The maximum wheel angle interpolates linearly
+from rest to **65 m/s (234 km/h)** and stays at the high-speed value above that.
+With the defaults, full input gives approximately **32.2° at 100 km/h**.
+Keyboard, mouse, physical wheel steering and the visible wheels use this range.
+Autopilot plans and normalizes its steering demand against the same settings.
+The AWD tyre forces still determine how much the car actually turns.
 
-The AWD settings expose tyre grip, front torque share, steering speed, angle at speed and
+The AWD settings also expose tyre grip, front torque share, steering speed and
 traction-control assistance. The default split sends 50% of one engine-torque
 budget to each axle, then divides that equally between the axle's wheels.
 Reverse uses the same distribution. Each wheel has its own slip-based traction
@@ -38,9 +38,12 @@ This is a bounded combined-grip approximation, not a calibrated friction-circle
 or differential model. The same tyre response applies to manual driving.
 The engine, mass and default 50:50 torque split use the stock baseline below.
 
-AWD autopilot follows its direction of travel and compensates for body sideslip
-and excess rotation with ordinary front-wheel steering. It progressively eases
-throttle and brake demand as a slide grows. The car's rotation and lateral motion
+AWD autopilot follows its direction of travel and allows rotation through bends
+with ordinary front-wheel steering. Countersteering strengthens as the slide
+grows, with extra recovery above 8°. It retains corner-entry braking up to 6°
+of body sideslip and starts reducing throttle at 7°. Its corner-speed plan uses
+a 9.2 m/s² grip budget, scaled by the grip setting, while braking and steering
+recovery control the slide. The car's rotation and lateral motion
 come from tyre forces. The chase camera smoothly follows the direction of travel
 so small angles remain visible, and the HUD shows the measured body sideslip.
 A nonzero body sideslip angle does not by itself mean a tyre is beyond peak grip;

@@ -85,29 +85,32 @@ public sealed class SubaruAwdController : MonoBehaviour
     }
 
     public DrivingSettings PilotSettings(DrivingSettings settings) => new DrivingSettings {
-        grip = 8.4f * settings.awdGrip, braking = 6.5f, acceleration = .70f,
-        steering = setup.steeringLock, highSpeedSteering = setup.highSpeedSteering,
-        response = settings.awdSteeringRate / setup.steeringLock, offRoadGrip = 3.5f
+        grip = 9.2f * settings.awdGrip, braking = 6.5f, acceleration = .70f,
+        steering = settings.steering, highSpeedSteering = settings.highSpeedSteering,
+        response = settings.awdSteeringRate / settings.steering, offRoadGrip = 3.5f
     };
 
-    public AutopilotController.Controls CorrectPilot(AutopilotController.Controls controls)
+    public AutopilotController.Controls CorrectPilot(AutopilotController.Controls controls, DrivingSettings settings)
     {
         if (ForwardSpeed < 8) return controls;
         // The path controller aims along velocity; steer relative to the body and damp excess rotation.
         float slip = SideslipDegrees;
         float yawError = controls.Curvature * ForwardSpeed - Vector3.Dot(Body.angularVelocity, transform.up);
-        float correction = slip * 1.05f + yawError * Mathf.Rad2Deg * .3f;
-        controls.Steering = Mathf.Clamp(controls.Steering + correction / setup.SteeringLimit(ForwardSpeed), -1, 1);
-        controls.Throttle *= 1 - .8f * Mathf.InverseLerp(5, 12, Mathf.Abs(slip));
+        // Allow rotation into the corner, then strengthen countersteering as the slide grows.
+        float recovery = Mathf.InverseLerp(8, 10, Mathf.Abs(slip));
+        float correction = slip * Mathf.Lerp(1.05f, 1.2f, recovery)
+            + yawError * Mathf.Rad2Deg * .3f;
+        controls.Steering = Mathf.Clamp(controls.Steering + correction / settings.SteeringLimit(Body.linearVelocity.magnitude), -1, 1);
+        controls.Throttle *= 1 - .8f * Mathf.InverseLerp(7, 12, Mathf.Abs(slip));
         // Releasing some brake load lets the rear tyres recover during corner entry.
-        controls.Brake *= 1 - .8f * Mathf.InverseLerp(3, 9, Mathf.Abs(slip));
+        controls.Brake *= 1 - .8f * Mathf.InverseLerp(6, 10, Mathf.Abs(slip));
         return controls;
     }
 
     public void Step(float dt, float throttle, float brake, float steering, DrivingSettings settings)
     {
         float speed = Mathf.Abs(ForwardSpeed);
-        SteeringDegrees = Mathf.MoveTowards(SteeringDegrees, Mathf.Clamp(steering, -1, 1) * setup.SteeringLimit(speed), settings.awdSteeringRate * dt);
+        SteeringDegrees = Mathf.MoveTowards(SteeringDegrees, Mathf.Clamp(steering, -1, 1) * settings.SteeringLimit(Body.linearVelocity.magnitude), settings.awdSteeringRate * dt);
         appliedThrottle = Mathf.MoveTowards(appliedThrottle, Mathf.Clamp(throttle, -1, 1), dt * 3f);
         bool reverse = appliedThrottle < 0;
         float roadWheelRpm = speed / setup.wheelRadius * 60f / (2 * Mathf.PI);

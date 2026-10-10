@@ -125,8 +125,8 @@ public sealed class AutopilotController
             float angleChange = Mathf.Abs(Mathf.Atan(Wheelbase * curvaturePlan[next])
                 - Mathf.Atan(Wheelbase * curvaturePlan[previous])) * Mathf.Rad2Deg;
             float distance = segmentLength[previous] + segmentLength[Next(previous)] + segmentLength[i] + segmentLength[Next(i)];
-            while (limit > 4 && (Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg > SteeringDegrees(limit) * .9f
-                || angleChange * limit / (distance * SteeringDegrees(limit)) > settings.response * .65f))
+            while (limit > 4 && (Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg > settings.SteeringLimit(limit) * .9f
+                || angleChange * limit / (distance * settings.SteeringLimit(limit)) > settings.response * .65f))
                 limit -= .5f;
             speedPlan[i] = limit;
         }
@@ -137,8 +137,6 @@ public sealed class AutopilotController
                 speedPlan[i] = Mathf.Min(speedPlan[i], Mathf.Sqrt(speedPlan[Next(i)] * speedPlan[Next(i)]
                     + 2 * settings.braking * .88f * segmentLength[i]));
     }
-
-    float SteeringDegrees(float speed) => Mathf.Lerp(settings.steering, settings.highSpeedSteering, Mathf.Clamp01(speed / 65));
 
     Vector3 PointAhead(int segment, float fraction, float distance)
     {
@@ -175,7 +173,7 @@ public sealed class AutopilotController
         var aim = Flat(PointAhead(nearest, fraction, lookAhead) - position);
         float angle = Vector3.SignedAngle(forward, aim, Vector3.up) * Mathf.Deg2Rad;
         float curvature = 2 * Mathf.Sin(angle) / Mathf.Max(aim.magnitude, 1);
-        float steering = Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg / SteeringDegrees(speed);
+        float steering = Mathf.Atan(Wheelbase * curvature) * Mathf.Rad2Deg / settings.SteeringLimit(speed);
         // When facing away from the track, commit to a turn instead of stalling at sin(pi).
         if (Mathf.Abs(angle) > Mathf.PI * .5f) steering = Mathf.Sign(angle);
 

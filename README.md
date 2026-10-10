@@ -232,11 +232,12 @@ The count covers game source, verification code and build/asset tools. It exclud
 ## Verification
 
 The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
-covers all **2,405** track segments in **4:19.68**, with maximum speed **181.7 km/h**
+covers all **2,405** track segments in **4:15.28**, with maximum speed **181.7 km/h**
 and **20 downshifts under power**. At more than 43 km/h, peak body sideslip is
-**6.75°**, with about **47.03 seconds** above 3° in corners. All four corners of
-the car remain on the asphalt; minimum measured body clearance is **0.23 m**.
-Main-straight 0–100 km/h takes **7.26 s**, followed by a **35.78 m** stop.
+**8.54°**, with about **55.57 seconds** above 3° in corners. All four corners of
+the car remain on the asphalt; minimum measured body clearance is **0.21 m**.
+Main-straight 0–100 km/h takes **7.24 s**, followed by a **35.95 m** stop.
+The rear tyres exceed their peak-grip slip for **1.72 seconds**.
 These are prototype measurements.
 
 The AWD checks also cover mesh contact, banking, the lap seam, reverse, brake
@@ -246,11 +247,12 @@ five laps and recovery. See [physics assumptions and reproduction commands](docs
 ### Driving dynamics
 
 Press **F3**, or click **Dynamics**, to pause and choose a handling mode.
-AWD exposes tyre grip, front torque share, steering speed, steering angle at speed
-and traction control. **Steering angle at speed** adjusts the manual keyboard/mouse
-range from **0.5× to 3×**, with a **2×** default. Full steering at 2× gives about
-**17.7° at 50 km/h** and **4.5° at 100 km/h**. The standstill limit is **32°**.
-The dialog previews the angle at 100 km/h as you adjust the slider.
+AWD exposes tyre grip, front torque share, steering speed and traction control.
+Both modes share **Low-speed steering (degrees)** and **High-speed steering
+(degrees)**, defaulting to **42°** and **19°**. The ranges are **25–55°** and
+**8–25°**. Steering blends smoothly between the two values from rest to
+**234 km/h**, with the high-speed value used above that speed. Keyboard, mouse,
+autopilot and visible front wheels all use the configured angles.
 Arcade exposes cornering grip, side-slip recovery, steering, acceleration,
 braking and off-road grip. Both modes have a **Tyre squeal** checkbox, off by default;
 engine and road sound remain on. **Apply & close** saves locally; **Cancel** discards

@@ -33,7 +33,7 @@ public partial class RingDrive
         for (int i = 0; i < 300; i++) { awd.Step(.01f, 0, 1, 0, dynamics); Physics.Simulate(.01f); }
         int steps = 0, visitedCount = 0, powered = 0, brakeSteps = 0, leftSteps = 0, rightSteps = 0, powerDownshifts = 0;
         var visited = new bool[track.Count];
-        float maxSideslip = 0, slideSeconds = 0, rearPeakSeconds = 0, cornerSquealSeconds = 0;
+        float maxSideslip = 0, slideSeconds = 0, strongSlideSeconds = 0, rearPeakSeconds = 0, cornerSquealSeconds = 0;
         float minBodyMargin = float.MaxValue;
         bool capturedSlide = false;
         float travelled = 0, minMargin = float.MaxValue, minUpright = 1, maxSpeed = 0, maxLineError = 0;
@@ -64,6 +64,7 @@ public partial class RingDrive
                     {
                         maxSideslip = Mathf.Max(maxSideslip, beta);
                         if (beta > 3 && Mathf.Abs(pilotControls.Curvature) > .001f) slideSeconds += .01f;
+                        if (beta > 5 && Mathf.Abs(pilotControls.Curvature) > .001f) strongSlideSeconds += .01f;
                         if (awd.TyreSqueal > .25f && Mathf.Abs(pilotControls.Curvature) > .001f) cornerSquealSeconds += .01f;
                         if (awd.RearLateralSlip > awd.setup.rearLateralPeakSlip) rearPeakSeconds += .01f;
                     }
@@ -92,7 +93,7 @@ public partial class RingDrive
                 if (steps % 5000 == 0) Debug.Log($"AWD_LAP_PROGRESS time={steps*.01f:F0}s segment={nearest} speed={velocity.magnitude*3.6f:F1}km/h visited={visitedCount}/{track.Count}");
                 yield return null;
                 if (!capturedSlide && !Application.isBatchMode && steps > 5000
-                    && Mathf.Abs(awd.SideslipDegrees) > 4 && Mathf.Abs(pilotControls.Curvature) > .004f
+                    && Mathf.Abs(awd.SideslipDegrees) > 6 && Mathf.Abs(pilotControls.Curvature) > .004f
                     && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null)
                 {
                     view = 2; UpdateCameraPose();
@@ -104,10 +105,11 @@ public partial class RingDrive
         }
         bool passed = lap == 2 && travelled > length * .98f && visitedCount > track.Count * .98f
             && powered == 15 && brakeSteps > 100 && leftSteps > 100 && rightSteps > 100 && maxSpeed > 25
-            && minBodyMargin > 0 && maxSideslip < 12 && slideSeconds > 3 && powerDownshifts > 5 && cornerSquealSeconds > 3;
+            && minBodyMargin > 0 && maxSideslip > 7 && maxSideslip < 12 && slideSeconds > 3
+            && strongSlideSeconds > 3 && rearPeakSeconds > 1 && powerDownshifts > 5 && cornerSquealSeconds > 3;
         string report = string.Format(CultureInfo.InvariantCulture,
-            "AWD_LAP_TEST pass={0} lapSeconds={1:F2} distance={2:F1}m visited={3}/{4} maxSpeed={5:F1}km/h minRoadMargin={6:F2}m maxLineError={7:F2}m minUpright={8:F4} drivenMask={9} brakingSteps={10} maxSideslip={11:F2}deg slideSeconds={12:F2} rearPeakSeconds={13:F2} minBodyMargin={14:F2}m powerDownshifts={15} cornerSquealSeconds={16:F2}",
-            passed, steps*.01f, travelled, visitedCount, track.Count, maxSpeed*3.6f, minMargin, maxLineError, minUpright, powered, brakeSteps, maxSideslip, slideSeconds, rearPeakSeconds, minBodyMargin, powerDownshifts, cornerSquealSeconds);
+            "AWD_LAP_TEST pass={0} lapSeconds={1:F2} distance={2:F1}m visited={3}/{4} maxSpeed={5:F1}km/h minRoadMargin={6:F2}m maxLineError={7:F2}m minUpright={8:F4} drivenMask={9} brakingSteps={10} maxSideslip={11:F2}deg slideSeconds={12:F2} rearPeakSeconds={13:F2} minBodyMargin={14:F2}m powerDownshifts={15} cornerSquealSeconds={16:F2} strongSlideSeconds={17:F2}",
+            passed, steps*.01f, travelled, visitedCount, track.Count, maxSpeed*3.6f, minMargin, maxLineError, minUpright, powered, brakeSteps, maxSideslip, slideSeconds, rearPeakSeconds, minBodyMargin, powerDownshifts, cornerSquealSeconds, strongSlideSeconds);
         Debug.Log(report); File.WriteAllText(Path.Combine(output,"awd-results.txt"), report + "\n");
         if (!passed) { Application.Quit(1); yield break; }
         Physics.simulationMode = previousSimulation;
@@ -164,20 +166,20 @@ public partial class RingDrive
         var original = dynamics.Copy();
         SetAutopilot(false);
         foreach (bool mouse in new[] {false, true})
-        foreach (float multiplier in new[] {.5f, 1f, 2f, 3f})
-        foreach (int kph in new[] {0, 50, 100})
+        foreach (var angles in new[] {new Vector2(42, 19), new Vector2(25, 8), new Vector2(55, 25)})
+        foreach (int kph in new[] {0, 117, 234, 300})
         foreach (float direction in new[] {-1f, 1f})
         {
             RecoverCar(0); mouseSteering = mouse;
-            dynamics.awdSpeedSteering = multiplier;
+            dynamics.steering = angles.x; dynamics.highSpeedSteering = angles.y;
             UpdatePointer(Vector2.zero, false);
             UpdatePointer(new Vector2(direction * 100, 0), false);
             awd.Body.linearVelocity = car.forward * (kph / 3.6f);
             StepDriving(1, Time.time, mouse ? -direction : direction, 0, 0, false);
             SyncAwdMotion(); AnimateCar(0);
-            float expected = direction * (kph == 0 ? 32 : multiplier * (kph == 50 ? 8.864197f : 2.241431f));
+            float expected = direction * (kph == 0 ? angles.x : kph == 117 ? (angles.x + angles.y) * .5f : angles.y);
             if (Mathf.Abs(awd.SteeringDegrees - expected) > .02f)
-                throw new Exception($"AWD steering range: mouse={mouse} factor={multiplier} speed={kph} expected={expected} actual={awd.SteeringDegrees}");
+                throw new Exception($"AWD steering range: mouse={mouse} angles={angles} speed={kph} expected={expected} actual={awd.SteeringDegrees}");
             foreach (var wheel in awd.Wheels)
                 if (wheel.transform.localPosition.z > 0 && Mathf.Abs(wheel.steerAngle - expected) > .02f)
                     throw new Exception("Physical front wheel did not receive the configured steering angle");
@@ -186,7 +188,7 @@ public partial class RingDrive
                     throw new Exception("Visible front wheel did not follow the configured steering angle");
         }
         dynamics = original; mouseSteering = false; RecoverCar(0);
-        Debug.Log("AWD_STEERING_RANGE pass=True keyboard/mouse, 0.5x/1x/2x/3x, stationary/50/100 km/h, both directions, physics and visible wheels");
+        Debug.Log("AWD_STEERING_RANGE pass=True keyboard/mouse, default/min/max angles, stationary/mid/high-speed blend, both directions, physics and visible wheels");
     }
 
     void CheckAwdControls()
@@ -232,7 +234,7 @@ public partial class RingDrive
             var sample = centerline.Sample(car.position.x,car.position.z);
             var target = car.InverseTransformPoint(track[(sample.Segment+8)%track.Count]);
             return Mathf.Atan2(2*awd.setup.wheelbase*target.x,target.x*target.x+target.z*target.z)
-                *Mathf.Rad2Deg/awd.setup.SteeringLimit(awd.ForwardSpeed);
+                *Mathf.Rad2Deg/dynamics.SteeringLimit(awd.Body.linearVelocity.magnitude);
         }
         while (awd.Body.linearVelocity.magnitude*3.6f < 100 && elapsed < 20)
         {

@@ -19,21 +19,12 @@ public partial class RingDrive
         velocity = awd.Body.linearVelocity;
         yaw = car.eulerAngles.y;
         rpm = awd.EngineRpm; gear = awd.Gear; boost = awd.Boost;
-        steer = awd.SteeringDegrees / awd.setup.SteeringLimit(velocity.magnitude);
+        steer = awd.SteeringDegrees / dynamics.SteeringLimit(velocity.magnitude);
     }
-
-    float ManualAwdSteeringLimit(float speed, DrivingSettings settings)
-        => Mathf.Min(awd.setup.SteeringLimit(speed), settings.awdSpeedSteering
-            * Mathf.Atan(awd.setup.wheelbase * 12f / (speed * speed + 1f)) * Mathf.Rad2Deg);
 
     void StepAwdDriving(float dt, float steeringInput, float brake, bool reverseRequested)
     {
         float forward = awd.ForwardSpeed;
-        if (!autopilotEnabled && !automatic)
-        {
-            // Both manual steering inputs share the speed-dependent range.
-            steeringInput *= ManualAwdSteeringLimit(forward, dynamics) / awd.setup.SteeringLimit(forward);
-        }
         float drive = throttle;
         if (reverseRequested)
         {
@@ -65,7 +56,7 @@ public partial class RingDrive
     void AnimateCar(float dt)
     {
         float angle = dynamics.awdMode ? awd.SteeringDegrees
-            : steer * Mathf.Lerp(dynamics.steering, dynamics.highSpeedSteering, Mathf.Clamp01(velocity.magnitude / 65));
+            : steer * dynamics.SteeringLimit(velocity.magnitude);
         carModel.Animate(steer, angle, Vector3.Dot(velocity, car.forward), dt, view == 0);
         if (dynamics.awdMode) carModel.AnimateSuspension(awd.Wheels, dt);
         else carModel.ResetSuspension();
