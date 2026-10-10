@@ -1,0 +1,174 @@
+{
+  "materials": [
+    {
+      "name": "taillight",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 0.1776402046,
+      "roughness": 0.1964824136,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/taillight_BaseColor.jpg",
+      "normal": "Textures/taillight_Normal.png",
+      "emission": "Textures/taillight_Emission.jpg"
+    },
+    {
+      "name": "window_frame",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 0.0,
+      "roughness": 1,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/window_frame_BaseColor.jpg",
+      "metallicSmoothness": "Textures/window_frame_MetallicSmoothness.png"
+    },
+    {
+      "name": "headlights",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 0.2530090408,
+      "roughness": 0.1085521047,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/headlights_BaseColor.jpg",
+      "normal": "Textures/headlights_Normal.png",
+      "emission": "Textures/headlights_Emission.jpg"
+    },
+    {
+      "name": "bottom",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 1,
+      "roughness": 1,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/bottom_BaseColor.jpg",
+      "normal": "Textures/bottom_Normal.png",
+      "metallicSmoothness": "Textures/bottom_MetallicSmoothness.png"
+    },
+    {
+      "name": "licence_plate",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 0.0,
+      "roughness": 0.1336750501,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/licence_plate_BaseColor.jpg",
+      "normal": "Textures/licence_plate_Normal.png"
+    },
+    {
+      "name": "livery",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 1,
+      "roughness": 1,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/livery_BaseColor.jpg",
+      "normal": "Textures/livery_Normal.png",
+      "emission": "Textures/livery_Emission.jpg",
+      "metallicSmoothness": "Textures/livery_MetallicSmoothness.png"
+    },
+    {
+      "name": "interior",
+      "color": [
+        0.0055728298,
+        0.0055728298,
+        0.0055728298,
+        1.0
+      ],
+      "metallic": 0.0,
+      "roughness": 0.8182753126,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "grill",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 0.3032549317,
+      "roughness": 0.8349212681,
+      "alphaMode": "BLEND",
+      "albedo": "Textures/grill_BaseColor.png",
+      "metallicSmoothness": "Textures/grill_MetallicSmoothness.png"
+    },
+    {
+      "name": "clip",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 1,
+      "roughness": 1,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/clip_BaseColor.jpg",
+      "metallicSmoothness": "Textures/clip_MetallicSmoothness.png"
+    },
+    {
+      "name": "glass",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 1,
+      "roughness": 1,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/glass_BaseColor.png",
+      "metallicSmoothness": "Textures/glass_MetallicSmoothness.png"
+    },
+    {
+      "name": "mirror",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 1,
+      "roughness": 0.0,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "wheel",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallic": 0.5984495403,
+      "roughness": 1,
+      "alphaMode": "OPAQUE",
+      "albedo": "Textures/wheel_BaseColor.jpg",
+      "normal": "Textures/wheel_Normal.png",
+      "metallicSmoothness": "Textures/wheel_MetallicSmoothness.png"
+    }
+  ]
+}
