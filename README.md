@@ -2,8 +2,8 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**AWD Windows preview ([v0.3.0-awd.7](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.7)):**
-[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.7/GotlandRing-AWD-Portable.exe).
+**AWD Windows preview ([v0.3.0-awd.8](https://github.com/mannetroll/awd/releases/tag/v0.3.0-awd.8)):**
+[download the portable EXE](https://github.com/mannetroll/awd/releases/download/v0.3.0-awd.8/GotlandRing-AWD-Portable.exe).
 Press **Z** to switch between Gotland Ring and an **800 × 800 m asphalt training
 area**, with marked 25, 50 and 100 m practice circles. **R/Home** resets the car on
 the pad. Switching areas stops the car; returning to the circuit starts a fresh
@@ -238,15 +238,18 @@ The count covers game source, verification code and build/asset tools. It exclud
 ## Verification
 
 The AWD integration builds on Unity **6000.3.25f1**. The macOS full-lap check
-covers all **2,405** track segments in **4:18.09**, with maximum speed **181.8 km/h**
+covers all **2,405** track segments in **4:18.38**, with maximum speed **181.7 km/h**
 and **21 downshifts under power**. At more than 43 km/h, peak body sideslip is
-**7.41°**, with about **82.08 seconds** above 3° in corners. All four corners of
+**8.64°**, with about **93.17 seconds** above 3° in corners. All four corners of
 the car remain on the asphalt; minimum measured body clearance is **0.44 m**.
-Main-straight 0–100 km/h takes **7.23 s**, followed by a **35.83 m** stop.
-These are prototype measurements.
+Main-straight 0–100 km/h takes **7.27 s**, followed by a **35.79 m** stop.
+On the flat pad, sustained full-throttle reversals at 100/140 km/h produce
+about **37°/54°** peak body sideslip. Lifting and countersteering recovers a
+20° slide. Both areas use the same AWD physics. These are prototype measurements.
 
 The AWD checks also cover progressive tyre force, **24 manual steering recovery
-cases at 60/100/140 km/h**, mesh contact, banking, reverse, braking, pause and
+cases at 60/100/140 km/h**, eight full-throttle reversal runs and four
+countersteering recoveries on the flat training pad, mesh contact, banking, reverse, braking, pause and
 model/mode switching. Training checks exercise both handling modes with manual
 and automatic driving, paused switching, recovery, circuit return and lap
 isolation. The arcade regression covers five laps and recovery. See

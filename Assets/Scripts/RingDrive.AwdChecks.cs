@@ -9,6 +9,8 @@ public partial class RingDrive
     IEnumerator AwdTest()
     {
         Application.runInBackground = true; muted = true;
+        MakeTrainingArea();
+        // Decorative primitive colliders are removed at the end of their creation frame.
         yield return null;
         var previousSimulation = Physics.simulationMode;
         Physics.simulationMode = SimulationMode.Script;
@@ -123,7 +125,7 @@ public partial class RingDrive
             ScreenCapture.CaptureScreenshot(Path.Combine(output,"awd-driving.png"));
             yield return new WaitForSeconds(1);
         }
-        Debug.Log("AWD_TEST ALL PASSED: training area, progressive grip, manual recovery, contact, banking, four-wheel drive, reverse, pause, mode/model switch, corner slip, body clearance, full lap");
+        Debug.Log("AWD_TEST ALL PASSED: training area, progressive grip, manual recovery, power slides, countersteering, contact, banking, four-wheel drive, reverse, pause, mode/model switch, corner slip, body clearance, full lap");
         Application.Quit();
     }
 

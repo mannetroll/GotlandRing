@@ -33,13 +33,15 @@ assist, not a claim about factory equipment on the 1999/2000 car.
 
 The front and rear tyre curves build lateral force progressively to a shared
 WheelCollider slip value of 0.20, then retain 98% of their peak coefficient at
-large slip (0.60). Rear lateral stiffness is 1.25 versus 1.05 at the front,
-providing grip reserve when the driver centres or reverses the steering. These
+large slip (0.60). Rear lateral stiffness is 1.20 versus 1.05 at the front. This leaves a modest
+rear reserve for recovery while allowing deliberate steering reversals to break grip. These
 are tuning coefficients, not slip angles in degrees. The [Unity tyre curve](https://docs.unity3d.com/6000.0/Documentation/Manual/wheel-colliders-friction.html)
 rises to a peak; grip is bounded even when slip continues to increase. Acceleration and braking demand reduce
-the lateral coefficient by up to about 13%, using each wheel's load and torque.
+the lateral coefficient by up to about 56%, using each wheel's load and torque.
 This is a bounded combined-grip approximation, not a calibrated friction-circle
-or differential model. The same tyre response applies to manual driving.
+or differential model. The same tyre response applies on the circuit and the training pad. Holding
+W while repeatedly reversing the steering can produce a power slide; lifting
+and countersteering lets the tyres recover. There is no separate drift mode.
 The engine, mass and default 50:50 torque split use the stock baseline below.
 
 AWD autopilot follows its direction of travel and allows rotation through bends
@@ -115,7 +117,8 @@ It does not teleport, align or push the car along the racing line.
 Run the macOS executable with `--awd-test -batchmode -nographics` to check training
 area switching, pause/reset, both handling modes and manual/autopilot driving;
 progressive lateral-force build-up and 24 manual steering recoveries at 60, 100
-and 140 km/h; road contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
+and 140 km/h; eight full-throttle steering-reversal runs at 100/140 km/h and
+four lift-and-countersteer recoveries entirely on flat asphalt; road contact, both banking extremes, the lap seam, all-wheel reverse, braking torque
 cut, pause/resume, model/mode switching, 0–100 km/h and braking on the main
 straight, and a full physical autopilot lap with power downshifts, modest cornering slip and
 clearance checks for the four corners of the car. Tyre-audio checks require quiet
@@ -127,8 +130,12 @@ front/rear tyre slip, pedal inputs, gear, RPM and normalized tyre-squeal demand.
 reports the full-lap result. `awd-grip-curve.csv` measures lateral acceleration
 under imposed slip, and `awd-steering-recovery.csv` records full-lock pulses and
 35%-lock steering reversals with coasting/full throttle in both directions.
-Recovery must remain below 2° residual sideslip and 8°/s yaw rate from 3 seconds
-after the manoeuvre begins. Harder or sustained steering can still cause a spin. Non-batch runs with graphics enabled request
+Recovery must remain below 2° residual sideslip and 8°/s yaw rate from 4 seconds
+after the manoeuvre begins. `awd-power-slides.csv` records repeated full-throttle
+reversals: 0.4-second changes must exceed 12° of body sideslip and 0.8-second
+changes must exceed 25°, with the rear tyres beyond peak grip. Separate checks
+require lifting and countersteering to recover from a 20° slide. Sustained
+full throttle and large reversals can spin the car. Non-batch runs with graphics enabled request
 `awd-cornering.png` during a corner and `awd-driving.png` at the end.
 `--autopilot-test` validates the separate arcade comparison mode.
 

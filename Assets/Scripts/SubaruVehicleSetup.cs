@@ -16,6 +16,8 @@ public sealed class SubaruVehicleSetup
     public float idleRpm = 900f, revLimitRpm = 6800f, shiftRpm = 6300f;
     public float lateralPeakSlip = .20f;
     public float slidingGripFraction = .98f;
+    public float frontLateralStiffness = 1.05f, rearLateralStiffness = 1.20f;
+    public float maximumLongitudinalGripUse = .9f;
     public float dragCoefficient = .42f, rollingResistance = .012f;
     // Intermediate samples estimated; anchors: 290 Nm/4000 RPM and 160 kW/5600 RPM.
     public AnimationCurve torque = new AnimationCurve(

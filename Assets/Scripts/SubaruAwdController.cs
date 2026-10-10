@@ -175,15 +175,15 @@ public sealed class SubaruAwdController : MonoBehaviour
                 if (speed > 3 && forwardSlip > .22f) brakeTorque *= .22f / forwardSlip;
                 // Longitudinal demand uses some of the same grip as cornering.
                 float longitudinalUse = Mathf.Clamp((Mathf.Abs(drive) + brakeTorque)
-                    / (Mathf.Max(500, hit.force) * setup.wheelRadius * 1.05f * grip), 0, .5f);
+                    / (Mathf.Max(500, hit.force) * setup.wheelRadius * 1.05f * grip), 0, setup.maximumLongitudinalGripUse);
                 lateralBudget = Mathf.Sqrt(1 - longitudinalUse * longitudinalUse);
             }
             wheel.forwardFriction = new WheelFrictionCurve { extremumSlip = .22f, extremumValue = 1,
                 asymptoteSlip = .65f, asymptoteValue = .75f, stiffness = 1.05f * grip };
-            // Build force over a broad slip range; rear grip reserve makes steering reversals recoverable.
+            // Progressive lateral force with a modest rear reserve; drive demand can still break rear grip.
             wheel.sidewaysFriction = new WheelFrictionCurve { extremumSlip = setup.lateralPeakSlip, extremumValue = 1,
                 asymptoteSlip = setup.lateralPeakSlip * 3f, asymptoteValue = setup.slidingGripFraction,
-                stiffness = (frontAxle ? 1.05f : 1.25f) * grip * lateralBudget };
+                stiffness = (frontAxle ? setup.frontLateralStiffness : setup.rearLateralStiffness) * grip * lateralBudget };
             wheel.motorTorque = drive; wheel.brakeTorque = brakeTorque;
         }
         TyreSqueal = Mathf.Sqrt(TyreSqueal * .25f);
