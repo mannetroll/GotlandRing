@@ -21,7 +21,7 @@ Rebuilding updates the generated meshes and prefab in `GotlandRingGenerated`; ma
 
 ## What the video establishes
 
-`KOENIGSEGG.webm` is 203.441 seconds long at 1920 × 1080. The car is branded **Sadair's Spear**; the final card displays **02:55.88**. This is not the earlier 2:56.97 Jesko clip. Inspection covered 41 overview frames across the whole clip at roughly five-second intervals and full-resolution details at 37.5, 112.5 and 142.5 seconds.
+The local, Git-ignored `unstaged/KOENIGSEGG.webm` (relative to the repository root) is 203.441 seconds long at 1920 × 1080. The car is branded **Sadair's Spear**; the final card displays **02:55.88**. This is not the earlier 2:56.97 Jesko clip. Inspection covered 41 overview frames across the whole clip at roughly five-second intervals and full-resolution details at 37.5, 112.5 and 142.5 seconds.
 
 Visible details include gray asphalt, white edge markings, alternating black-and-white kerbs in several corners, pale quarry/runoff areas, metal guardrails, pale walls with signs, wooded banks, exposed rock and wind turbines. See `gotland_ring_video_observations.json` for time-stamped observations and missing measurements. The video has not been precisely registered to CSV chainage. Camera intrinsics, mounting angle, vehicle attitude and raw telemetry are unavailable; visual camera roll is not a measured banking angle.
 
@@ -104,7 +104,7 @@ For an accurate clone, obtain georeferenced track-surface LiDAR/photogrammetry o
 
 ## Sources and attribution
 
-- Supplied `KOENIGSEGG.webm` and banking research text. The video is a visual reference; no video imagery is redistributed in this kit. [Koenigsegg's Sadair's Spear page](https://www.koenigsegg.com/model/sadairs-spear) confirms the model identity and its 2025 introduction.
+- Supplied local `unstaged/KOENIGSEGG.webm` and banking research text. The video is a visual reference; no video imagery is redistributed in this kit. [Koenigsegg's Sadair's Spear page](https://www.koenigsegg.com/model/sadairs-spear) confirms the model identity and its 2025 introduction.
 - [GotlandRing operator](https://gotlandring.com/founders-welcome/) and [layout description](https://gotlandring.com/racing-for-skills-and-thrills/).
 - [Original 2004 Rejsa discussion](https://rejsa.nu/forum/viewtopic.php?t=11612), post dated 26 July 2004 by FredrikÅ; [modern off-camber discussion](https://rejsa.nu/forum/viewtopic.php?t=122585&start=126); [Henry Catchpole's first-hand evo report, 20 August 2008](https://www.evo.co.uk/corvette/z06/9262/corvette-z06-to-gotland-ring).
 - [Lantmäteriet Min karta](https://www.lantmateriet.se/minkarta), [official height help](https://www.lantmateriet.se/tips-minkarta), [terrain catalogue tile 641_72](https://api.lantmateriet.se/stac-hojd/v1/collections/dtm-cog/items/641_72), [scan provenance](https://dl1.lantmateriet.se/hojd/pub/grid/mhm/64_7/m641_72_ursprung.json). Public elevation endpoint: `https://minkarta.lantmateriet.se/api/hojdprofil/hojdprofil/v1`. Imagery and centerline provenance are detailed in `README.md`.

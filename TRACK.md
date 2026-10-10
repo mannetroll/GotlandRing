@@ -94,7 +94,7 @@ The saved CSV passed numeric parsing, closure, distance and coordinate round-tri
 
 Dark canopy coverage over 13 m neighbourhoods controls a deterministic, jittered 7 m planting grid. Explicit exclusions keep quarry water/shadows and the paddock open. Canopies stay at least 19 m from every centerline segment, with additional space for the track signs and game pit garages. Tree bases follow the landscape mesh and its track shoulders. The mapped extent ends at the supplied imagery; unpictured surroundings are not reconstructed.
 
-The supplied full-lap `KOENIGSEGG.webm` is a visual reference for the irregular, mostly low pine treeline and the contrast with open limestone areas. Tree heights of roughly 3–13.5 m, crown widths and individual positions are visual estimates, not a vegetation survey. The forest does not change track geometry or driving physics.
+The supplied full-lap video, kept locally at `unstaged/KOENIGSEGG.webm` outside Git, is a visual reference for the irregular, mostly low pine treeline and the contrast with open limestone areas. Tree heights of roughly 3–13.5 m, crown widths and individual positions are visual estimates, not a vegetation survey. The forest does not change track geometry or driving physics.
 
 Both Unity build commands regenerate `Assets/Resources/Track/Forest.csv` and check road clearance, tree scale and coverage of both loops. **Gotland Ring > Prepare mapped forest** regenerates it separately. Runtime meshes group the existing pine cutout into 96 m tiles with conservative bounds for camera-facing foliage. The reference video is not bundled into the game. The forest layout is processed Lantmäteriet imagery data under CC BY 4.0; retain the attribution below.
 
