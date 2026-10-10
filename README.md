@@ -1,5 +1,11 @@
 # Gotland Ring / Impreza
 
+![v0.3.2 cockpit with live speed, RPM and gear instruments](docs/cockpit.png)
+
+| Impreza Rally — rally blue | Subaru Impreza — blue-and-gold livery |
+|---|---|
+| ![Impreza Rally in v0.3.2](docs/front.png) | ![Subaru Impreza in v0.3.2](docs/subaru-impreza.png) |
+
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.2/GotlandRing-macOS-arm64.zip) | [Release v0.3.2](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.2)
@@ -13,10 +19,6 @@ Press **U** for mouse steering; **W/Up** and **S/Down** remain the pedals. **Ctr
 The stock/manual GT baseline has four driven wheels, individual suspension and physical contact with the banked circuit. Its five-speed gearbox shifts automatically. See [physics assumptions and validation](docs/AWD-PHYSICS.md).
 
 > **Unofficial fan-made prototype.** This project is not affiliated with, sponsored by, or endorsed by GotlandRing, Subaru Corporation, or their affiliates. GotlandRing, Subaru, Impreza, and other marks mentioned in this project remain the property of their respective owners.
-
-![Impreza Rally in Splash red](docs/front.png)
-
-![Subaru Impreza in blue-and-gold livery](docs/subaru-impreza.png)
 
 Two selectable Impreza models. Press **Y** to switch between them during a drive.
 
