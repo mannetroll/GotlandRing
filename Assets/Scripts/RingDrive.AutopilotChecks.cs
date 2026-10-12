@@ -88,7 +88,7 @@ public partial class RingDrive
             StepDriving(.01f, step * .01f);
             if (step % 250 == 0) yield return null;
         }
-        float recoveryError = autopilot.Drive(car.position, yaw, velocity, centerline.Sample(car.position.x,car.position.z)).LineError;
+        float recoveryError = autopilot.Drive(car.position, yaw, velocity, centerline.Sample(car.position.x,car.position.z), .01f).LineError;
         bool recovered = recoveryError < 2 && velocity.magnitude > 15 && !reversing && lap == 1;
         Debug.Log($"AUTOPILOT_RECOVERY lineError={recoveryError:F2} speed={velocity.magnitude:F2} pass={recovered}");
         if (!recovered) { Application.Quit(1); yield break; }

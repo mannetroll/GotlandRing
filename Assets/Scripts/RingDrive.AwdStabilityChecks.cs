@@ -24,8 +24,8 @@ public partial class RingDrive
             {
                 curve.WriteLine("slip_angle_deg,lateral_acceleration_g,front_slip,rear_slip");
                 test.Body.constraints = RigidbodyConstraints.FreezeRotation;
-                float previousForce = 0;
-                foreach (float angle in new[] {1f, 2, 4, 6, 8, 10, 12, 16})
+                float previousForce = 0, peakForce = 0;
+                foreach (float angle in new[] {1f, 2, 4, 6, 8, 10, 12, 16, 24, 32})
                 {
                     Settle();
                     var motion = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0, Mathf.Cos(angle * Mathf.Deg2Rad)) * 30;
@@ -38,8 +38,10 @@ public partial class RingDrive
                     }
                     curve.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0},{1:F4},{2:F4},{3:F4}",
                         angle, acceleration, test.FrontLateralSlip, test.RearLateralSlip));
-                    if (!float.IsFinite(acceleration) || (angle <= 12 ? acceleration <= previousForce : acceleration < previousForce * .97f))
-                        throw new Exception("Tyre force must build progressively, then stay near its peak through a slide");
+                    peakForce = Mathf.Max(peakForce, acceleration);
+                    if (!float.IsFinite(acceleration) || (angle <= 12 ? acceleration <= previousForce
+                        : acceleration < peakForce * .90f))
+                        throw new Exception("Coasting tyre force must build progressively and retain grip for recovery");
                     previousForce = acceleration;
                 }
                 test.Body.constraints = RigidbodyConstraints.None;
@@ -63,7 +65,7 @@ public partial class RingDrive
                         test.Step(.01f, throttle, 0, steering, settings); Physics.Simulate(.01f);
                         foreach (var wheel in test.Wheels)
                             if (!wheel.GetGroundHit(out var hit) || !surface.Sample(hit.point.x, hit.point.z).OnRoad)
-                                throw new Exception("Steering stability check left the level asphalt test surface");
+                                throw new Exception($"Steering stability lost asphalt contact: speed={speed} reversal={reversal} throttle={throttle} direction={direction} step={i}");
                         float beta = Mathf.Abs(test.SideslipDegrees);
                         float yawRate = Vector3.Dot(test.Body.angularVelocity, vehicle.transform.up) * Mathf.Rad2Deg;
                         peakSlip = Mathf.Max(peakSlip, beta);
@@ -130,6 +132,7 @@ public partial class RingDrive
         }
         foreach (int speed in new[] {100, 140})
         foreach (float direction in new[] {-1f, 1f})
+        foreach (bool countersteer in new[] {false, true})
         {
             Accelerate(speed);
             int steps = 0;
@@ -139,23 +142,32 @@ public partial class RingDrive
                 test.Step(.01f, 1, 0, steering, settings); Physics.Simulate(.01f); CheckAsphalt();
             }
             float initialSlip = Mathf.Abs(test.SideslipDegrees), tail = 0, tailYaw = 0;
+            float poweredGrip = test.Wheels[0].forwardFriction.stiffness;
             if (initialSlip < 20) throw new Exception("Countersteering check did not enter a slide");
             for (int i = 0; i < 500; i++)
             {
-                // Test driver lifts and points the front wheels toward the direction of travel.
+                // Release W with either centred steering or active countersteering.
                 float yawRate = Vector3.Dot(test.Body.angularVelocity, test.transform.up) * Mathf.Rad2Deg;
-                float steering = Mathf.Clamp((test.SideslipDegrees - yawRate * .3f)
-                    / settings.SteeringLimit(test.Body.linearVelocity.magnitude), -1, 1);
+                float steering = countersteer ? Mathf.Clamp((test.SideslipDegrees - yawRate * .3f)
+                    / settings.SteeringLimit(test.Body.linearVelocity.magnitude), -1, 1) : 0;
                 test.Step(.01f, 0, 0, steering, settings); Physics.Simulate(.01f); CheckAsphalt();
+                foreach (var wheel in test.Wheels)
+                    if (Mathf.Abs(wheel.forwardFriction.stiffness - poweredGrip * 2) > .001f
+                        || wheel.motorTorque != 0 || wheel.brakeTorque != 0)
+                        throw new Exception("Released W did not double grip without adding drive or brakes");
                 if (i >= 300)
                 {
                     tail = Mathf.Max(tail, Mathf.Abs(test.SideslipDegrees));
                     tailYaw = Mathf.Max(tailYaw, Mathf.Abs(Vector3.Dot(test.Body.angularVelocity, test.transform.up) * Mathf.Rad2Deg));
                 }
             }
-            Debug.Log($"AWD_SLIDE_CATCH speed={speed} direction={direction} initialSlip={initialSlip:F2} tailSlip={tail:F2} tailYaw={tailYaw:F2}");
-            if (tail > 2 || tailYaw > 8) throw new Exception("Slide did not recover with lift and countersteering");
+            Debug.Log($"AWD_SLIDE_CATCH speed={speed} direction={direction} countersteer={countersteer} initialSlip={initialSlip:F2} tailSlip={tail:F2} tailYaw={tailYaw:F2}");
+            if (tail > 2 || tailYaw > 8) throw new Exception("Slide did not recover after releasing W");
+            test.Step(.01f, 1, 0, 0, settings);
+            foreach (var wheel in test.Wheels)
+                if (Mathf.Abs(wheel.forwardFriction.stiffness - poweredGrip) > .001f)
+                    throw new Exception("Pressing W did not restore the powered grip level");
         }
-        Debug.Log("AWD_POWER_SLIDES ALL PASSED: 8 full-throttle reversal runs and 4 countersteering recoveries, all on flat asphalt");
+        Debug.Log("AWD_POWER_SLIDES ALL PASSED: 8 full-throttle reversal runs and 8 lift-off recoveries, 2x released grip and powered re-entry, all on flat asphalt");
     }
 }

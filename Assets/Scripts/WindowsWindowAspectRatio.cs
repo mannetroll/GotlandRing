@@ -20,6 +20,8 @@ public sealed class WindowsWindowAspectRatio : MonoBehaviour
     struct Rect { public int left, top, right, bottom; public int Width => right-left; public int Height => bottom-top; }
     [StructLayout(LayoutKind.Sequential)]
     struct WindowPosition { public IntPtr window, insertAfter; public int x, y, width, height; public uint flags; }
+    [StructLayout(LayoutKind.Sequential)]
+    struct MonitorInfo { public int size; public Rect monitor, work; public uint flags; }
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     delegate IntPtr Procedure(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
     delegate bool EnumWindow(IntPtr window, IntPtr parameter);
@@ -30,6 +32,9 @@ public sealed class WindowsWindowAspectRatio : MonoBehaviour
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr window, StringBuilder name, int count);
     [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr window, out Rect rect);
     [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr window, out Rect rect);
+    [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr window, uint flags);
+    [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
+    [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr window, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
     [DllImport("user32.dll", EntryPoint="GetWindowLongPtrW")] static extern IntPtr GetWindowLongPtr(IntPtr window, int index);
     [DllImport("user32.dll", EntryPoint="SetWindowLongPtrW", SetLastError=true)] static extern IntPtr SetWindowLongPtr(IntPtr window, int index, IntPtr value);
     [DllImport("user32.dll", EntryPoint="CallWindowProcW")] static extern IntPtr CallWindowProc(IntPtr procedure, IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
@@ -39,6 +44,7 @@ public sealed class WindowsWindowAspectRatio : MonoBehaviour
 
     IEnumerator Start()
     {
+        if (Application.isBatchMode) { Destroy(gameObject); yield break; }
         uint process = GetCurrentProcessId();
         var className = new StringBuilder(128);
         float deadline = Time.realtimeSinceStartup + 10;
@@ -62,8 +68,21 @@ public sealed class WindowsWindowAspectRatio : MonoBehaviour
             Debug.LogWarning("WINDOW_ASPECT: could not install resize constraint, error=" + Marshal.GetLastWin32Error());
             yield break;
         }
-        if (!Screen.fullScreen)
-            Screen.SetResolution(Screen.width, Mathf.RoundToInt(Screen.width * 9f / 16), FullScreenMode.Windowed);
+        if (!Screen.fullScreen && !Array.Exists(Environment.GetCommandLineArgs(), a => a == "-screen-width" || a == "-screen-height"))
+        {
+            var monitor = new MonitorInfo { size = Marshal.SizeOf<MonitorInfo>() };
+            if (GetMonitorInfo(MonitorFromWindow(window, 2), ref monitor)
+                && GetWindowRect(window, out Rect outer) && GetClientRect(window, out Rect client))
+            {
+                int borderWidth = outer.Width - client.Width, borderHeight = outer.Height - client.Height;
+                int units = (int)Math.Floor(Math.Min((monitor.work.Width * .8 - borderWidth) / 16, (monitor.work.Height * .8 - borderHeight) / 9));
+                int width = units * 16 + borderWidth, height = units * 9 + borderHeight;
+                SetWindowPos(window, IntPtr.Zero, monitor.work.left + (monitor.work.Width - width) / 2,
+                    monitor.work.top + (monitor.work.Height - height) / 2, width, height, 0x14);
+                GetWindowRect(window, out Rect actual);
+                Debug.Log($"WINDOW_STARTUP available={monitor.work.left},{monitor.work.top},{monitor.work.Width},{monitor.work.Height} frame={actual.left},{actual.top},{actual.Width},{actual.Height} target=80% centred aspect=16:9");
+            }
+        }
         Debug.Log("WINDOW_ASPECT installed: 16:9 client area");
     }
 

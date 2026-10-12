@@ -11,6 +11,8 @@ public sealed class AutopilotController
     readonly TrackData surface;
     readonly float[] segmentLength, speedPlan;
     DrivingSettings settings;
+    float pedalAcceleration;
+    bool pedalsPrimed;
     public IReadOnlyList<Vector3> RacingLine => points;
 
     public struct Controls
@@ -31,6 +33,7 @@ public sealed class AutopilotController
 
     int Next(int index) => (index + 1) % points.Count;
     static Vector3 Flat(Vector3 v) { v.y = 0; return v; }
+    public void ResetControls() => pedalsPrimed = false;
 
     static List<Vector3> BuildRacingLine(TrackData track)
     {
@@ -101,6 +104,7 @@ public sealed class AutopilotController
     public void Configure(DrivingSettings dynamics)
     {
         settings = dynamics.Copy();
+        ResetControls();
         var curvaturePlan = new float[points.Count];
         // Measure curvature over 12 m, suppressing centimetre-scale CSV rounding.
         // Reserve some lateral grip for correcting position/heading errors.
@@ -149,7 +153,7 @@ public sealed class AutopilotController
         return Vector3.Lerp(points[segment], points[Next(segment)], distance / segmentLength[segment]);
     }
 
-    public Controls Drive(Vector3 position, float yawDegrees, Vector3 velocity, TrackData.SurfaceSample road)
+    public Controls Drive(Vector3 position, float yawDegrees, Vector3 velocity, TrackData.SurfaceSample road, float dt)
     {
         // Project onto the racing line near the current road section. Its
         // diagonal approaches do not share the centreline's nearest segment.
@@ -179,7 +183,7 @@ public sealed class AutopilotController
 
         float target = Mathf.Lerp(speedPlan[nearest], speedPlan[Next(nearest)], fraction);
         // Preview a short distance to cover control/steering response at corner entry.
-        float preview = speed * (.12f + .12f / settings.response);
+        float preview = speed * (.22f + .12f / settings.response);
         int p = nearest;
         float remaining = (1 - fraction) * segmentLength[p];
         for (int count = 0; count < points.Count && remaining < preview; count++)
@@ -201,8 +205,13 @@ public sealed class AutopilotController
             / (2 * segmentLength[nearest]);
         float desiredAcceleration = (target - speed) * 3 + Mathf.Min(0, plannedAcceleration);
         float drag = DrivingSettings.ArcadeDrag(speed, road.OnRoad);
-        float brake = Mathf.Clamp01((-desiredAcceleration - drag) / settings.braking);
-        float throttle = brake > .001f ? 0 : Mathf.Clamp01((desiredAcceleration + drag) / (settings.acceleration * 5.9f));
+        // Tyre forces fluctuate between solver steps. Move one signed pedal demand
+        // smoothly through coast so the driver cannot tap both pedals in succession.
+        float demand = Mathf.Clamp(desiredAcceleration + drag, -settings.braking, settings.acceleration * 5.9f);
+        pedalAcceleration = pedalsPrimed ? Mathf.Lerp(pedalAcceleration, demand, 1 - Mathf.Exp(-dt / .12f)) : demand;
+        pedalsPrimed = true;
+        float brake = Mathf.Clamp01((-pedalAcceleration - .2f) / settings.braking);
+        float throttle = Mathf.Clamp01((pedalAcceleration - .2f) / (settings.acceleration * 5.9f));
         if (Vector3.Dot(velocity, forward) < -.3f) { brake = 1; throttle = 0; }
         return new Controls { Steering = Mathf.Clamp(steering, -1, 1), Throttle = throttle, Brake = brake, TargetSpeed = target, LineError = lineError, Curvature = curvature };
     }

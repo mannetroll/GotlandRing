@@ -20,6 +20,17 @@ public partial class RingDrive
         Directory.CreateDirectory(output);
         try
         {
+            if (Array.Exists(Environment.GetCommandLineArgs(), a => a == "--turnaround-test"))
+            {
+                CheckTrainingTurnaround(output);
+                Debug.Log("TURNAROUND_TEST ALL PASSED"); Application.Quit(); yield break;
+            }
+            CheckAwdEngine();
+            if (Array.Exists(Environment.GetCommandLineArgs(), a => a == "--drivetrain-test"))
+            {
+                CheckAwdSlidePower(output);
+                Debug.Log("DRIVETRAIN_TEST ALL PASSED"); Application.Quit(); yield break;
+            }
             CheckLapTiming();
             CheckMouseSteering();
             CheckAwdSteeringRange();
@@ -30,6 +41,8 @@ public partial class RingDrive
             CheckAwdBanks();
             CheckAwdControls();
             CheckAwdAcceleration(output);
+            CheckAwdSlidePower(output);
+            CheckTrainingTurnaround(output);
         }
         catch (Exception e) { Debug.LogException(e); Application.Quit(1); yield break; }
 
@@ -37,6 +50,8 @@ public partial class RingDrive
         SetAutopilot(true);
         for (int i = 0; i < 300; i++) { awd.Step(.01f, 0, 1, 0, dynamics); Physics.Simulate(.01f); }
         int steps = 0, visitedCount = 0, powered = 0, brakeSteps = 0, leftSteps = 0, rightSteps = 0, powerDownshifts = 0;
+        int steeringChatter = 0, brakeChatter = 0;
+        float previousSteering = awd.SteeringDegrees, previousBrake = 0, previousSteeringChange = 0, previousBrakeChange = 0;
         var visited = new bool[track.Count];
         float maxSideslip = 0, slideSeconds = 0, strongSlideSeconds = 0, rearPeakSeconds = 0;
         float minBodyMargin = float.MaxValue;
@@ -52,6 +67,14 @@ public partial class RingDrive
                     var before = car.position;
                     int previousGear = awd.Gear;
                     StepDriving(.01f, ++steps * .01f);
+                    // Alternating 10 ms corrections become 50 Hz wheel/hand flutter.
+                    // Count reversals above 1.2 degrees at the rim or 5% brake travel.
+                    float steeringChange = awd.SteeringDegrees - previousSteering;
+                    float brakeChange = pilotControls.Brake - previousBrake;
+                    if (steeringChange * previousSteeringChange < 0 && Mathf.Min(Mathf.Abs(steeringChange), Mathf.Abs(previousSteeringChange)) > .1f) steeringChatter++;
+                    if (brakeChange * previousBrakeChange < 0 && Mathf.Min(Mathf.Abs(brakeChange), Mathf.Abs(previousBrakeChange)) > .05f) brakeChatter++;
+                    previousSteering = awd.SteeringDegrees; previousBrake = pilotControls.Brake;
+                    previousSteeringChange = steeringChange; previousBrakeChange = brakeChange;
                     if (awd.Gear < previousGear && pilotControls.Throttle > .5f && pilotControls.Brake == 0) powerDownshifts++;
                     Physics.Simulate(.01f); SyncAwdMotion();
                     var sample = centerline.Sample(car.position.x, car.position.z);
@@ -82,7 +105,7 @@ public partial class RingDrive
                         var edge = centerline.Sample(point.x, point.z);
                         minBodyMargin = Mathf.Min(minBodyMargin, edge.Width - Mathf.Abs(edge.Offset));
                     }
-                    if (steps % 10 == 0) telemetry.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                    telemetry.WriteLine(string.Format(CultureInfo.InvariantCulture,
                         "{0:F2},{1},{2:F2},{3:F2},{4:F3},{5:F3},{6:F1},{7:F1},{8},{9:F2},{10:F3},{11:F3},{12:F3},{13:F3},{14:F4},{15:F4},{16:F3},{17:F3},{18},{19:F0}",
                         steps * .01f, nearest, velocity.magnitude * 3.6f, pilotControls.TargetSpeed * 3.6f,
                         pilotControls.LineError, margin, awd.FrontTorque, awd.RearTorque, awd.GroundedWheels,
@@ -107,7 +130,9 @@ public partial class RingDrive
                 }
             }
         }
-        bool passed = lap == 2 && travelled > length * .98f && visitedCount > track.Count * .98f
+        bool smooth = steeringChatter < 50 && brakeChatter == 0;
+        Debug.Log($"AWD_PILOT_SMOOTHNESS pass={smooth} steeringReversals={steeringChatter} brakePulses={brakeChatter} sampleRate=100Hz");
+        bool passed = smooth && lap == 2 && travelled > length * .98f && visitedCount > track.Count * .98f
             && powered == 15 && brakeSteps > 100 && leftSteps > 100 && rightSteps > 100 && maxSpeed > 25
             && minBodyMargin > 0 && maxSideslip < 12 && slideSeconds > 3
             && powerDownshifts > 5;

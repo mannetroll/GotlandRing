@@ -12,7 +12,11 @@ public partial class RingDrive
         awd.SetSimulationActive(dynamics.awdMode);
     }
 
-    void ConfigureAutopilot() => autopilot.Configure(dynamics.awdMode ? awd.PilotSettings(dynamics) : dynamics);
+    void ConfigureAutopilot()
+    {
+        autopilot.Configure(dynamics.awdMode ? awd.PilotSettings(dynamics) : dynamics);
+        awd.ResetPilot();
+    }
 
     void SyncAwdMotion()
     {

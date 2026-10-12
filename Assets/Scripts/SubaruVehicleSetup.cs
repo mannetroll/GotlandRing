@@ -14,8 +14,10 @@ public sealed class SubaruVehicleSetup
     public float[] gears = {3.454f, 1.947f, 1.366f, .972f, .738f};
     public float finalDrive = 4.111f, reverseRatio = 3.333f, efficiency = .88f;
     public float idleRpm = 900f, revLimitRpm = 6800f, shiftRpm = 6300f;
+    public float engineInertia = .28f, engineDrag = 25f;
+    public float clutchTargetRpm = 4500f, clutchCapacity = 360f, clutchCoupling = 20f;
     public float lateralPeakSlip = .20f;
-    public float slidingGripFraction = .98f;
+    public float slidingGripFraction = .98f, poweredRearSlidingGrip = .50f;
     public float frontLateralStiffness = 1.05f, rearLateralStiffness = 1.20f;
     public float maximumLongitudinalGripUse = .9f;
     public float dragCoefficient = .42f, rollingResistance = .012f;

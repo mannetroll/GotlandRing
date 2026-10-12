@@ -92,7 +92,7 @@ public static class SubaruCarImport
    material.EnableKeyword("_ALPHATEST_ON");material.renderQueue=2450;
   }
   if(data.name=="glass"){
-   material.mainTexture=null;material.color=new Color(.8f,.9f,1,.16f);material.SetFloat("_Metallic",0);material.SetFloat("_Glossiness",.65f);
+   material.mainTexture=null;material.color=new Color(.96f,.98f,1,.035f);material.SetFloat("_Metallic",0);material.SetFloat("_Glossiness",.65f);
    material.SetTexture("_MetallicGlossMap",null);material.DisableKeyword("_METALLICGLOSSMAP");
    material.SetFloat("_Mode",3);material.SetOverrideTag("RenderType","Transparent");
    material.SetInt("_SrcBlend",(int)BlendMode.One);material.SetInt("_DstBlend",(int)BlendMode.OneMinusSrcAlpha);material.SetInt("_ZWrite",0);
