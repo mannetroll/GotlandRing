@@ -1,6 +1,6 @@
 # Gotland Ring / Impreza
 
-![Impreza Rally in Splash red](docs/front.png)
+![Impreza Rally in Splash red, captured in v0.3.2](docs/front.png)
 
 | Live cockpit instruments — v0.3.2 | Subaru Impreza — blue-and-gold livery |
 |---|---|
