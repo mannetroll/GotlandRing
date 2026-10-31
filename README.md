@@ -10,9 +10,9 @@
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-**Published packages (v0.3.3):** [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-macOS-arm64.zip) | [Release v0.3.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.3)
+**Release v0.3.4:** [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.4/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.4/GotlandRing-macOS-arm64.zip) | [Release v0.3.4](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.4)
 
-[Current source: v0.3.4](https://github.com/mannetroll/GotlandRing/tree/v0.3.4). Downloadable v0.3.4 packages have not been published yet.
+[Source: v0.3.4](https://github.com/mannetroll/GotlandRing/tree/v0.3.4). Windows x64 supports Windows 10/11; release testing uses Windows 11 on Fractal.
 
 **Version v0.3.4** includes the Plesse analogue instrument cluster in both cars, bonnet/chase instrument overlays, rebindable keyboard controls, a configurable drone camera, and dark menus and HUD panels. Escape opens keyboard setup and camera settings. **P** toggles autopilot, **F** fullscreen, **H** AWD/arcade handling, **J** HUD visibility and **K** Desktop screenshots with embedded driving metadata.
 
@@ -250,9 +250,7 @@ The count covers game source, verification code, build/asset tools and the separ
 
 ## Verification
 
-**v0.3.4 — 31 October 2026:** macOS build and signature verification passed, along with native keyboard binding checks, menu/HUD captures at normal and 720p window sizes, and instrument checks for both cars in AWD/arcade, reverse and pause. GPU checks verify the analogue speed, RPM and fuel needles. The screenshots above come from the v0.3.4 macOS build. Windows has not been retested for this version.
-
-Release **v0.3.3** was tested on **12 October 2026**: all **14 macOS suites** and **eight Windows 11 suites over SSH to Fractal** pass. Mac testing includes Metal rendering and fresh screenshots of both cars. Windows testing uses `-batchmode -nographics`; rendered appearance, audio output and native window behaviour are not covered there. Both downloadable packages are extracted, checked file by file with SHA-256 and launched. See the [platform results and limitations](VERIFICATION.md).
+**v0.3.4 — 31 October 2026:** all **16 macOS suites** and **nine Windows functional suites** pass. The Windows x64 build and portable EXE are produced on Fractal (Windows 11). Mac checks include Metal needle rendering and menu/HUD captures at normal and 720p window sizes. Windows checks run without graphics because Fractal has no logged-in desktop; Windows 10 runtime testing was not available. Both final packages are extracted, checked by SHA-256 and launched. See [verification and platform limits](VERIFICATION.md).
 
 `--scenery-views-test` checks all 15 elevated camera positions and restores both handling modes, both areas, car models, paused/running state, momentum, lap time and camera projection. Graphics-enabled runs capture every view.
 

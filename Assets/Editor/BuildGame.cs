@@ -58,7 +58,7 @@ public static class BuildGame {
   System.IO.Directory.CreateDirectory(outputDirectory);
   var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Scenes/Gotland.unity"},locationPathName=outputPath,target=target,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded) throw new System.Exception("Build failed: "+report.summary.result);
-  foreach(var file in new[]{"README.md","LICENSE","DATA_LICENSES.md","THIRD_PARTY_NOTICES.md","TRACK.md","docs/ASSET-CREDITS.md","docs/ENGINE-AUDIO.md","docs/SCENERY.md","docs/AWD-PHYSICS.md","track/gotland_ring_full_centerline_3m_lowpass.csv","track/gotland_ring_full_surface_3m.csv","track/SURFACE_README.md","track/gotland_ring_surface_validation.png","track/gotland_ring_validation.png","track/gotland_ring_whole_lap_lowpass.png","windmills/gotland_ring_wind_turbines.csv","windmills/WIND_TURBINES_README.txt","windmills/gotland_ring_wind_turbines_map.png"}){
+  foreach(var file in new[]{"README.md","VERIFICATION.md","docs/release-notes.md","LICENSE","DATA_LICENSES.md","THIRD_PARTY_NOTICES.md","TRACK.md","docs/ASSET-CREDITS.md","docs/ENGINE-AUDIO.md","docs/SCENERY.md","docs/AWD-PHYSICS.md","track/gotland_ring_full_centerline_3m_lowpass.csv","track/gotland_ring_full_surface_3m.csv","track/SURFACE_README.md","track/gotland_ring_surface_validation.png","track/gotland_ring_validation.png","track/gotland_ring_whole_lap_lowpass.png","windmills/gotland_ring_wind_turbines.csv","windmills/WIND_TURBINES_README.txt","windmills/gotland_ring_wind_turbines_map.png"}){
    var destination=System.IO.Path.Combine(outputDirectory,file);
    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(destination));
    System.IO.File.Copy(file,destination,true);

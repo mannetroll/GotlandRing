@@ -1,81 +1,45 @@
-# Gotland Ring v0.3.3 verification
+# Gotland Ring v0.3.4 verification
 
-Verified on 12 October 2026 with Unity 6000.3.25f1, an Apple M1 Max Mac and Windows 11 on Fractal over SSH. The ARM64 macOS and x64 Windows packages use the same release source and game version **v0.3.3**. Windows uses Direct3D 11; macOS uses Metal.
+Verified on 31 October 2026 with Unity 6000.3.25f1. macOS uses Apple Silicon ARM64 and Metal on an Apple M1 Max. The Windows x64 player is built natively on Fractal, running Windows 11 Pro build 26300, and uses Direct3D 11 during normal play. The portable launcher uses .NET 10 and embeds its runtime. Both game and launcher report **v0.3.4**.
 
 ## Standalone checks
 
-All **14 macOS suites** pass: scenery views, cockpit instruments, feedback, AWD, arcade autopilot, settings, reference lap, scenery geometry, surface contact, model animation, car switching, wind turbines, track signs and driving/braking smoke checks. Rendering checks and screenshots run with Metal enabled.
+All **16 macOS suites** pass with graphics enabled: instruments, keyboard setup, menu/HUD preview, AWD, arcade autopilot, settings, reference lap, feedback, car switching, scenery views, scenery geometry, surface contact, wind turbines, model animation, track signs and driving/braking smoke checks.
 
-All **eight Windows functional suites** pass: scenery views, cockpit instruments, feedback, car switching and driver animation, AWD, arcade autopilot, settings and reference lap. Windows runs use `-batchmode -nographics`, validating simulation, skinned-mesh deformation, camera state, replay, timing and controls without testing rendered appearance or sound output. The instrument suite explicitly skips GPU checks in this mode.
+All **nine Windows functional suites** pass without graphics: instruments, keyboard setup, feedback, car switching, AWD, arcade autopilot, settings, reference lap and scenery views. Headless instrument and keyboard checks explicitly skip GPU captures while retaining their functional assertions.
 
-| Measurement | macOS | Windows 11 |
-|---|---:|---:|
-| AWD circuit autopilot lap | 262.41 s | 262.41 s |
-| Track segments visited | 2,405 / 2,405 | 2,405 / 2,405 |
-| Maximum speed | 177.0 km/h | 177.0 km/h |
-| Minimum car-body clearance to asphalt edge | 0.51 m | 0.51 m |
-| Maximum lap body sideslip above 43 km/h | 4.44° | 4.44° |
-| Time above 3° sideslip in corners | 41.66 s | 41.65 s |
-| Downshifts under power | 10 | 10 |
-| Main-straight 0–100 km/h | 7.52 s | 7.52 s |
-| Braking distance from approximately 100 km/h | 35.72 m | 35.95 m |
-| Lowest sustained RPM in held-throttle slide checks | 4,323 | 4,323 |
-| Longest interruption of drive torque in those checks | 0.23 s | 0.23 s |
-| Rapid brake pulses during the lap | 0 | 0 |
-| Rapid steering reversals during the lap | 6 | 16 |
+The build-time checks pass on both platforms: track/surface data, wind turbines, forest placement, car imports, driver geometry, ride feedback, engine audio and surface audio. Source-text hashes, normalized for Windows line endings, match for the scripts, shaders, package manifests, Unity version and portable launcher project.
 
-## Engine RPM, sliding and autopilot
+## Instruments, controls and menus
 
-Engine checks cover free revving with an open clutch, the limiter, return to idle, load at stationary wheels and sudden shaft deceleration. Twelve W-held circle/reversal runs start at 0/50/100 km/h, with traction control on and off. They require sustained RPM and drive torque, power downshifts without gear hunting and no unrequested wheel braking.
+The instrument checks validate both models in AWD and arcade driving, sideways speed, reverse, pause and independent display state. Mac GPU readback verifies the analogue tachometer, speedometer and fuel needle positions. Replay checks verify instrument data after seeking, pause and completion.
 
-All 18 keyboard turnaround cases reach 180°. The 0.8/1.2-second steering reversals also require at least 45° of sideslip. The 24 manual steering recovery cases, eight full-throttle reversal runs and eight lift-off recoveries pass on both platforms. Releasing W applies 2× grip immediately; both centred-steering and countersteering recoveries catch the slide, and pressing W restores powered sliding.
+Keyboard checks cover conflicting assignments, cancellation, persistence across reloads, alternate movement keys, clearing bindings, reserved Escape, default restoration and current on-screen hints. Headless checks finish after the binding assertions; Mac runs also capture both help pages.
 
-The lap test records controls at 100 Hz. Rapid brake pulses count adjacent rise/fall changes greater than 0.05; steering reversals count alternating road-wheel changes greater than 0.1° per step (approximately 1.2° at the steering-wheel rim). Both platforms pass the smoothness limits. The filters apply to autopilot pedal demand and yaw correction.
+The Mac menu/HUD preview captures driving, bonnet instruments, mouse steering, autopilot, pause menu, AWD/arcade settings, view/sound, drone setup, keyboard setup and the training area. It covers the normal window size and 1280×720. Captures are visually inspected. The README preserves the front three-quarter main view with cockpit and pause-menu images below it; all are actual v0.3.4 captures.
 
-Accelerator checks also cover 20 spins beyond 90° across both surfaces and both handling modes. W/Up retains forward throttle with no automatic wheel braking. Returning from reverse releases reverse torque immediately and gives W priority over an overlapping X input. S/Down still brakes and cuts drive. Circuit and training-pad physics remain shared. The arcade regression covers five full laps and off-road/reverse recovery.
+## Driving and scenery
 
-Start/finish checks require ordered checkpoints and a forward finish crossing. Reverse crossings, rocking across the line and recovery do not add laps.
+The AWD suite covers engine/clutch response, controls, mouse steering, lap timing, physical contact, banking, training-area transitions, manual recovery, power slides and a complete circuit lap. On macOS the lap visits all **2,405 segments**, takes **262.41 seconds**, reaches **177.0 km/h**, and retains **0.51 m** minimum body clearance to the asphalt edge. The main-straight 0–100 km/h check takes **7.52 seconds**; braking from approximately 100 km/h takes **35.72 m**. There are no rapid autopilot brake pulses in the lap check.
 
-## Scenery tour
+Arcade autopilot checks complete five laps across default and extreme handling settings, then verify off-road/reverse recovery. Training checks cover AWD/arcade, manual/autopilot, pause, recovery and lap isolation. Engine/slide checks include 12 held-throttle cases, 18 turnaround cases, 24 manual stability cases, eight full-throttle reversal runs and eight lift-off recoveries.
 
-`--scenery-views-test` checks all 15 views used by **V**, including camera clearance above the terrain, orthographic overview and early exit. Eight restoration combinations cover AWD/arcade, circuit/training and paused/running state, using both car models. The saved car position, orientation, momentum, RPM, gear, autopilot, lap/checkpoints, elapsed lap time and driving-camera projection remain intact. Mac captures cover every view. C or Escape returns early; advancing beyond the last view returns to the car.
+Replay checks cover all **4,464 samples**, eight restoration combinations, timing, momentum, camera layout, audio-listener cleanup and pause/mute/completion. Feedback checks cover grounded, split-surface and airborne wheel contacts, disabled effects, stationary settling and camera isolation.
 
-## Cockpit and surface feedback
+Scenery checks cover all 15 elevated views and saved-drive restoration, 26 kerb runs and 13,812 vertices, mapped building/barrier placement and 12 wind turbines. Maximum surface contact error on macOS is **0.0119 m**. Model checks validate both cars, wheel animation, cockpit visibility and driver hands.
 
-The live LCD passes driving-state checks for AWD and arcade, both models, sideways speed, reverse, pause and model isolation on both platforms. Mac GPU readback verifies rev-bar fill and changing speed/RPM digits. Cockpit screenshots show 108 km/h, 4500 RPM and third gear matching the HUD, with the v0.3.3 label. Replay checks verify instrument readings after seeking, pausing and finishing.
+## Packages
 
-Steering checks cover the visible wheel, its centred column axis, road-wheel agreement, both directions, full locks, pause and return to centre. Both car models pass the driver checks: gloves follow their bones, elbows remain connected, the torso stays fixed, grip changes alternate, and pause/seek/centre poses are stable. Sweeping the wheel from −720° to +720° in 0.5° steps gives a maximum hand displacement of 0.0095 m per step and at least 0.070 m of arm reach remaining.
+The macOS ZIP is extracted and checked for archive integrity. Every app file and accompanying documentation/data file is compared with its source using SHA-256. The extracted app reports v0.3.4, passes `codesign --verify --deep --strict`, and is launched for an instrument check.
 
-Feedback checks cover grounded, split-surface and airborne wheel contacts, stationary settling, acceleration, disabled sliders, mouse look, chase-camera isolation and recovery. Editor checks validate 711 kerb sample locations, asphalt/loose-ground and training-pad boundaries, braking/cornering direction, 30/60/120 Hz behaviour and motion limits.
+The Windows portable EXE is built on Fractal. Its embedded payload is extracted to a fresh content-hash directory, and every packaged runtime file is compared with the built source by SHA-256. The launcher and Unity game version are checked independently. Launching the final portable EXE must reach `SETTINGS_TEST passed`.
 
-Engine and surface-audio checks pass at 44.1, 48 and 96 kHz, including level/headroom, mute, zero intensity, stationary/airborne settling and sample-rate changes. Settings checks restore saved preferences after apply/cancel and movement/sound persistence checks.
-
-## Replay and scenery geometry
-
-The reference-lap suite validates all 4,464 motion/audio samples, circuit coverage, clock boundaries, pause/mute/completion, eight drive-restoration combinations, momentum, lap-time isolation, camera proportions and audio-listener cleanup. Feedback settings and steering animation also work in replay.
-
-Scenery checks validate all **26 kerb runs / 13,812 vertices**, road sides, upward faces and a 0.025 m paint offset. Quarry mesh and driving-surface queries agree with collision geometry. Raised banks leave the road and shoulder clear. The mapped main building, 14 barrier runs and all 12 west-facing turbines pass placement and geometry checks. Surface checks cover forward/reverse contact, banking, recovery and the seam, with a maximum contact error of 0.0119 m.
-
-## Build and package checks
-
-Both Unity builds pass track/surface, turbine, forest, car-import, ride-feedback and engine/surface-audio checks.
-
-The macOS ZIP passes archive-integrity checking. All **147 app files** and **18 accompanying documentation/data files** match their sources. The extracted app reports v0.3.3, passes `codesign --verify --deep --strict`, and passes the headless instrument startup check.
-
-The Windows portable EXE is built with .NET 10. The launcher metadata and serialized Unity game settings report v0.3.3; the Unity executable's own file metadata reports the Unity engine version. All **161 transferred runtime files** and **161 extracted payload files** match by SHA-256. The final portable EXE starts the game and reaches the settings-test success marker. Its retrieved checksum matches the Windows packaging result.
-
-The final Mac app is installed in `/Applications/GotlandRing.app`; all 147 files match the tested build. Its 1344 × 784-point startup window is centred in the 1684 × 1079-point usable display area and fits within 80%. Interactive checks confirm V opens and advances scenery views, and C restores the driving camera.
-
-The README screenshots were captured from this release at 1920×1080: the red Impreza Rally, blue-and-gold Subaru Impreza and live cockpit instruments. Both downloads include attribution and track/turbine data. Source films remain excluded. `SHA256SUMS` records the final package hashes.
-
-## Reproduction and evidence
-
-Run the standalone checks with the flags in [README.md](README.md). Core simulation suites support `-batchmode -nographics`; scenery material checks need graphics enabled. Each suite must exit successfully and report its success marker without failed assertions. See [AWD assumptions and controls](docs/AWD-PHYSICS.md).
-
-Local evidence is outside Git in `Logs/release-0.3.3/` and `Build/Release-v0.3.3/`. Build logs are `Logs/build-macOS.log` and `Logs/build-windows-0.3.3.log`.
+`SHA256SUMS` records the Windows EXE and macOS ZIP hashes. The published downloads are fetched again and verified against those hashes. Local evidence is in `Logs/release-0.3.4/` and `Build/Release-v0.3.4/`, outside Git.
 
 ## Limits
 
-Windows visual appearance, native window resizing/fullscreen and audio listening were not reviewed in the SSH session. Audio checks validate generated samples; they do not replace listening feedback.
+No separate Windows 10 machine was available. The same Windows x64 package is provided for Windows 10/11, with runtime testing performed on Windows 11 only.
 
-These checks validate prototype behaviour, not calibrated Subaru dynamics or surveyed circuit geometry. The reference lap is a position-matched replay with estimated audio controls, not measured Subaru telemetry. Scenery collisions, damage, detailed differentials and tyre-temperature simulation remain incomplete or absent. Packages have no Windows publisher signature or Apple Developer ID/notarization; the Mac app is ad-hoc signed. Car-asset use remains noncommercial under the included notices.
+Fractal has no logged-in interactive desktop. The attempted Direct3D capture run could not set a window resolution; Windows rendered appearance, GPU instrument needles, native window resizing/fullscreen and audio listening were not approved by that run. Mac Metal captures cover the visible changes. Audio checks validate generated samples and do not replace listening feedback.
+
+These checks validate prototype behaviour, not calibrated Subaru dynamics or surveyed circuit geometry. Packages have no Windows publisher signature or Apple Developer ID/notarization; the Mac app is ad-hoc signed. Car-asset use remains noncommercial under the included notices.

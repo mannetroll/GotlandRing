@@ -48,6 +48,12 @@ public partial class RingDrive
         OpenKeyboardHelp();keyboardDraft=new DrivingKeyBindings();CloseKeyboardHelp(true);
         keyBindings=DrivingKeyBindings.Load();
         ModeCheck(Keys.Resolve(KeyCode.C)==KeyCode.C&&Keys.Resolve(KeyCode.UpArrow)==KeyCode.UpArrow,"Restore defaults saves and reloads");
+        const string checks="KEYBOARD_HELP_CHECK passed: conflicts, cancellation, saved bindings reload, alternate movement, cleared bindings, reserved Escape and default restore";
+        if(SystemInfo.graphicsDeviceType==UnityEngine.Rendering.GraphicsDeviceType.Null)
+        {
+            Debug.Log(checks+"; rendered captures skipped: no graphics device");
+            yield break;
+        }
         string folder=Environment.GetEnvironmentVariable("GOTLAND_TEST_OUTPUT");Directory.CreateDirectory(folder);
         yield return new WaitForEndOfFrame();
         ScreenCapture.CaptureScreenshot(Path.Combine(folder,"escape-menu.png"));
@@ -64,6 +70,6 @@ public partial class RingDrive
         yield return new WaitForEndOfFrame();
         ScreenCapture.CaptureScreenshot(Path.Combine(folder,"shared-shortcuts.png"));
         yield return new WaitForEndOfFrame();yield return null;
-        Debug.Log("KEYBOARD_HELP_CHECK passed: conflicts, cancellation, saved bindings reload, alternate movement, cleared bindings, reserved Escape, default restore and two rendered help pages");
+        Debug.Log(checks+"; two rendered help pages");
     }
 }
