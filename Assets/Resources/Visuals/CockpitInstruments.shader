@@ -1,20 +1,25 @@
 Shader "Gotland/CockpitInstruments" {
  Properties {
-  _UvRect("Screen UV rectangle",Vector)=(0,0,1,1)
+  _ZTest("Depth test",Float)=4
+  _Face("Plesse dial face",2D)="white" {}
+  _Fuel("Fuel fraction",Range(0,1))=1
+  _Coolant("Coolant gauge",Range(0,1))=.5
+  _TripKm("Trip km",Float)=0
   _Rpm("RPM",Float)=900
   _Speed("Speed km/h",Float)=0
   _Gear("Gear",Float)=1
  }
- SubShader { Tags {"RenderType"="Opaque"}
+ SubShader { Tags {"Queue"="Transparent" "RenderType"="Transparent"}
+ Cull Off ZWrite Off ZTest [_ZTest] Blend SrcAlpha OneMinusSrcAlpha
  Pass { CGPROGRAM
  #pragma vertex vert
  #pragma fragment frag
  #pragma target 3.5
  #include "UnityCG.cginc"
- float4 _UvRect;
- float _Rpm,_Speed,_Gear;
+ sampler2D _Face;
+ float _Rpm,_Speed,_Gear,_Fuel,_Coolant,_TripKm;
  struct v2f{float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;};
- v2f vert(appdata_base v){v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=(v.texcoord.xy-_UvRect.xy)/_UvRect.zw;return o;}
+ v2f vert(appdata_base v){v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.texcoord.xy;return o;}
  float box(float2 p,float2 centre,float2 halfSize,float aa){
   float2 d=abs(p-centre)-halfSize;
   return 1-smoothstep(-aa,aa,max(d.x,d.y));
@@ -47,27 +52,35 @@ Shader "Gotland/CockpitInstruments" {
   int2 cell=(int2)floor(p*float2(3,5));
   return (mask>>(cell.x+(4-cell.y)*3))&1;
  }
- // Compact 3 x 5 letters keep the small physical LCD readable without a font atlas.
- float labelRPM(float2 p){return glyph(p,23275)+glyph(p-float2(1.3,0),4843)+glyph(p-float2(2.6,0),23549);}
- float labelKmh(float2 p){return glyph(p,23277)+glyph(p-float2(1.3,0),23549)+glyph(p-float2(2.6,0),4772)+glyph(p-float2(3.9,0),23533);}
+ float needle(float2 p,float2 centre,float length,float angle,float aa){
+  float2 direction=float2(cos(angle),sin(angle)),q=p-centre;
+  float along=dot(q,direction),across=abs(dot(q,float2(-direction.y,direction.x)));
+  float width=lerp(3.2,1,saturate(along/length));
+  return (1-smoothstep(width-aa,width+aa,across))*smoothstep(-12-aa,-12+aa,along)*(1-smoothstep(length-aa,length+aa,along));
+ }
+ float disc(float2 p,float2 c,float radius,float aa){return 1-smoothstep(radius-aa,radius+aa,length(p-c));}
+ float3 gauge(float3 color,float2 p,float2 c,float radius,float angle,float aa){
+  float shadow=needle(p-float2(2,-3),c,radius,angle,aa);
+  color=lerp(color,float3(.28,.29,.30),shadow*.35);
+  color=lerp(color,float3(.93,.14,.08),needle(p,c,radius,angle,aa));
+  color=lerp(color,float3(.10,.12,.14),disc(p,c,radius>70?19:14,aa));
+  color=lerp(color,float3(.27,.29,.31),disc(p,c+float2(-1,1),radius>70?15:11,aa));
+  return color;
+ }
  fixed4 frag(v2f i):SV_Target {
-  float2 p=i.uv;float aa=fwidth(p.y);
-  float3 color=float3(.006,.012,.014);
-  float3 white=float3(.78,.91,.88),orange=float3(1,.46,.06);
-  float bar=box(p,float2(.5,.9),float2(.44,.06),aa);
-  float cell=floor((p.x-.06)/.88*24);
-  float gap=step(.11,frac((p.x-.06)/.88*24));
-  float lit=step((cell+.5)/24,saturate(_Rpm/7000));
-  float3 barColor=cell>=22?float3(1,.04,.015):cell>=20?orange:float3(.09,.8,.26);
-  color+=bar*gap*lerp(float3(.022,.04,.033),barColor,lit);
-  color+=white*labelRPM((p-float2(.07,.68))/float2(.033,.08));
-  color+=white*number((p-float2(.48,.655))/float2(.115,.145),(int)floor(_Rpm+.5),4,aa/.145);
-  color+=white*number((p-float2(.065,.215))/float2(.18,.32),(int)floor(_Speed+.5),3,aa/.32);
-  color+=white*.8*labelKmh((p-float2(.18,.08))/float2(.032,.08));
-  color+=float3(.04,.095,.10)*box(p,float2(.69,.35),float2(.003,.23),aa);
-  float gear=_Gear<0?glyph((p-float2(.77,.225))/float2(.16,.30),23275):digit((p-float2(.755,.215))/float2(.19,.32),(int)_Gear,aa/.32);
-  color+=orange*gear;
-  return fixed4(color,1);
+  float2 p=i.uv*float2(1200,400);float aa=max(fwidth(p.y),.6);
+  float4 face=tex2D(_Face,i.uv);float3 color=face.rgb;
+  color=gauge(color,p,float2(898,169),112,radians(225-270*saturate(_Rpm/9000)),aa);
+  color=gauge(color,p,float2(600,183),125,radians(225-270*saturate(_Speed/180)),aa);
+  color=gauge(color,p,float2(230,181),43,radians(200-120*saturate(_Fuel)),aa);
+  color=gauge(color,p,float2(350,181),43,radians(200-120*saturate(_Coolant)),aa);
+  float odometer=number((p-float2(557,92))/float2(14,20),(int)floor(_TripKm*10),6,aa/20);
+  color=lerp(color,float3(.16,.21,.14),max(odometer,disc(p,float2(625,94),1,aa)));
+  // The warning strip carries a discreet low-fuel lamp and the selected gear.
+  float gear=_Gear<0?glyph((p-float2(368,61))/float2(15,23),23275):digit((p-float2(366,61))/float2(17,24),(int)_Gear,aa/24);
+  color=lerp(color,float3(.72,.76,.66),gear);
+  if(_Fuel<.13334)color=lerp(color,float3(1,.49,.08),disc(p,float2(201,79),5,aa));
+  return fixed4(color,face.a);
  }
  ENDCG }
  }

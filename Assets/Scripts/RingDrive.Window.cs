@@ -6,11 +6,6 @@ public partial class RingDrive
     Vector2Int windowedSize = new Vector2Int(1600, 900);
     bool changingDisplay;
 
-    bool IsMac => Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor;
-    string ShortcutModifier => IsMac ? "Cmd" : "Ctrl";
-    bool ShortcutModifierHeld => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)
-        || (IsMac && (Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)));
-
     void ToggleFullscreen()
     {
         if (!changingDisplay) StartCoroutine(ChangeDisplayMode());

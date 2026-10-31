@@ -28,10 +28,9 @@ public partial class RingDrive
     void UpdateReferenceLap()
     {
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Escape)) referenceLap.Paused = !referenceLap.Paused;
-        if (Input.GetKeyDown(KeyCode.Home)) { referenceLap.Seek(0); referenceLap.Paused = false; }
-        if (Input.GetKeyDown(KeyCode.M)) muted = !muted;
-        if (Input.GetKeyDown(KeyCode.F) && ShortcutModifierHeld) ToggleFullscreen();
-        if (Input.GetKeyDown(KeyCode.F2)) CaptureScreenshot("GotlandRing-reference-lap.png");
+        if (DriveKeyDown(KeyCode.Home)) { referenceLap.Seek(0); referenceLap.Paused = false; }
+        if (DriveKeyDown(KeyCode.M)) muted = !muted;
+        if (DriveKeyDown(KeyCode.F2)) CaptureScreenshot("GotlandRing-reference-lap.png");
         float advance = referenceLap.Tick(Time.unscaledDeltaTime, muted);
         if (advance > 0) AnimateWindTurbines(advance);
     }

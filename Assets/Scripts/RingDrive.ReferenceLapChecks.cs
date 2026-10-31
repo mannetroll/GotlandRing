@@ -4,7 +4,7 @@ using UnityEngine;
 
 public partial class RingDrive
 {
-    void CheckReplayLcd(){var sample=referenceLap.Data.Sample(referenceLap.Elapsed);CheckLcd(referenceLap.Model,sample.rpm,sample.speed,sample.gear);}
+    void CheckReplayLcd(){var sample=referenceLap.Data.Sample(referenceLap.Elapsed);CheckInstruments(referenceLap.Model,sample.rpm,sample.speed,sample.gear);}
 
     IEnumerator ReferenceLapTest()
     {

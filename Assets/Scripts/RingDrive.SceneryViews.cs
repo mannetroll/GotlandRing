@@ -79,23 +79,21 @@ public partial class RingDrive
     void UpdateSceneryViews()
     {
         AnimateWindTurbines(Time.deltaTime);
-        if (Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.Escape)) { ExitSceneryViews(); return; }
-        if (Input.GetKeyDown(KeyCode.O)) { ExitSceneryViews(); ToggleReferenceLap(); return; }
-        if (Input.GetKeyDown(KeyCode.F) && ShortcutModifierHeld) ToggleFullscreen();
-        if (Input.GetKeyDown(KeyCode.F2)) CaptureScreenshot($"GotlandRing-scenery-{sceneryView + 1:00}.png");
+        if (DriveKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.Escape)) { ExitSceneryViews(); return; }
+        if (DriveKeyDown(KeyCode.O)) { ExitSceneryViews(); ToggleReferenceLap(); return; }
+        if (DriveKeyDown(KeyCode.F2)) CaptureScreenshot($"GotlandRing-scenery-{sceneryView + 1:00}.png");
     }
 
     void DrawSceneryViews()
     {
-        GUI.color = new Color(.035f, .055f, .07f, .9f);
-        GUI.DrawTexture(new Rect(25, 25, 700, 122), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(25, 819, 700, 56), Texture2D.whiteTexture);
+        GameUi.Panel(new Rect(25, 25, 700, 122));
+        GameUi.Panel(new Rect(25, 819, 700, 56));
         GUI.color = Color.white;
         GUI.Label(new Rect(45, 35, 660, 32), "GOTLAND RING / SCENERY", label);
         GUI.Label(new Rect(45, 74, 660, 32), $"{sceneryView + 1} / {sceneryViews.Count}   {sceneryViews[sceneryView].Name}", label);
-        GUI.Label(new Rect(45, 114, 660, 24), "V: next view   C / Escape: return to car   F2: screenshot", small);
-        if (GUI.Button(new Rect(25, 160, 205, 36), sceneryView + 1 == sceneryViews.Count ? "Return to car [V]" : "Next scenery [V]")) NextSceneryView();
-        if (GUI.Button(new Rect(245, 160, 205, 36), "Return to car [C]")) ExitSceneryViews();
+        GUI.Label(new Rect(45, 114, 660, 24), $"{KeyHint(KeyCode.V)}: next view   {KeyHint(KeyCode.C)} / Escape: return to car   {KeyHint(KeyCode.F2)}: screenshot", small);
+        if (GUI.Button(new Rect(25, 160, 205, 36), sceneryView + 1 == sceneryViews.Count ? $"Return to car [{KeyHint(KeyCode.V)}]" : $"Next scenery [{KeyHint(KeyCode.V)}]")) NextSceneryView();
+        if (GUI.Button(new Rect(245, 160, 205, 36), $"Return to car [{KeyHint(KeyCode.C)}]")) ExitSceneryViews();
         GUI.Label(new Rect(45, 828, 660, 24), $"Drive paused while viewing / Mannetroll Solutions AB / {Application.version}", small);
         GUI.Label(new Rect(45, 851, 660, 24), carModel.credit, small);
     }

@@ -62,6 +62,7 @@ public partial class RingDrive
             : steer * dynamics.SteeringLimit(velocity.magnitude);
         carModel.Animate(angle, Vector3.Dot(velocity, car.forward), dt, view == 0);
         carModel.instruments.Set(rpm, velocity.magnitude, reversing ? -1 : gear);
+        carModel.instruments.Travel(velocity.magnitude*dt);
         if (dynamics.awdMode) carModel.AnimateSuspension(awd.Wheels, dt);
         else carModel.ResetSuspension();
     }

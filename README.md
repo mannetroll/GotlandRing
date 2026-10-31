@@ -12,13 +12,13 @@
 
 [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-macOS-arm64.zip) | [Release v0.3.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.3)
 
-**Version v0.3.3** brings independent engine RPM and clutch load, stronger low-speed drifting with automatic power downshifts, and immediate **2× grip when W/Up is released**. Autopilot uses smooth pedal and yaw corrections to keep the wheel and hands steady. Both cars have clear windows, and the game opens centred within 80% of the usable display. Press **V** to tour 15 elevated scenery views. Live cockpit instruments, animated hands, the training pad and adjustable view/sound feedback remain available.
+**Version v0.3.4** includes the Plesse analogue instrument cluster in both cars, bonnet/chase instrument overlays, rebindable keyboard controls, a configurable drone camera, and dark menus and HUD panels. Escape opens keyboard setup and camera settings. **P** toggles autopilot, **F** fullscreen, **H** AWD/arcade handling, **J** HUD visibility and **K** Desktop screenshots with embedded driving metadata.
 
 Press **Z** to switch between Gotland Ring and the training pad. Both use the same vehicle physics and settings. **R/Home** resets the car on the pad. Hold **W/Up** for drifting; releasing it immediately gives **2× tyre grip** to catch the slide. Repeated full-throttle A/D reversals can rotate the car through a sliding 180° turn. Pressing W again restores the drifting grip level. The chase camera and sideslip display make the car's rotation visible.
 
 AWD engine RPM comes from combustion torque, flywheel inertia and clutch load. Road speed does not set the tachometer or engine sound. With **W/Up held**, the automatic clutch targets **4500 RPM** for launches and slow slides while transmitting drive to all four wheels. The gearbox downshifts into the power band, matches engine revs before reconnecting, and holds a lower gear to **6700 RPM** during strong steering demand. Lifting lets the engine spin down; **S/Down** brakes and cuts drive.
 
-Press **U** for mouse steering; **W/Up** and **S/Down** remain the pedals. **Ctrl+P** on Windows or **Cmd+P** on macOS toggles autopilot, which follows the circuit racing line or the pad's large practice circle. **F3** exposes tyre grip, torque split, steering response and the shared **42° low-speed / 19° high-speed** defaults. The **View & sound** tab adjusts cockpit movement and surface sound. **F4** switches between AWD physics and the arcade comparison.
+Press **U** for mouse steering; **W/Up** and **S/Down** remain the pedals. **P** toggles autopilot, which follows the circuit racing line or the pad's large practice circle. **F3** exposes tyre grip, torque split, steering response and the shared **42° low-speed / 19° high-speed** defaults. The **View & sound** tab adjusts cockpit movement and surface sound. **H** switches between AWD physics and the arcade comparison.
 
 The stock/manual GT baseline has four driven wheels, individual suspension and physical contact with the banked circuit. Its five-speed gearbox shifts automatically. See [physics assumptions and validation](docs/AWD-PHYSICS.md).
 
@@ -46,13 +46,13 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | U | Toggle mouse / keyboard steering |
 | Z | Switch Gotland Ring / asphalt training area, stopping at the start |
 | X | Reverse (brakes before changing direction) |
-| Ctrl+P (Windows) / Cmd+P (macOS) | Toggle Auto(P)ilot |
-| Ctrl+F (Windows) / Cmd+F (macOS) | Toggle fullscreen / restore window size |
+| P | Toggle Auto(P)ilot |
+| F | Toggle fullscreen / restore window size |
 | F3 | Configure and save driving dynamics |
-| F4 | Switch AWD / arcade handling and restart the lap |
+| H | Switch AWD / arcade handling and restart the lap |
 | Mouse | Horizontal steering in mouse mode; camera look/orbit in keyboard mode |
 | Right mouse | Centre steering in mouse mode; centre the view in keyboard mode |
-| C | Cycle cockpit / bonnet / chase camera (starts behind the car) |
+| C | Cycle cockpit / bonnet / chase / drone camera (starts behind the car) |
 | Y | Switch between Impreza Rally and the blue-and-gold Subaru Impreza, preserving the current drive |
 | V | Cycle 15 elevated scenery views; C or Escape returns to the saved drive |
 | O | Watch / leave the game-rendered Sadair’s Spear reference lap |
@@ -107,9 +107,9 @@ The startup splash uses `Assets/Artwork/ImprezaIcon.png` (the same image as `doc
 
 Built games start centred in a resizable window fitted within 80% of the current display's usable area, leaving room for the menu bar, Dock or taskbar. The game area keeps its 16:9 aspect ratio, excluding the title bar and borders. Explicit `-screen-width` / `-screen-height` launch arguments override the automatic startup size for captures. Press **Escape** to release the mouse, then drag a window edge or corner to resize it. The HUD and driving settings scale with the window. Windows snapping/maximizing also fits a 16:9 game area inside the available space; fullscreen uses the display's resolution.
 
-Press **Ctrl+F** on Windows or **Cmd+F** on macOS, or click the Fullscreen button beside Dynamics, to toggle borderless fullscreen at the display's resolution. Switching back restores the previous window dimensions. This also works while paused or in the settings dialog, preserving the pause and autopilot state. macOS also accepts Ctrl as an alternative to Cmd for the F/P shortcuts.
+Press **F**, or click the Fullscreen button beside Dynamics, to toggle borderless fullscreen at the display's resolution. Switching back restores the previous window dimensions. This also works while paused or in the settings dialog, preserving the pause and autopilot state.
 
-Other platform differences: macOS uses an Apple Silicon ARM64 app and Metal, while Windows uses an x64 EXE and Direct3D 11. F2/F3/F4 may require Fn on a Mac keyboard. **Home** is **Fn + Left arrow** on compact Mac keyboards. F2 saves images in the macOS application-support folder listed below, or beside the extracted game on Windows. Driving keys, mouse look, cameras, autopilot behaviour and the live WASD display are shared.
+Other platform differences: macOS uses an Apple Silicon ARM64 app and Metal, while Windows uses an x64 EXE and Direct3D 11. F2/F3 may require Fn on a Mac keyboard. **Home** is **Fn + Left arrow** on compact Mac keyboards. F2 saves images in the macOS application-support folder listed below, or beside the extracted game on Windows. Driving keys, mouse look, cameras, autopilot behaviour and the live WASD display are shared.
 
 ### macOS (Apple Silicon)
 
@@ -137,7 +137,7 @@ gh release upload v0.3.3 Build/GotlandRing-macOS-arm64.zip
 
 Both packages are built and tested before upload. The release workflow verifies the published downloads against `SHA256SUMS`.
 
-F2 screenshots and automated test images on macOS are saved under `~/Library/Application Support/com.Mannetroll-Solutions-AB.Gotland-Ring---Impreza/`. The player log also records each screenshot path. On keyboards that use the function keys for system controls, hold Fn when pressing F2, F3 or F4.
+F2 screenshots and automated test images on macOS are saved under `~/Library/Application Support/com.Mannetroll-Solutions-AB.Gotland-Ring---Impreza/`. The player log also records each screenshot path. On keyboards that use the function keys for system controls, hold Fn when pressing F2 or F3.
 
 Run the existing standalone checks with graphics enabled:
 
@@ -211,7 +211,7 @@ Check that both uploaded packages match the local checksums, then publish with `
 | `Assets/Scripts/SubaruVehicleSetup.cs` | Stock GT baseline and documented tuning assumptions |
 | `Assets/Scripts/RingDrive.AwdChecks.cs` | Physical contact, controls, straight-line and full-lap checks |
 | `Assets/Scripts/RingDrive.DrivetrainChecks.cs` | Engine rotation, sustained W input, slide RPM, power downshifts and 180° turnaround checks |
-| `Assets/Scripts/RingDrive.Window.cs` | Ctrl/Cmd shortcuts and fullscreen/window-size restoration |
+| `Assets/Scripts/RingDrive.Window.cs` | Fullscreen/window-size restoration |
 | `Assets/Scripts/WindowsWindowAspectRatio.cs` / `MacWindowAspectRatio.cs` | Native 16:9 window resizing, excluding the window frame |
 | `Assets/Scripts/TrackLandmarks.cs` | Names and approximate CSV positions for the 42 numbered track signs |
 | `Assets/Scripts/ReferenceLapPlayer.cs` / `RingDrive.ReferenceLap.cs` | Live reference-lap rendering, split views, clock, sound and driving-state restoration |
@@ -254,7 +254,7 @@ Release **v0.3.3** was tested on **12 October 2026**: all **14 macOS suites** an
 
 `--turnaround-test -batchmode -nographics` checks 18 W-held A/D turnaround cases from 0/50/100 km/h, with traction control enabled and steering changes every 0.4/0.8/1.2 seconds. Each must rotate through 180°; the 0.8/1.2-second reversals must also slide past 45°. It records `awd-turnaround.csv` and is included in `--awd-test`.
 
-`--instruments-test` checks live AWD/arcade data, both cockpit displays, sliding speed, reverse, pause and model isolation. It renders the LCD on the GPU to check changing speed/RPM digits and rev-bar fill, and saves cockpit screenshots. `--reference-lap-test` also checks the display after replay seeks, pause and completion.
+`--instruments-test` checks live AWD/arcade data, both cockpit displays, sliding speed, reverse, pause and model isolation. It renders the analogue cluster on the GPU to check speed, RPM and fuel needle positions, and saves cockpit screenshots. `--reference-lap-test` also checks the display after replay seeks, pause and completion.
 
 `--feedback-test` checks live AWD road/shoulder/airborne contacts, acceleration,
 view/sound controls, mouse look, chase view and recovery. Unity builds also check
@@ -300,7 +300,7 @@ braking and off-road grip. The **View & sound** tab offers **Cockpit movement**
 (default 50%) and **Surface sound** (default 65%). Set either to zero to disable
 that effect. Engine sound has its usual **M** mute control. **Apply & close** saves locally; **Cancel** discards
 edits. **Restore defaults** resets the draft to the stock AWD setup until Apply.
-Press **F4** outside the dialog to switch modes directly. Switching modes
+Press **H** outside the dialog to switch modes directly. Switching modes
 restarts the lap and clears its best time. The mode is shown on the speed HUD.
 
 Cockpit movement follows acceleration, braking and lateral acceleration, with a
@@ -329,7 +329,7 @@ Mouse mode keeps the camera centred; **C** still changes views. Toggle **U** bac
 to keyboard mode to use mouse look/orbit. Both inputs use the same steering
 response and speed-dependent AWD range. Pausing, recovery, a focus change or
 an autopilot handover centres mouse steering. Autopilot remains in charge until
-**Ctrl+P** (Windows) or **Cmd+P** (macOS) is pressed.
+**P** is pressed.
 
 ### Reference lap viewer
 
@@ -356,7 +356,7 @@ from the viewer leaves your selected driving car intact.
 
 ### Auto(P)ilot
 
-Press **Ctrl+P** on Windows or **Cmd+P** on macOS to hand driving to the autopilot. Press the shortcut again to return to manual driving. WASD, arrows and X are ignored while autopilot is on. Camera selection remains available. In keyboard steering mode, the mouse controls camera look; in mouse steering mode it waits for manual driving and does not override autopilot. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
+Press **P** to hand driving to the autopilot. Press the shortcut again to return to manual driving. WASD, arrows and X are ignored while autopilot is on. Camera selection remains available. In keyboard steering mode, the mouse controls camera look; in mouse steering mode it waits for manual driving and does not override autopilot. In chase view, move the mouse to orbit a full 360° around the car at a fixed 5.5 m distance, always looking at its centre. Vertical mouse movement changes the viewing elevation. Right-click returns behind the car, and **C** centres each camera when switching views. Escape pauses driving; the F3 dialog also pauses it and replans speeds when you apply handling changes. Autopilot starts off on each normal launch.
 
 Arcade gravel resistance rises with speed, allowing manual and autopilot pull-away from the runoff.
 
@@ -376,7 +376,7 @@ Turbines use `windmills/gotland_ring_wind_turbines.csv` directly in the track's 
 
 The car starts in Splash red; **T** cycles through Splash red, rally blue and the supplied white paint. Paint changes cover the body and doors while retaining the gold wheels, glass, lights, interior and texture detail. The rear wing and textured number plate use the supplied model. The cockpit steering wheel follows the actual front-wheel angle with a fixed visual 12:1 ratio (504° at the default 42° low-speed lock). The speed-dependent steering limits therefore reduce cockpit rotation too. Both car models, manual driving, autopilot and reference replay share this animation; the ratio is a visual approximation, not a measured steering-rack specification. The driver’s hands follow the rim with bending elbows and alternating regrips at large steering angles. The seated torso stays fixed; pause and replay seeks preserve the steering pose. Road wheels follow steering and vehicle speed.
 
-The cabin includes a dashboard, racing seats, roll cage and a single driver. Cockpit view hides only the driver’s head and helmet; the arms, body and seatbelts remain visible. Exterior views show the complete driver. The cockpit LCD shows live speed in km/h, numeric RPM, a segmented rev bar and the current gear (R in reverse), using the same values as the HUD. Both models update immediately when switching cars or pausing. The reference viewer uses its estimated speed, RPM and gear, including when seeking.
+The cabin includes a dashboard, racing seats, roll cage and a single driver. Cockpit view hides only the driver’s head and helmet; the arms, body and seatbelts remain visible. Exterior views show the complete driver. The Plesse cockpit cluster shows live speed in km/h, RPM, fuel, trip distance and the current gear (R in reverse), using the same values as the HUD. Both models update immediately when switching cars or pausing. The reference viewer uses its estimated speed, RPM and gear, including when seeking.
 
 ## Licensing
 
@@ -401,3 +401,5 @@ open -n -W Build/macOS/GotlandRing.app --args --surface-test -logFile "$PWD/Logs
 ```
 
 See [CSV documentation](TRACK.md), [validation image](track/gotland_ring_validation.png), and [low-pass elevation profile](track/gotland_ring_whole_lap_lowpass.png) for limitations and provenance. Adapted centerline database: Copyright OpenStreetMap contributors, ODbL 1.0. Data source: Lantmateriet Min karta, Copyright Lantmateriet, CC BY 4.0; processed information. The source CSV and attribution documentation are distributed beside the extracted game.
+
+Escape opens the pause menu with driving dynamics, drone camera settings and Keyboard help & setup. Keyboard bindings can be changed, cleared, restored to defaults and saved for future launches. On-screen control hints follow the saved bindings. **J** hides the driving HUD; **K** saves a Desktop screenshot with embedded driving metadata. The Plesse analogue cluster shows live speed, RPM, gear and trip distance in the cockpit, and as an overlay in bonnet and chase views.

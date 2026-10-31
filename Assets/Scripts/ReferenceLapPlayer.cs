@@ -133,7 +133,7 @@ public sealed class ReferenceLapPlayer : MonoBehaviour
         GUI.color = Color.white;
         GUI.Label(new Rect(1100, 24, 770, 48), $"GOTLAND RING / {Application.version}", rightTitle);
         GUI.Label(new Rect(1000, 75, 870, 32), "SADAIR’S SPEAR • REFERENCE LAP", rightCaption);
-        GUI.color = new Color(.035f, .055f, .07f, .9f); GUI.DrawTexture(new Rect(16, 722, 224, 40), Texture2D.whiteTexture);
+        GameUi.Panel(new Rect(16, 722, 224, 40));
         GUI.color = Color.white; GUI.Label(new Rect(16, 722, 224, 40), "GAME COCKPIT", caption);
         GUI.color = new Color(.66f, .83f, .79f);
         GUI.Label(new Rect(990, 745, 900, 42), Finished ? "LAP COMPLETE" : Paused ? "REPLAY PAUSED" : "REFERENCE LAP TIME", caption);

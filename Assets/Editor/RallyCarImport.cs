@@ -74,18 +74,47 @@ public static class RallyCarImport
   if(Mathf.Abs(final.size.z-4.32f)>.01f || Mathf.Abs(final.min.y)>.01f)
    throw new InvalidOperationException("Rally car scale or ground contact is invalid");
   var lcd=meshes.Single(t=>t.name=="lcd display");
-  var instruments=lcd.gameObject.AddComponent<CockpitInstruments>();controller.instruments=instruments;
-  instruments.screen=lcd;instruments.materialSlot=Array.FindIndex(lcd.sharedMaterials,m=>m.name=="lcd_screen");
-  var lcdMesh=lcd.GetComponent<MeshFilter>().sharedMesh;var uv=lcdMesh.uv;
-  var face=lcdMesh.GetTriangles(instruments.materialSlot);var min=uv[face[0]];var max=min;
-  foreach(int vertex in face){min=Vector2.Min(min,uv[vertex]);max=Vector2.Max(max,uv[vertex]);}
-  instruments.uvRect=new Vector4(min.x,min.y,max.x-min.x,max.y-min.y);
+  PrepareInstruments(controller,lcd);
   controller.driverSteering=DriverSteeringImport.Prepare(controller,meshes.Single(t=>t.name=="driver"));
   float radius=controller.wheelRadius;
   PrefabUtility.SaveAsPrefabAsset(root,Prefab);
   UnityEngine.Object.DestroyImmediate(root);
   AssetDatabase.SaveAssets();
   Debug.Log($"RALLY_CAR_IMPORT passed: 89 meshes, length={final.size.z:F3}m, radius={radius:F3}m, 18 mapped materials");
+ }
+
+ static void PrepareInstruments(ImprezaModel controller,MeshRenderer lcd)
+ {
+  int slot=Array.FindIndex(lcd.sharedMaterials,m=>m.name=="lcd_screen");
+  var source=lcd.GetComponent<MeshFilter>().sharedMesh;
+  var vertices=source.vertices;var uv=source.uv;var faces=source.GetTriangles(slot);
+  int a=faces[0],b=faces[1],c=faces[2];
+  var ab=lcd.transform.TransformVector(vertices[b]-vertices[a]);
+  var ac=lcd.transform.TransformVector(vertices[c]-vertices[a]);
+  var t1=uv[b]-uv[a];var t2=uv[c]-uv[a];float determinant=t1.x*t2.y-t1.y*t2.x;
+  var right=((ab*t2.y-ac*t1.y)/determinant).normalized;
+  var up=((ac*t1.x-ab*t2.x)/determinant).normalized;
+  var lo=vertices[a];var hi=lo;
+  foreach(int index in faces){lo=Vector3.Min(lo,vertices[index]);hi=Vector3.Max(hi,vertices[index]);}
+  var centre=lcd.transform.TransformPoint((lo+hi)*.5f);
+  var normal=Vector3.Cross(right,up).normalized;
+  if(Vector3.Dot(normal,controller.cockpitView.position-centre)<0)normal=-normal;
+  centre+=normal*.006f;lcd.enabled=false;
+  var panel=new GameObject("Plesse instrument cluster");panel.transform.SetParent(lcd.transform,false);
+  var corners=new[]{centre-right*.23f-up*.0766667f,centre+right*.23f-up*.0766667f,
+      centre+right*.23f+up*.0766667f,centre-right*.23f+up*.0766667f};
+  for(int i=0;i<corners.Length;i++)corners[i]=panel.transform.InverseTransformPoint(corners[i]);
+  var mesh=new Mesh{name="Plesse cluster mounting face",vertices=corners,uv=new[]{Vector2.zero,Vector2.right,Vector2.one,Vector2.up},triangles=new[]{0,1,2,0,2,3}};
+  mesh.RecalculateBounds();mesh.RecalculateNormals();
+  const string path="Assets/Resources/Visuals/PlesseClusterMesh.asset";
+  var asset=AssetDatabase.LoadAssetAtPath<Mesh>(path);
+  if(asset){EditorUtility.CopySerialized(mesh,asset);UnityEngine.Object.DestroyImmediate(mesh);EditorUtility.SetDirty(asset);}
+  else {AssetDatabase.CreateAsset(mesh,path);asset=mesh;}
+  panel.AddComponent<MeshFilter>().sharedMesh=asset;
+  var renderer=panel.AddComponent<MeshRenderer>();renderer.sharedMaterial=lcd.sharedMaterials[slot];
+  renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+  var instruments=panel.AddComponent<CockpitInstruments>();instruments.screen=renderer;instruments.materialSlot=0;
+  controller.instruments=instruments;
  }
 
  static MeshRenderer SplitDriver(MeshRenderer driver)
