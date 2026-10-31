@@ -1,10 +1,10 @@
 # Gotland Ring / Impreza
 
-![Gotland Ring v0.3.4 — Plesse analogue instruments in the Impreza cockpit](docs/v0.3.4-cockpit.png)
+![Impreza Rally in Splash red, captured in v0.3.4](docs/v0.3.4-front.png)
 
-| Driving HUD — v0.3.4 | Pause menu — v0.3.4 |
+| Plesse cockpit instruments — v0.3.4 | Pause menu — v0.3.4 |
 |---|---|
-| ![v0.3.4 chase camera with Plesse instrument overlay and revised HUD](docs/v0.3.4-driving.png) | ![v0.3.4 pause menu with dynamics, drone camera and keyboard setup](docs/v0.3.4-menu.png) |
+| ![v0.3.4 cockpit with live analogue instruments](docs/v0.3.4-cockpit.png) | ![v0.3.4 pause menu with dynamics, drone camera and keyboard setup](docs/v0.3.4-menu.png) |
 
 [Download the v0.3.2 game lap recording (MP4, 92.1 MB)](docs/Gotland-Ring-Record.mp4)
 
