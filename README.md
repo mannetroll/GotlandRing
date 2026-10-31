@@ -1,16 +1,18 @@
 # Gotland Ring / Impreza
 
-![Impreza Rally in Splash red, captured in v0.3.3](docs/front.png)
+![Gotland Ring v0.3.4 driving HUD and Plesse instruments](docs/front.png)
 
-| Live cockpit instruments — v0.3.3 | Subaru Impreza — blue-and-gold livery |
+| Plesse cockpit instruments — v0.3.4 | Pause menu — v0.3.4 |
 |---|---|
-| ![v0.3.3 cockpit with live speed, RPM and gear instruments](docs/cockpit.png) | ![Subaru Impreza in v0.3.3](docs/subaru-impreza.png) |
+| ![v0.3.4 cockpit with live analogue instruments](docs/cockpit.png) | ![v0.3.4 pause menu with dynamics, drone camera and keyboard setup](docs/pause-menu.png) |
 
 [Download the v0.3.2 game lap recording (MP4, 92.1 MB)](docs/Gotland-Ring-Record.mp4)
 
 **A rally Impreza. A Baltic circuit. An open practice session.**
 
-[Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-macOS-arm64.zip) | [Release v0.3.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.3)
+**Published packages (v0.3.3):** [Download Windows EXE](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-Portable.exe) | [Download macOS ZIP (Apple Silicon)](https://github.com/mannetroll/GotlandRing/releases/download/v0.3.3/GotlandRing-macOS-arm64.zip) | [Release v0.3.3](https://github.com/mannetroll/GotlandRing/releases/tag/v0.3.3)
+
+[Current source: v0.3.4](https://github.com/mannetroll/GotlandRing/tree/v0.3.4). Downloadable v0.3.4 packages have not been published yet.
 
 **Version v0.3.4** includes the Plesse analogue instrument cluster in both cars, bonnet/chase instrument overlays, rebindable keyboard controls, a configurable drone camera, and dark menus and HUD panels. Escape opens keyboard setup and camera settings. **P** toggles autopilot, **F** fullscreen, **H** AWD/arcade handling, **J** HUD visibility and **K** Desktop screenshots with embedded driving metadata.
 
@@ -58,10 +60,12 @@ The macOS app is not Developer ID signed or notarized. If macOS blocks it, see [
 | O | Watch / leave the game-rendered Sadair’s Spear reference lap |
 | R | Recover to the nearest circuit point; reset to the start on the training pad |
 | Home | Restart the lap, or reset to the training start line |
-| Escape | Pause / resume and release the mouse |
+| Escape | Open / close the pause menu and release the mouse |
 | T | Cycle Impreza Rally paint: Splash red → rally blue → white → Splash red |
 | M | Mute / unmute |
-| F2 | Save a screenshot alongside the extracted game |
+| F2 | Save a circuit, scenery or replay screenshot |
+| J | Show / hide the driving HUD |
+| K | Save a Desktop PNG with embedded driving metadata |
 
 ## Inside the prototype
 
@@ -132,7 +136,7 @@ After building and testing, package the app, track data and current notices for 
 
 ```bash
 ./scripts/Package-macOS.sh
-gh release upload v0.3.3 Build/GotlandRing-macOS-arm64.zip
+gh release upload v0.3.4 Build/GotlandRing-macOS-arm64.zip
 ```
 
 Both packages are built and tested before upload. The release workflow verifies the published downloads against `SHA256SUMS`.
@@ -183,13 +187,13 @@ After copying the tested Windows portable EXE into `Build/Portable/` on the Mac:
 ./scripts/Package-macOS.sh
 (cd Build && shasum -a 256 Portable/GotlandRing-Portable.exe GotlandRing-macOS-arm64.zip) | sed 's|Portable/||' > Build/SHA256SUMS
 git add Assets/Editor/BuildGame.cs ProjectSettings/ProjectSettings.asset PortableLauncher/PortableLauncher.csproj README.md docs/release-notes.md VERIFICATION.md
-git commit -m "Release v0.3.3"
-git tag -a v0.3.3 -m "Gotland Ring v0.3.3"
-git push origin main v0.3.3
-gh release create v0.3.3 --verify-tag --draft --title "Gotland Ring v0.3.3" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
+git commit -m "Release v0.3.4"
+git tag -a v0.3.4 -m "Gotland Ring v0.3.4"
+git push origin main v0.3.4
+gh release create v0.3.4 --verify-tag --draft --title "Gotland Ring v0.3.4" --notes-file docs/release-notes.md Build/Portable/GotlandRing-Portable.exe Build/GotlandRing-macOS-arm64.zip Build/SHA256SUMS
 ```
 
-Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.3.3 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
+Check that both uploaded packages match the local checksums, then publish with `gh release edit v0.3.4 --draft=false --latest`. The release workflow downloads both packages and verifies their checksums. Game binaries stay in release assets, outside Git.
 
 | Location | Purpose |
 |---|---|
@@ -245,6 +249,8 @@ Source snapshot for **12 October 2026**: **5,828 code lines across 78 files**. L
 The count covers game source, verification code, build/asset tools and the separate [trailer capture tools](Trailer/README.md). It excludes Unity and package dependencies, generated files, third-party assets, track data, serialized scenes/prefabs, project/CI configuration and documentation. The reference importer at `track/Unity6/Editor/GotlandRingImporter.cs` is also excluded because it is outside the game's compiled `Assets` tree.
 
 ## Verification
+
+**v0.3.4 — 31 October 2026:** macOS build and signature verification passed, along with native keyboard binding checks, menu/HUD captures at normal and 720p window sizes, and instrument checks for both cars in AWD/arcade, reverse and pause. GPU checks verify the analogue speed, RPM and fuel needles. The screenshots above come from the v0.3.4 macOS build. Windows has not been retested for this version.
 
 Release **v0.3.3** was tested on **12 October 2026**: all **14 macOS suites** and **eight Windows 11 suites over SSH to Fractal** pass. Mac testing includes Metal rendering and fresh screenshots of both cars. Windows testing uses `-batchmode -nographics`; rendered appearance, audio output and native window behaviour are not covered there. Both downloadable packages are extracted, checked file by file with SHA-256 and launched. See the [platform results and limitations](VERIFICATION.md).
 
